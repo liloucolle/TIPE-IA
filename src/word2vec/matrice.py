@@ -1,4 +1,5 @@
 import numpy as np
+import math as m
 from text_utils.text_utils import tokenisation, vocabulaire
 
 # Choix de la dimmension de la matrice
@@ -58,13 +59,13 @@ def  softmax (matrice_centre, matrice_contexte, id_mot_centre, word2id):
         id_mot = word2id[mot]
         produit_scalaire = np.dot(mot,v_c)
         s_j[id_mot] = produit_scalaire
-        somme += produit_scalaire
+        somme += m.exp(produit_scalaire)
     
     probabilite = [0 for i in range(ligne)]
 
     for mot in matrice_contexte():
         id_mot = word2id[mot]
-        prob = s_j[id_mot] / somme
+        prob = m.exp(s_j[id_mot]) / somme
         probabilite[id_mot] = prob
     
     probabilite
