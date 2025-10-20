@@ -26,7 +26,7 @@ Sortie: deux matrices U(context) et V(mot central)
     B. Récuperer un mot vc et une pair pour avoir v0
     C. calculer la fonction softmax pour ce mot
        - pour tout j calculer pj 
-       - pouis pout tout j calculer la fonction proba
+       - puis pout tout j calculer la fonction proba
 
     D. Calculer la fonction L associée à chaque mot uj 
     E. Gradient par rapport au vecteur centre vc

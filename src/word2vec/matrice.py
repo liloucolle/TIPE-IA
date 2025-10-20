@@ -45,14 +45,25 @@ def creation_paires (texte, window):
 
 
 def softmax(matrice_centre, matrice_contexte, id_mot_centre):
+
     v_c = matrice_centre[id_mot_centre]
+
     s_j = np.dot(matrice_contexte, v_c)          # produit scalaire pour chaque mot
     exp_sj = np.exp(s_j - np.max(s_j))           # enlève le max pour réduire l'exponentielle sans changer la valeur de la probabilité à la fin 
     probabilite = exp_sj / np.sum(exp_sj)
+
     return probabilite
 
 
-        
+def fonction_de_perte(probabilite,id_mot_context_positif):
+
+    loss = -m.log(probabilite[id_mot_context_positif])
+
+    return loss
+
+
+
+
 
 
 
