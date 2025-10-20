@@ -1,5 +1,5 @@
 
-from src.word2vec.matrice import softmax
+from word2vec.matrice import softmax
 import numpy as np
 import pytest
 
