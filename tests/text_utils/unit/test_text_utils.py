@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from collections import Counter
-from src.text_utils.text_utils import tokenisation, vocabulaire2, frequence_mots
+from text_utils.text_utils import tokenisation, vocabulaire2, frequence_mots
 
 
 class TestTokenisation:
