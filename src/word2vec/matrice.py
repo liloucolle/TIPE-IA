@@ -53,3 +53,18 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     
     return matrice_centre
 
+def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
+
+    # On mélange l'ordre des mots central
+
+    ordre = np.random.permutation(np.arrange(len(paires)))
+
+
+    # On boucle sur les mots
+    for k in ordre:
+        id_centre, id_context = paires[k]
+        probabilite = softmax(matrice_centre, matrice_contexte, id_centre)
+        matrice_centre = descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_centre, id_context, taux_apprentissage)
+
+    matrice_centre, matrice_contexte
+    
