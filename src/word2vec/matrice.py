@@ -72,6 +72,8 @@ def  softmax (matrice_centre, matrice_contexte, id_mot_centre, word2id):
 
 
 
+
+
         
 
 
