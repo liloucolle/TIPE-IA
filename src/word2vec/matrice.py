@@ -6,10 +6,6 @@ from text_utils.text_utils import tokenisation, vocabulaire
 dimension = 100
 window_size = 2
 
-# Exemple de texte
-texte = 'Word embeddings translate words into vectors, revealing their hidden relationships within a continuous mathematical space.Thanks to them, machines can finally understand that “king” is to “queen” what “man” is to “woman.”'
-
-
 # Initialisation des matrices centre et contexte
 
 def intialisation_matrice (texte):
