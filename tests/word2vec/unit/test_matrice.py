@@ -1,5 +1,6 @@
 
-from word2vec.matrice import softmax, descente_de_gradient, epoche, entrainer, perte_tot
+from word2vec.matrices import softmax, descente_de_gradient, epoche, entrainer, perte_tot, deep_learning
+from text_utils import tokenisation, vocabulaire, creation_paires, frequence_mots 
 import numpy as np
 import pytest
 
@@ -462,3 +463,158 @@ class TestPipeline:
         paires = [(0, 1)]
         with pytest.raises(ValueError):
             _ = entrainer(mc, mx, paires, taux_apprentissage=0.05, n_epochs=1)
+
+
+
+# --------- Helpers de référence (pour vérifs indépendantes) ----------
+def softmax_scores(M, v_c):
+    s = M @ v_c
+    e = np.exp(s - np.max(s))
+    return e / np.sum(e)
+
+def perte_tot_ref(matrice_centre, matrice_contexte, paires):
+    total = 0.0
+    for (id_c, id_pos) in paires:
+        v_c = matrice_centre[id_c]
+        p = softmax_scores(matrice_contexte, v_c)
+        total += -np.log(p[id_pos])
+    return float(total)
+
+# --------- Corpus simple: rois & reines (que des a-z sans accents) ----------
+TEXTE_KQ = (
+    "le roi aime la reine le roi porte la couronne "
+    "la reine aime le roi la reine porte la couronne"
+)
+
+class TestDeepLearningKingsQueens:
+    def test_shapes_match_vocab(self):
+        """Les matrices renvoyées ont la bonne forme: (|V|, dimension)."""
+        dimension = 8
+        # reconstruire le vocab pour connaître |V|
+        tokens = [tokenisation(TEXTE_KQ)]
+        freq = frequence_mots(tokens)
+        vocab, stoi, itos = vocabulaire(freq)
+        V = len(vocab)
+
+        np.random.seed(0)
+        mc, mx = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=1,
+            taux_apprentissage=0.05, n_epochs=3
+        )
+
+        assert mc.shape == (V, dimension)
+        assert mx.shape == (V, dimension)
+
+    def test_loss_decreases_with_more_epochs(self):
+        """Pour la même initialisation, plus d'époques ⇒ perte plus faible (ou égale)."""
+        dimension = 12
+
+        # On fixe la seed avant CHAQUE appel pour obtenir la même init
+        np.random.seed(123)
+        mc1, mx1 = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=1,
+            taux_apprentissage=0.05, n_epochs=1
+        )
+
+        # Re-initialisation identique
+        np.random.seed(123)
+        mc5, mx5 = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=1,
+            taux_apprentissage=0.05, n_epochs=5
+        )
+
+        # Recalcule la perte sur les paires pour comparer
+        tokens = [tokenisation(TEXTE_KQ)]
+        freq = frequence_mots(tokens)
+        vocab, stoi, itos = vocabulaire(freq)
+        paires = creation_paires(tokens, stoi, taille_fenetre=1)
+
+        L1 = perte_tot(mc1, mx1, paires)
+        L5 = perte_tot(mc5, mx5, paires)
+        assert L5 <= L1 + 1e-9
+
+    def test_reproducibility_with_seed(self):
+        """Même seed ⇒ mêmes matrices renvoyées."""
+        dimension = 10
+        np.random.seed(42)
+        mc_a, mx_a = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=2,
+            taux_apprentissage=0.03, n_epochs=4
+        )
+        np.random.seed(42)
+        mc_b, mx_b = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=2,
+            taux_apprentissage=0.03, n_epochs=4
+        )
+        assert np.allclose(mc_a, mc_b)
+        assert np.allclose(mx_a, mx_b)
+
+    def test_zero_learning_rate_means_no_change_from_init(self):
+        """
+        Avec eta=0, aucune mise à jour ne doit avoir lieu :
+        les matrices renvoyées doivent égaler celles initialisées par la même seed.
+        """
+        dimension = 9
+        # Reconstruire init "à la main" avec la même seed
+        tokens = [tokenisation(TEXTE_KQ)]
+        freq = frequence_mots(tokens)
+        vocab, stoi, itos = vocabulaire(freq)
+        V = len(vocab)
+
+        np.random.seed(2024)
+        # Initialisation comme dans deep_learning: rand - 0.5
+        mc_init = np.random.rand(V, dimension) - 0.5
+        mx_init = np.random.rand(V, dimension) - 0.5
+
+        # deep_learning avec le même seed et eta=0
+        np.random.seed(2024)
+        mc_out, mx_out = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=1,
+            taux_apprentissage=0.0, n_epochs=3
+        )
+
+        assert np.allclose(mc_out, mc_init)
+        assert np.allclose(mx_out, mx_init)
+
+    def test_window_size_changes_training(self):
+        """Fenêtre différente ⇒ paires différentes ⇒ résultat différent (seed fixée)."""
+        dimension = 8
+        np.random.seed(7)
+        mc_w1, mx_w1 = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=1,
+            taux_apprentissage=0.05, n_epochs=3
+        )
+        np.random.seed(7)
+        mc_w2, mx_w2 = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=2,
+            taux_apprentissage=0.05, n_epochs=3
+        )
+        # Très probable (et attendu) que les matrices diffèrent
+        assert not np.allclose(mc_w1, mc_w2) or not np.allclose(mx_w1, mx_w2)
+
+    def test_empty_text(self):
+        """Texte vide ⇒ matrices vides (0, d)."""
+        dimension = 6
+        mc, mx = deep_learning("", dimension=dimension, window_size=1, n_epochs=1)
+        assert mc.shape == (0, dimension)
+        assert mx.shape == (0, dimension)
+
+    def test_dimension_mismatch_internals_would_raise(self):
+        """
+        De bout en bout, deep_learning doit utiliser la même dimension d'embedding
+        pour centre et contexte. Ce test vérifie indirectement en recalculant la perte;
+        une incohérence interne ferait planter les produits.
+        """
+        dimension = 11
+        np.random.seed(99)
+        mc, mx = deep_learning(
+            TEXTE_KQ, dimension=dimension, window_size=2,
+            taux_apprentissage=0.04, n_epochs=2
+        )
+        tokens = [tokenisation(TEXTE_KQ)]
+        freq = frequence_mots(tokens)
+        vocab, stoi, itos = vocabulaire(freq)
+        paires = creation_paires(tokens, stoi, 2)
+        # Doit s'exécuter sans erreur:
+        L = perte_tot(mc, mx, paires)
+        assert np.isfinite(L)

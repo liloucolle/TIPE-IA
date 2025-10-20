@@ -1,6 +1,6 @@
 import numpy as np
 import math as m
-from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires, initialisation_matrice
+from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
 
 
 dimension = 100
@@ -124,28 +124,3 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, p
     )
 
     return matrice_centre, matrice_contexte
-
-
-# Exemple simple
-texte = "le chat mange le poisson"
-
-# On entraîne le modèle
-mat_centre, mat_contexte = deep_learning(
-    texte,
-    dimension=10,        # vecteurs plus petits pour le test
-    window_size=1,       # chaque mot voit juste ses voisins immédiats
-    taux_apprentissage=0.05,
-    n_epochs=5
-)
-
-# Vérification basique
-print("✅ Entraînement terminé !")
-print("Taille matrice centre :", mat_centre.shape)
-print("Taille matrice contexte :", mat_contexte.shape)
-
-# Petit affichage des premiers vecteurs pour inspection
-print("\nExemple de vecteur pour 'le' (centre) :")
-print(mat_centre[0])
-
-print("\nExemple de vecteur pour 'le' (contexte) :")
-print(mat_contexte[0])
