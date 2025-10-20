@@ -4,7 +4,24 @@ from collections import Counter
 from typing import List, Tuple
 
 
-def tokenisation (texte):
+def tokenisation(texte):
+    """
+    Tokenise un texte en extrayant uniquement les caractères alphabétiques.
+    
+    Cette fonction parcourt le texte caractère par caractère, convertit les majuscules
+    en minuscules, et sépare les mots en utilisant tous les caractères non-alphabétiques
+    comme délimiteurs (espaces, ponctuation, chiffres, etc.).
+    
+    Args:
+        texte (str): Le texte à tokeniser
+    
+    Returns:
+        list: Liste des mots extraits, en minuscules, sans caractères spéciaux
+    
+    Example:
+        >>> tokenisation("Bonjour, monde! Comment ça va?")
+        ['bonjour', 'monde', 'comment', 'va']
+    """
     mots = []
     n = len(texte)
     mot_courant = []
@@ -29,37 +46,57 @@ def tokenisation (texte):
     
     return mots
 
-# Fréquence des mots
-# tokens: Liste (pour chaque phrase) de listes de mots
 def frequence_mots(tokens: List[List[str]]):
+    """
+    Calcule la fréquence d'apparition de chaque mot dans un corpus tokenisé.
+    
+    Cette fonction prend une liste de phrases (où chaque phrase est une liste de mots)
+    et compte le nombre total d'occurrences de chaque mot unique dans tout le corpus.
+    
+    Args:
+        tokens (List[List[str]]): Liste de phrases, où chaque phrase est une liste de mots tokenisés
+    
+    Returns:
+        Counter: Objet Counter contenant les mots comme clés et leurs fréquences comme valeurs
+    
+    Example:
+        >>> tokens = [["le", "chat", "mange"], ["le", "chien", "mange", "aussi"]]
+        >>> freq = frequence_mots(tokens)
+        >>> freq["le"]  # Retourne 2
+        >>> freq["mange"]  # Retourne 2
+    """
     return Counter(w for sent in tokens for w in sent)
 
-# Construction du vocabulaire, et dictionnaires pour access rapide
-def vocabulaire2(frequence_mots) -> Tuple[List[str], dict, dict]:
+def vocabulaire(frequence_mots) -> Tuple[List[str], dict, dict]:
+    """
+    Construit un vocabulaire ordonné et des dictionnaires de correspondance.
+    
+    À partir d'un objet Counter contenant les fréquences des mots, cette fonction
+    crée un vocabulaire trié alphabétiquement et génère deux dictionnaires pour
+    faciliter la conversion entre mots et indices numériques.
+    
+    Args:
+        frequence_mots (Counter): Objet Counter avec les mots et leurs fréquences
+    
+    Returns:
+        Tuple[List[str], dict, dict]: Un tuple contenant :
+            - vocab (List[str]): Liste des mots triés alphabétiquement
+            - stoi (dict): Dictionnaire mot -> index (string to index)
+            - itos (dict): Dictionnaire index -> mot (index to string)
+    
+    Example:
+        >>> from collections import Counter
+        >>> freq = Counter({"chat": 3, "chien": 2, "oiseau": 1})
+        >>> vocab, stoi, itos = vocabulaire(freq)
+        >>> vocab  # ['chat', 'chien', 'oiseau']
+        >>> stoi["chat"]  # 0
+        >>> itos[1]  # 'chien'
+    """
     vocab = [w for w, c in frequence_mots.items()]
     vocab.sort()
     stoi = {w:i for i,w in enumerate(vocab)}
     itos = {i:w for w,i in stoi.items()}
     return vocab, stoi, itos
-
-
-# Construction du vocabulaire
-def vocabulaire (texte):
-
-    t = tokenisation(texte)
-    word2id = {}
-    id2word = {}
-
-    compteur = 0
-
-    for i in range(len(t)):
-        if word2id.get(t[i]) == None:
-            word2id[t[i]] = compteur
-            id2word[compteur] = t[i]
-            compteur += 1
-    
-
-    return word2id,id2word
 
 
 def creation_paires(tokens: list, word2id: dict, taille_fenetre: int = 1):

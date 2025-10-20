@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from collections import Counter
-from text_utils.text_utils import tokenisation, vocabulaire2, frequence_mots
+from text_utils.text_utils import tokenisation, vocabulaire, frequence_mots
 
 
 class TestTokenisation:
@@ -144,7 +144,7 @@ class TestVocabulaire2:
     def test_simple_vocabulary(self):
         """Test vocabulary creation from simple word frequencies"""
         word_freq = Counter({"hello": 3, "world": 2, "test": 1})
-        vocab, stoi, itos = vocabulaire2(word_freq)
+        vocab, stoi, itos = vocabulaire(word_freq)
         
         # Check vocabulary is sorted
         expected_vocab = ["hello", "test", "world"]  # alphabetical order
@@ -161,7 +161,7 @@ class TestVocabulaire2:
     def test_empty_frequency(self):
         """Test with empty word frequency counter"""
         word_freq = Counter()
-        vocab, stoi, itos = vocabulaire2(word_freq)
+        vocab, stoi, itos = vocabulaire(word_freq)
         
         assert vocab == []
         assert stoi == {}
@@ -170,7 +170,7 @@ class TestVocabulaire2:
     def test_single_word(self):
         """Test with single word in frequency counter"""
         word_freq = Counter({"word": 5})
-        vocab, stoi, itos = vocabulaire2(word_freq)
+        vocab, stoi, itos = vocabulaire(word_freq)
         
         assert vocab == ["word"]
         assert stoi == {"word": 0}
@@ -179,7 +179,7 @@ class TestVocabulaire2:
     def test_alphabetical_sorting(self):
         """Test that vocabulary is sorted alphabetically"""
         word_freq = Counter({"zebra": 1, "apple": 2, "banana": 3, "cherry": 1})
-        vocab, stoi, itos = vocabulaire2(word_freq)
+        vocab, stoi, itos = vocabulaire(word_freq)
         
         expected_vocab = ["apple", "banana", "cherry", "zebra"]
         assert vocab == expected_vocab
@@ -192,7 +192,7 @@ class TestVocabulaire2:
     def test_consistency_stoi_itos(self):
         """Test that stoi and itos are inverse mappings"""
         word_freq = Counter({"cat": 4, "dog": 2, "bird": 1, "fish": 3})
-        vocab, stoi, itos = vocabulaire2(word_freq)
+        vocab, stoi, itos = vocabulaire(word_freq)
         
         # Check that stoi and itos are inverses
         for word in vocab:
@@ -206,7 +206,7 @@ class TestVocabulaire2:
     def test_frequencies_ignored_in_sorting(self):
         """Test that word frequencies don't affect alphabetical sorting"""
         word_freq = Counter({"z": 100, "a": 1, "m": 50})
-        vocab, stoi, itos = vocabulaire2(word_freq)
+        vocab, stoi, itos = vocabulaire(word_freq)
         
         # Should be sorted alphabetically regardless of frequency
         expected_vocab = ["a", "m", "z"]
@@ -215,7 +215,7 @@ class TestVocabulaire2:
     def test_special_characters(self):
         """Test vocabulary with special characters in words"""
         word_freq = Counter({"word1": 1, "word_2": 2, "word-3": 1})
-        vocab, stoi, itos = vocabulaire2(word_freq)
+        vocab, stoi, itos = vocabulaire(word_freq)
         
         expected_vocab = ["word-3", "word1", "word_2"]  # ASCII order
         assert vocab == expected_vocab
