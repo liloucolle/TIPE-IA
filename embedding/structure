@@ -1,0 +1,38 @@
+Entrée: texte brut
+Sortie: deux matrices U(context) et V(mot central)
+
+1 - Tokenisation:
+    prendre le texte et le traduire en une liste de mot minuscule,
+    sans ponctuation
+
+2 - Vocabulaire
+    Attribuer un id à chaque mot avec un dictionnaire
+
+3 - Initalisation
+    Initaliser mes matrices U et V avec des petits coefficients
+    (entre 0 et 0.5 aléatoirement)
+
+4 - Création des paires
+    Choisir une fenêtre et créer les paires associées pour chaque 
+    mot central i du texte.
+
+    "le chat mange la souris"
+    → (chat, le), (chat, mange), (mange, chat), (mange, la), (la, mange), (la, souris)
+
+
+5 - Répeter la boucle pour tous les mots sur plusieurs epochs 
+
+    A. Mélanger les paires
+    B. Récuperer un mot vc et une pair pour avoir v0
+    C. calculer la fonction softmax pour ce mot
+       - pour tout j calculer pj 
+       - pouis pout tout j calculer la fonction proba
+
+    D. Calculer la fonction L associée à chaque mot uj 
+    E. Gradient par rapport au vecteur centre vc
+    F. Calculer la descente de gradient associé pour vc
+    G. Mettre à jour U selon le gradient calculer pour uj
+
+
+
+    
