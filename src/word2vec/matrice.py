@@ -38,7 +38,7 @@ def fonction_de_perte(probabilite,id_mot_context_positif):
 
     return loss
 
-def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_centre, id_mot_context_positif ):
+def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_centre, id_mot_context_positif,taux_apprentissage ):
 
     lignes = np.shape(matrice_contexte)[0]
     y = np.zeros(lignes, dtype= float) # pour que y soit de la même forme que probabilité

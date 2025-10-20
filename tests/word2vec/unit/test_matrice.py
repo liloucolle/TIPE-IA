@@ -1,5 +1,5 @@
 
-from word2vec.matrice import softmax
+from word2vec.matrice import softmax, descente_de_gradient
 import numpy as np
 import pytest
 
@@ -106,3 +106,97 @@ class TestSoftmax:
         matrice_contexte = np.random.randn(3, 3)
         res = softmax(matrice_centre, matrice_contexte, 1)
         assert isinstance(res, np.ndarray)
+
+
+
+
+class TestDescenteGradient:
+    """Tests unitaires pour la fonction descente_de_gradient"""
+
+    def test_update_reduit_valeur_grad(self):
+        """Test que la mise à jour va dans la direction du gradient (descend la perte)"""
+        np.random.seed(0)
+        matrice_centre = np.random.randn(3, 4)
+        matrice_contexte = np.random.randn(3, 4)
+        proba = np.array([0.2, 0.5, 0.3])
+        id_centre = 1
+        id_pos = 2
+        eta = 0.1
+
+        # gradient attendu : M^T (p - y)
+        y = np.zeros(3); y[id_pos] = 1.0
+        grad_attendu = np.matmul(matrice_contexte.T, (proba - y))
+        vc_avant = matrice_centre[id_centre].copy()
+
+        matrice_centre = descente_de_gradient(matrice_centre, matrice_contexte,
+                                              proba, id_centre, id_pos, eta)
+
+        vc_apres = matrice_centre[id_centre]
+        direction = np.dot(grad_attendu, vc_apres - vc_avant)
+        # le produit scalaire doit être négatif (descente)
+        assert direction < 0
+
+    def test_aucune_modif_si_pas_d_erreur(self):
+        """Si proba == y, le gradient vaut 0 donc pas de changement"""
+        matrice_centre = np.random.randn(3, 4)
+        matrice_contexte = np.random.randn(3, 4)
+        proba = np.array([0.0, 1.0, 0.0])  # bonne prédiction parfaite
+        id_centre = 0
+        id_pos = 1
+        eta = 0.1
+
+        avant_centre = matrice_centre.copy()
+        descente_de_gradient(matrice_centre, matrice_contexte, proba,
+                             id_centre, id_pos, eta)
+
+        assert np.allclose(matrice_centre, avant_centre, atol=1e-10)
+
+    def test_mise_a_jour_depend_du_taux(self):
+        """Vérifie que le pas de descente dépend bien du taux d'apprentissage"""
+        matrice_centre = np.random.randn(2, 3)
+        matrice_contexte = np.random.randn(2, 3)
+        proba = np.array([0.4, 0.6])
+        id_centre = 0
+        id_pos = 1
+        eta1, eta2 = 0.1, 0.5
+
+        mc1 = matrice_centre.copy()
+        mc2 = matrice_centre.copy()
+
+        descente_de_gradient(mc1, matrice_contexte, proba, id_centre, id_pos, eta1)
+        descente_de_gradient(mc2, matrice_contexte, proba, id_centre, id_pos, eta2)
+
+        # la mise à jour avec eta2 doit être plus grande
+        delta1 = np.linalg.norm(mc1[id_centre] - matrice_centre[id_centre])
+        delta2 = np.linalg.norm(mc2[id_centre] - matrice_centre[id_centre])
+        assert delta2 > delta1
+
+    def test_output_type(self):
+        """Le type de retour doit être un np.ndarray"""
+        matrice_centre = np.random.randn(3, 3)
+        matrice_contexte = np.random.randn(3, 3)
+        proba = np.array([0.2, 0.5, 0.3])
+        id_centre = 1
+        id_pos = 0
+        eta = 0.05
+        res = descente_de_gradient(matrice_centre, matrice_contexte, proba,
+                                   id_centre, id_pos, eta)
+        assert isinstance(res, np.ndarray)
+
+    def test_forme_matrice_inchangee(self):
+        """La forme des matrices doit rester identique"""
+        matrice_centre = np.random.randn(3, 5)
+        matrice_contexte = np.random.randn(3, 5)
+        proba = np.array([0.3, 0.4, 0.3])
+        id_centre = 0
+        id_pos = 2
+        eta = 0.1
+
+        shape_centre = matrice_centre.shape
+        shape_contexte = matrice_contexte.shape
+
+        descente_de_gradient(matrice_centre, matrice_contexte, proba,
+                             id_centre, id_pos, eta)
+
+        assert matrice_centre.shape == shape_centre
+        assert matrice_contexte.shape == shape_contexte
