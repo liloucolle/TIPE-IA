@@ -35,8 +35,8 @@ def frequence_mots(tokens: List[List[str]]):
     return Counter(w for sent in tokens for w in sent)
 
 # Construction du vocabulaire, et dictionnaires pour access rapide
-def vocabulaire2(word_freq):
-    vocab = [w for w, c in word_freq.items()]
+def vocabulaire2(frequence_mots) -> Tuple[List[str], dict, dict]:
+    vocab = [w for w, c in frequence_mots.items()]
     vocab.sort()
     stoi = {w:i for i,w in enumerate(vocab)}
     itos = {i:w for w,i in stoi.items()}
