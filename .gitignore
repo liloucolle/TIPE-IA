@@ -1,0 +1,40 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.conda/
+
+# Env files / secrets (keep these out of git!)
+.env
+.env.*
+*.env
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+*.pyo
+*.so
+*.dll
+
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# IDEs / Editors
+.vscode/
+.idea/
