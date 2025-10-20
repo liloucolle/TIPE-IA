@@ -5,7 +5,7 @@ from text_utils.text_utils import tokenisation, vocabulaire
 
 dimension = 100
 window_size = 2
-taux_apprentissage = 0.025
+taux_apprentissage = 0.05
 
 # Initialisation des matrices centre et contexte
 
@@ -40,10 +40,12 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
 
     grad = np.matmul(matrice_contexte.T, (probabilite - y))
 
-    matrice_centre[id_mot_centre] = matrice_centre[id_mot_centre] - taux_apprentissage * grad
-
     v_c = matrice_centre[id_mot_centre]
     matrice_contexte -= taux_apprentissage * np.outer((probabilite - y),v_c) # Calcule du produit exterieur 
+
+    matrice_centre[id_mot_centre] = matrice_centre[id_mot_centre] - taux_apprentissage * grad
+
+
     
     return matrice_centre
 
@@ -67,10 +69,9 @@ def perte_tot(matrice_centre, matrice_contexte, paires):
     total = 0.0
 
     for (id_c, id_pos) in paires:
-        v_c = matrice_centre[id_c]
-        p = softmax(matrice_contexte, v_c)
+        p = softmax(matrice_centre, matrice_contexte, id_c)
         total += -np.log(p[id_pos])
-        
+
     return float(total)
 
 def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05, n_epochs=10, patience=3, tol=1e-3, decay=0.95):
@@ -103,3 +104,8 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
         eta *= decay
 
     return matrice_centre, matrice_contexte
+
+def deep_learning(texte):
+
+    token = tokenisation(texte)
+    

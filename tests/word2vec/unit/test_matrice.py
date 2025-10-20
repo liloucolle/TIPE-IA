@@ -1,5 +1,5 @@
 
-from word2vec.matrice import softmax, descente_de_gradient, epoche
+from word2vec.matrice import softmax, descente_de_gradient, epoche, entrainer, perte_tot
 import numpy as np
 import pytest
 
@@ -329,3 +329,136 @@ class TestEpoche:
 
         assert id(mc_out) == mc_id_before
         assert id(mx_out) == mx_id_before
+
+
+# Helpers de référence (pour vérifier indépendamment tes fonctions)
+def softmax_scores(M, v_c):
+    s = M @ v_c
+    e = np.exp(s - np.max(s))
+    return e / np.sum(e)
+
+def perte_tot_ref(matrice_centre, matrice_contexte, paires):
+    total = 0.0
+    for (id_c, id_pos) in paires:
+        v_c = matrice_centre[id_c]
+        p = softmax_scores(matrice_contexte, v_c)
+        total += -np.log(p[id_pos])
+    return float(total)
+
+class TestPipeline:
+    def test_softmax_basic(self):
+        C, V, d = 3, 4, 5
+        mc = np.random.randn(C, d)
+        mx = np.random.randn(V, d)
+        p = softmax(mc, mx, id_mot_centre=1)
+        assert p.shape == (V,)
+        assert np.all(p >= 0)
+        assert np.isclose(np.sum(p), 1.0, atol=1e-8)
+
+    def test_descente_updates_center_and_context(self):
+        C, V, d = 3, 5, 4
+        rng = np.random.default_rng(0)
+        mc = rng.standard_normal((C, d))
+        mx = rng.standard_normal((V, d))
+
+        id_c = 1
+        id_pos = 3
+        eta = 0.05
+
+        v_c_before = mc[id_c].copy()
+        p = softmax(mc, mx, id_c)
+
+        # copies pour évaluer le delta attendu sur M
+        M_before = mx.copy()
+
+        # On calcule l'update attendu sur M avec v_c AVANT MAJ centre :
+        y = np.zeros(V, dtype=float); y[id_pos] = 1.0
+        expected_delta_M = -eta * np.outer((p - y), v_c_before)
+
+        # appel de ta fonction
+        mc_after = descente_de_gradient(mc, mx, p, id_c, id_pos, eta)
+
+        # vérifications
+        assert not np.allclose(mc_after[id_c], v_c_before)            # v_c a changé
+        assert np.allclose(mx - M_before, expected_delta_M, atol=1e-8) # M a changé comme attendu
+
+    def test_epoche_shapes_and_effect(self):
+        C, V, d = 4, 6, 3
+        rng = np.random.default_rng(1)
+        mc = rng.standard_normal((C, d))
+        mx = rng.standard_normal((V, d))
+        paires = [(0, 1), (1, 2), (2, 3), (3, 4)]
+
+        mc0, mx0 = mc.copy(), mx.copy()
+        eta = 0.05
+        mc_out, mx_out = epoche(mc, mx, paires, eta)
+
+        assert mc_out.shape == mc0.shape
+        assert mx_out.shape == mx0.shape
+        # On s'attend à un changement (sauf hasard extrême)
+        assert not np.allclose(mc_out, mc0)
+        assert not np.allclose(mx_out, mx0)
+
+    def test_perte_tot_matches_reference(self):
+        C, V, d = 3, 5, 4
+        rng = np.random.default_rng(2)
+        mc = rng.standard_normal((C, d))
+        mx = rng.standard_normal((V, d))
+        paires = [(0, 1), (1, 2), (2, 3)]
+
+        # ta perte_tot DOIT maintenant appeler softmax(mc, mx, id_c)
+        L = perte_tot(mc, mx, paires)
+        L_ref = perte_tot_ref(mc, mx, paires)
+        assert np.isfinite(L)
+        assert np.isclose(L, L_ref, rtol=1e-6, atol=1e-8)
+
+    def test_entrainer_zero_lr_no_change(self):
+        C, V, d = 3, 5, 4
+        mc = np.random.randn(C, d)
+        mx = np.random.randn(V, d)
+        paires = [(0, 1), (1, 2)]
+        mc0, mx0 = mc.copy(), mx.copy()
+
+        mc2, mx2 = entrainer(mc, mx, paires, taux_apprentissage=0.0, n_epochs=5)
+        assert np.allclose(mc2, mc0)
+        assert np.allclose(mx2, mx0)
+
+    def test_entrainer_loss_decreases_or_stagnates(self):
+        C, V, d = 4, 7, 5
+        rng = np.random.default_rng(3)
+        mc = rng.standard_normal((C, d))
+        mx = rng.standard_normal((V, d))
+        paires = [(0, 1), (1, 2), (2, 3), (3, 4)]
+
+        L0 = perte_tot_ref(mc, mx, paires)
+        mc2, mx2 = entrainer(mc, mx, paires, taux_apprentissage=0.1, n_epochs=6, patience=3, tol=1e-4, decay=0.95)
+        L1 = perte_tot_ref(mc2, mx2, paires)
+
+        assert L1 <= L0 + 1e-9
+
+    def test_entrainer_early_stopping_equiv_one_epoch(self):
+        """Avec patience=0 et tol énorme, on force l'arrêt après 1 époque : même résultat que epoche seule (seed fixée)."""
+        C, V, d = 3, 6, 4
+        mcA = np.random.randn(C, d)
+        mxA = np.random.randn(V, d)
+        mcB = mcA.copy(); mxB = mxA.copy()
+        paires = [(0, 1), (1, 2), (2, 3)]
+        eta = 0.05
+
+        np.random.seed(42)
+        outA = entrainer(mcA, mxA, paires, taux_apprentissage=eta, n_epochs=100, patience=0, tol=1e9, decay=0.95)
+
+        np.random.seed(42)
+        outB = epoche(mcB, mxB, paires, eta)
+
+        assert np.allclose(outA[0], outB[0])
+        assert np.allclose(outA[1], outB[1])
+
+    def test_dimension_mismatch_raises(self):
+        """Si les dimensions d'embedding ne correspondent pas, les produits matriels doivent échouer."""
+        C, V = 2, 3
+        mc = np.random.randn(C, 5)   # d=5
+        mx = np.random.randn(V, 4)   # d=4 incompatible
+        paires = [(0, 1)]
+        with pytest.raises(ValueError):
+            _ = entrainer(mc, mx, paires, taux_apprentissage=0.05, n_epochs=1)
