@@ -4,7 +4,24 @@ from collections import Counter
 from typing import List, Tuple
 
 
-def tokenisation (texte):
+def tokenisation(texte):
+    """
+    Tokenise un texte en extrayant uniquement les caractères alphabétiques.
+    
+    Cette fonction parcourt le texte caractère par caractère, convertit les majuscules
+    en minuscules, et sépare les mots en utilisant tous les caractères non-alphabétiques
+    comme délimiteurs (espaces, ponctuation, chiffres, etc.).
+    
+    Args:
+        texte (str): Le texte à tokeniser
+    
+    Returns:
+        list: Liste des mots extraits, en minuscules, sans caractères spéciaux
+    
+    Example:
+        >>> tokenisation("Bonjour, monde! Comment ça va?")
+        ['bonjour', 'monde', 'comment', 'va']
+    """
     mots = []
     n = len(texte)
     mot_courant = []
@@ -29,13 +46,52 @@ def tokenisation (texte):
     
     return mots
 
-# Fréquence des mots
-# tokens: Liste (pour chaque phrase) de listes de mots
 def frequence_mots(tokens: List[List[str]]):
+    """
+    Calcule la fréquence d'apparition de chaque mot dans un corpus tokenisé.
+    
+    Cette fonction prend une liste de phrases (où chaque phrase est une liste de mots)
+    et compte le nombre total d'occurrences de chaque mot unique dans tout le corpus.
+    
+    Args:
+        tokens (List[List[str]]): Liste de phrases, où chaque phrase est une liste de mots tokenisés
+    
+    Returns:
+        Counter: Objet Counter contenant les mots comme clés et leurs fréquences comme valeurs
+    
+    Example:
+        >>> tokens = [["le", "chat", "mange"], ["le", "chien", "mange", "aussi"]]
+        >>> freq = frequence_mots(tokens)
+        >>> freq["le"]  # Retourne 2
+        >>> freq["mange"]  # Retourne 2
+    """
     return Counter(w for sent in tokens for w in sent)
 
-# Construction du vocabulaire, et dictionnaires pour access rapide
-def vocabulaire2(frequence_mots) -> Tuple[List[str], dict, dict]:
+def vocabulaire(frequence_mots) -> Tuple[List[str], dict, dict]:
+    """
+    Construit un vocabulaire ordonné et des dictionnaires de correspondance.
+    
+    À partir d'un objet Counter contenant les fréquences des mots, cette fonction
+    crée un vocabulaire trié alphabétiquement et génère deux dictionnaires pour
+    faciliter la conversion entre mots et indices numériques.
+    
+    Args:
+        frequence_mots (Counter): Objet Counter avec les mots et leurs fréquences
+    
+    Returns:
+        Tuple[List[str], dict, dict]: Un tuple contenant :
+            - vocab (List[str]): Liste des mots triés alphabétiquement
+            - stoi (dict): Dictionnaire mot -> index (string to index)
+            - itos (dict): Dictionnaire index -> mot (index to string)
+    
+    Example:
+        >>> from collections import Counter
+        >>> freq = Counter({"chat": 3, "chien": 2, "oiseau": 1})
+        >>> vocab, stoi, itos = vocabulaire(freq)
+        >>> vocab  # ['chat', 'chien', 'oiseau']
+        >>> stoi["chat"]  # 0
+        >>> itos[1]  # 'chien'
+    """
     vocab = [w for w, c in frequence_mots.items()]
     vocab.sort()
     stoi = {w:i for i,w in enumerate(vocab)}
@@ -43,44 +99,44 @@ def vocabulaire2(frequence_mots) -> Tuple[List[str], dict, dict]:
     return vocab, stoi, itos
 
 
-# Construction du vocabulaire
-def vocabulaire (texte):
-
-    t = tokenisation(texte)
-    word2id = {}
-    id2word = {}
-
-    compteur = 0
-
-    for i in range(len(t)):
-        if word2id.get(t[i]) == None:
-            word2id[t[i]] = compteur
-            id2word[compteur] = t[i]
-            compteur += 1
+def creation_paires(tokens: list, word2id: dict, taille_fenetre: int = 1):
+    """
+    Crée des paires (mot_centre, mot_contexte) pour l'entraînement Word2Vec.
     
-
-    return word2id,id2word
-
-
-# Création des paires centre-contexte
-# tokens: liste des tokens
-def creation_paires (tokens: list, word2id: dict, window_size: int):
-    n = len(tokens)
-
+    Pour chaque mot dans le corpus, cette fonction génère des paires avec tous
+    les mots dans sa fenêtre de contexte (mots voisins à gauche et à droite).
+    
+    Args:
+        tokens (list): Liste de phrases, où chaque phrase est une liste de mots tokenisés
+        word2id (dict): Dictionnaire de correspondance mot -> identifiant numérique
+        taille_fenetre (int, optional): Taille de la fenêtre de contexte de chaque côté
+                                       du mot centre. Par défaut 1.
+    
+    Returns:
+        list: Liste de tuples (id_centre, id_contexte) représentant les paires
+              d'entraînement pour le modèle Word2Vec
+    
+    Example:
+        >>> tokens = [["le", "chat", "mange"], ["le", "chien", "dort"]]
+        >>> word2id = {"le": 0, "chat": 1, "mange": 2, "chien": 3, "dort": 4}
+        >>> paires = creation_paires(tokens, word2id, taille_fenetre=1)
+        >>> # Génère des paires comme (1, 0), (1, 2) pour "chat" avec "le" et "mange"
+    """
     paires = []
+    for sent in tokens:
+        n = len(sent)
+        for i in range(len(sent)):
+            for k in range(1,taille_fenetre+1):
 
-    for i in range(n):
-        for k in range(1,window_size+1):
+                id_central = word2id[sent[i]]
 
-            id_central = word2id[t[i]]
-
-            if i-k >= 0:
-                id_contexte = word2id[t[i-k]]
-                paires.append((id_central,id_contexte))
+                if i-k >= 0:
+                    id_contexte = word2id[sent[i-k]]
+                    paires.append((id_central,id_contexte))
 
 
-            if i+k <= n-1:
-                id_contexte = word2id[t[i+k]]
-                paires.append((id_central,id_contexte))
+                if i+k <= n-1:
+                    id_contexte = word2id[sent[i+k]]
+                    paires.append((id_central,id_contexte))
     
     return paires
