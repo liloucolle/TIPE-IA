@@ -1,23 +1,11 @@
 import numpy as np
 import math as m
-from text_utils.text_utils import tokenisation, vocabulaire
+from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires, initialisation_matrice
 
 
 dimension = 100
 window_size = 2
 taux_apprentissage = 0.05
-
-# Initialisation des matrices centre et contexte
-
-def intialisation_matrice (texte):
-    word2id = vocabulaire(texte)[0]
-    n = len(word2id)
-
-    # On enlève 0.5 pour avoir des valeurs entre -0.5 et 0.5
-    matrice_centre = np.random.rand(n,dimension) - 0.5
-    matrice_contexte = np.random.rand(n,dimension) - 0.5 
-
-    return matrice_centre, matrice_contexte
 
 
 
@@ -105,7 +93,59 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
 
     return matrice_centre, matrice_contexte
 
-def deep_learning(texte):
+def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, patience, tolerance, decay):
 
-    token = tokenisation(texte)
-    
+    tokens = [tokenisation(texte)]  # liste de listes, comme attendu par creation_paires
+
+    # Cas bord : texte vide → matrices vides
+    if len(tokens[0]) == 0:
+        return np.empty((0, dimension)), np.empty((0, dimension))
+
+    freq = frequence_mots(tokens)
+    vocab, stoi, itos = vocabulaire(freq)
+    n = len(vocab)
+
+    # 3) Initialisation des matrices centre/contexte dans [-0.5, 0.5]
+    matrice_centre = np.random.rand(n, dimension) - 0.5
+    matrice_contexte = np.random.rand(n, dimension) - 0.5
+
+    paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
+
+    # 5) Entraînement (épocs + early stopping)
+    matrice_centre, matrice_contexte = entrainer(
+        matrice_centre,
+        matrice_contexte,
+        paires,
+        taux_apprentissage=taux_apprentissage,
+        n_epochs=n_epochs,
+        patience=patience,
+        tol=tolerance,
+        decay=decay,
+    )
+
+    return matrice_centre, matrice_contexte
+
+
+# Exemple simple
+texte = "le chat mange le poisson"
+
+# On entraîne le modèle
+mat_centre, mat_contexte = deep_learning(
+    texte,
+    dimension=10,        # vecteurs plus petits pour le test
+    window_size=1,       # chaque mot voit juste ses voisins immédiats
+    taux_apprentissage=0.05,
+    n_epochs=5
+)
+
+# Vérification basique
+print("✅ Entraînement terminé !")
+print("Taille matrice centre :", mat_centre.shape)
+print("Taille matrice contexte :", mat_contexte.shape)
+
+# Petit affichage des premiers vecteurs pour inspection
+print("\nExemple de vecteur pour 'le' (centre) :")
+print(mat_centre[0])
+
+print("\nExemple de vecteur pour 'le' (contexte) :")
+print(mat_contexte[0])
