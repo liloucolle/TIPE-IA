@@ -39,7 +39,7 @@ def fonction_de_perte(probabilite,id_mot_context_positif):
     return loss
 
 def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_centre, id_mot_context_positif ):
-    
+
     lignes = np.shape(matrice_contexte)[0]
     y = np.zeros(lignes, dtype= float) # pour que y soit de la même forme que probabilité
     y[id_mot_context_positif] = 1.0
@@ -47,6 +47,9 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     grad = np.matmul(matrice_contexte.T, (probabilite - y))
 
     matrice_centre[id_mot_centre] = matrice_centre[id_mot_centre] - taux_apprentissage * grad
+
+    v_c = matrice_centre[id_mot_centre]
+    matrice_contexte -= taux_apprentissage * np.outer((probabilite - y),v_c) # Calcule du produit exterieur 
     
     return matrice_centre
 
