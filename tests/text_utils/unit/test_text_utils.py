@@ -1,5 +1,7 @@
 import pytest
+import numpy as np
 from src.text_utils.text_utils import tokenisation
+from src.word2vec.matrice import softmax
 
 
 class TestTokenisation:
