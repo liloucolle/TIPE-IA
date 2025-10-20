@@ -1,5 +1,5 @@
 
-from word2vec.matrice import softmax, descente_de_gradient
+from word2vec.matrice import softmax, descente_de_gradient, epoche
 import numpy as np
 import pytest
 
@@ -200,3 +200,132 @@ class TestDescenteGradient:
 
         assert matrice_centre.shape == shape_centre
         assert matrice_contexte.shape == shape_contexte
+
+
+
+# --- Helpers pour les tests ---
+def softmax_scores(M, v_c):
+    s = M @ v_c
+    e = np.exp(s - np.max(s))
+    return e / np.sum(e)
+
+def loss_total(matrice_centre, matrice_contexte, paires):
+    """Somme des pertes -log P(context|centre) sur toutes les paires."""
+    total = 0.0
+    for (id_c, id_pos) in paires:
+        v_c = matrice_centre[id_c]
+        p = softmax_scores(matrice_contexte, v_c)
+        total += -np.log(p[id_pos])
+    return float(total)
+
+
+class TestEpoche:
+    def test_returns_tuple_and_shapes(self):
+        """epoche doit retourner (matrice_centre, matrice_contexte) de même shape qu'en entrée."""
+        C, V, d = 4, 6, 3
+        mc = np.random.randn(C, d)
+        mx = np.random.randn(V, d)
+        paires = [(0, 1), (1, 2), (2, 3), (3, 4)]
+
+        mc_shape, mx_shape = mc.shape, mx.shape
+        mc_out, mx_out = epoche(mc, mx, paires, taux_apprentissage=0.05)
+
+        assert isinstance(mc_out, np.ndarray) and isinstance(mx_out, np.ndarray)
+        assert mc_out.shape == mc_shape
+        assert mx_out.shape == mx_shape
+
+    def test_zero_learning_rate_no_change(self):
+        """Avec eta=0, aucune mise à jour ne doit avoir lieu (matrices inchangées)."""
+        C, V, d = 3, 5, 4
+        mc = np.random.randn(C, d)
+        mx = np.random.randn(V, d)
+        paires = [(0, 1), (1, 2), (2, 3)]
+
+        mc_before = mc.copy()
+        mx_before = mx.copy()
+
+        mc_out, mx_out = epoche(mc, mx, paires, taux_apprentissage=0.0)
+
+        assert np.allclose(mc_out, mc_before)
+        assert np.allclose(mx_out, mx_before)
+
+    def test_loss_decreases_over_epoch(self):
+        """Après une époque, la perte totale doit baisser (ou au pire stagner légèrement)."""
+        C, V, d = 4, 7, 5
+        rng = np.random.default_rng(123)
+        mc = rng.standard_normal((C, d))
+        mx = rng.standard_normal((V, d))
+        paires = [(0, 1), (1, 2), (2, 3), (3, 4)]
+
+        loss_before = loss_total(mc, mx, paires)
+        mc_out, mx_out = epoche(mc, mx, paires, taux_apprentissage=0.1)
+        loss_after = loss_total(mc_out, mx_out, paires)
+
+        assert loss_after <= loss_before + 1e-9
+
+    def test_deterministic_with_seed(self):
+        """Avec une seed fixée, l'ordre de permutation est déterministe → résultat reproductible."""
+        C, V, d = 3, 6, 4
+        mc1 = np.random.randn(C, d)
+        mx1 = np.random.randn(V, d)
+        mc2 = mc1.copy()
+        mx2 = mx1.copy()
+        paires = [(0, 1), (1, 2), (2, 3)]
+
+        np.random.seed(42)
+        out1 = epoche(mc1, mx1, paires, taux_apprentissage=0.05)
+
+        np.random.seed(42)
+        out2 = epoche(mc2, mx2, paires, taux_apprentissage=0.05)
+
+        assert np.allclose(out1[0], out2[0])
+        assert np.allclose(out1[1], out2[1])
+
+    def test_single_pair_matches_manual_step(self):
+        """Si une seule paire, epoche doit être équivalente à un seul appel descente_de_gradient."""
+        # Prépare un petit cas
+        C, V, d = 2, 3, 4
+        mc_a = np.random.randn(C, d)
+        mx_a = np.random.randn(V, d)
+        mc_b = mc_a.copy()
+        mx_b = mx_a.copy()
+        pair = [(1, 2)]
+        eta = 0.05
+
+        # Chemin A : via epoche
+        mc_out_a, mx_out_a = epoche(mc_a, mx_a, pair, taux_apprentissage=eta)
+
+        # Chemin B : manuel (une étape)
+        id_c, id_pos = pair[0]
+        p = softmax_scores(mx_b, mc_b[id_c])
+        # on suppose la même signature que précédemment
+        mc_b = descente_de_gradient(mc_b, mx_b, p, id_c, id_pos, eta)
+        # descente_de_gradient met aussi à jour mx_b en place
+
+        assert np.allclose(mc_out_a, mc_b)
+        assert np.allclose(mx_out_a, mx_b)
+
+    def test_dimension_mismatch_raises(self):
+        """Si les embeddings n'ont pas la même dimension, epoche doit échouer (matmul)."""
+        C, V = 2, 3
+        mc = np.random.randn(C, 5)   # d=5
+        mx = np.random.randn(V, 4)   # d=4 incompatible
+        paires = [(0, 1)]
+
+        with pytest.raises(ValueError):
+            _ = epoche(mc, mx, paires, taux_apprentissage=0.1)
+
+    def test_inplace_objects(self):
+        """Vérifie que les objets retournés sont les mêmes références (MAJ en place)."""
+        C, V, d = 3, 4, 2
+        mc = np.random.randn(C, d)
+        mx = np.random.randn(V, d)
+        paires = [(0, 1), (1, 2)]
+
+        mc_id_before = id(mc)
+        mx_id_before = id(mx)
+
+        mc_out, mx_out = epoche(mc, mx, paires, taux_apprentissage=0.05)
+
+        assert id(mc_out) == mc_id_before
+        assert id(mx_out) == mx_id_before
