@@ -91,3 +91,43 @@ def creation_paires (texte, window):
                 paires.append((id_central,id_contexte))
     
     return paires
+
+def  softmax (matrice_centre, matrice_contexte, id_mot_centre, word2id):
+
+    v_c = matrice_centre[id_mot_centre]
+    ligne,colonne = np.shape(matrice_contexte)
+
+    s_j = [0 for i in range(ligne)]
+    somme = 0
+
+    for mot in matrice_contexte():
+        id_mot = word2id[mot]
+        produit_scalaire = np.dot(mot,v_c)
+        s_j[id_mot] = produit_scalaire
+        somme += produit_scalaire
+    
+    probabilite = [0 for i in range(ligne)]
+
+    for mot in matrice_contexte():
+        id_mot = word2id[mot]
+        prob = s_j[id_mot] / somme
+        probabilite[id_mot] = prob
+    
+    probabilite
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
