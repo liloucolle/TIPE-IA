@@ -1,5 +1,9 @@
 # Tokenisation du texte
 
+from collections import Counter
+from typing import List, Tuple
+
+
 def tokenisation (texte):
     mots = []
     n = len(texte)
@@ -25,9 +29,21 @@ def tokenisation (texte):
     
     return mots
 
+# Fréquence des mots
+# tokens: Liste (pour chaque phrase) de listes de mots
+def frequence_mots(tokens: List[List[str]]):
+    return Counter(w for sent in tokens for w in sent)
+
+# Construction du vocabulaire, et dictionnaires pour access rapide
+def vocabulaire2(word_freq):
+    vocab = [w for w, c in word_freq.items()]
+    vocab.sort()
+    stoi = {w:i for i,w in enumerate(vocab)}
+    itos = {i:w for w,i in stoi.items()}
+    return vocab, stoi, itos
+
 
 # Construction du vocabulaire
-
 def vocabulaire (texte):
 
     t = tokenisation(texte)
