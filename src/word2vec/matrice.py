@@ -18,30 +18,6 @@ def intialisation_matrice (texte):
 
     return matrice_centre, matrice_contexte
 
-# Création des paires centre-contexte
-
-def creation_paires (texte, window):
-    t = tokenisation(texte)
-    word2id = vocabulaire(texte)[0]
-    n = len(t)
-
-    paires = []
-
-    for i in range(n):
-        for k in range(1,window+1):
-
-            id_central = word2id[t[i]]
-
-            if i-k >= 0:
-                id_contexte = word2id[t[i-k]]
-                paires.append((id_central,id_contexte))
-
-
-            if i+k <= n-1:
-                id_contexte = word2id[t[i+k]]
-                paires.append((id_central,id_contexte))
-    
-    return paires
 
 
 def softmax(matrice_centre, matrice_contexte, id_mot_centre):

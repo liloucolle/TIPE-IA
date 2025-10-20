@@ -60,3 +60,27 @@ def vocabulaire (texte):
     
 
     return word2id,id2word
+
+
+# Création des paires centre-contexte
+# tokens: liste des tokens
+def creation_paires (tokens: list, word2id: dict, window_size: int):
+    n = len(tokens)
+
+    paires = []
+
+    for i in range(n):
+        for k in range(1,window_size+1):
+
+            id_central = word2id[t[i]]
+
+            if i-k >= 0:
+                id_contexte = word2id[t[i-k]]
+                paires.append((id_central,id_contexte))
+
+
+            if i+k <= n-1:
+                id_contexte = word2id[t[i+k]]
+                paires.append((id_central,id_contexte))
+    
+    return paires
