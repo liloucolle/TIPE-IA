@@ -161,7 +161,20 @@ def creation_paires(tokens: list, word2id: dict, taille_fenetre: int = 1):
 
 
 def cosine_similarity(a, b):
-    dot = np.dot(a, b)
+    """
+    Calcule la similarité cosinus entre deux vecteurs NumPy a et b.
+    Retourne 0 si l'un des deux vecteurs est nul.
+    """
+    a = np.array(a, dtype=float)
+    b = np.array(b, dtype=float)
+    
+    # Normes
     norm_a = np.linalg.norm(a)
     norm_b = np.linalg.norm(b)
-    return dot / (norm_a * norm_b)
+    
+    # Vérification des vecteurs nuls
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    
+    # Produit scalaire normalisé
+    return np.dot(a, b) / (norm_a * norm_b)
