@@ -59,7 +59,7 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     assert np.all((matrice_centre >= -1) & (matrice_centre <= 1)), \
         f"matrice_centre hors limites dans descente_de_gradient: min={np.min(matrice_centre)}, max={np.max(matrice_centre)}"
 
-    return matrice_centre
+    return matrice_centre, matrice_contexte
 
 def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
 
@@ -70,7 +70,7 @@ def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
     for k in ordre:
         id_centre, id_context = paires[k]
         probabilite = softmax(matrice_centre, matrice_contexte, id_centre)
-        matrice_centre = descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_centre, id_context, taux_apprentissage)
+        matrice_centre, matrice_contexte = descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_centre, id_context, taux_apprentissage)
 
     # Vérifier que les valeurs de matrice_centre restent entre -1 et 1
     assert np.all((matrice_centre >= -1) & (matrice_centre <= 1)), \
@@ -152,7 +152,7 @@ m_centre, m_context, word2id, id2word, losses = deep_learning(texte, dimension =
                                                               taux_apprentissage = 0.0005, 
                                                               window_size = 2, 
                                                               n_epochs = 50, 
-                                                              Sdecay = 0.99)
+                                                              decay = 0.99)
 
 id_queen = word2id["queen"]
 id_king = word2id["king"]
