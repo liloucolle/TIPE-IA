@@ -1,4 +1,4 @@
-# Tokenisation du texte
+
 import numpy as np
 from collections import Counter
 from typing import List, Tuple
@@ -25,24 +25,26 @@ def tokenisation(texte):
     mots = []
     n = len(texte)
     mot_courant = []
-    for i in range(n):
-        num = ord(texte[i])
 
-        #print(mot_courant)
+    for sentence in texte:
+        for i in range(n):
+            num = ord(sentence[i])
 
-        if num >= 65 and num <= 90:
-            mot_courant.append(chr(num + 32))
-        
-        elif num >= 97 and num <= 122:
-            mot_courant.append(chr(num))
-        
-        else: 
-            if len(mot_courant) != 0:
-                mots.append(''.join(mot_courant))
-                mot_courant = []
+            #print(mot_courant)
+
+            if num >= 65 and num <= 90:
+                mot_courant.append(chr(num + 32))
+            
+            elif num >= 97 and num <= 122:
+                mot_courant.append(chr(num))
+            
+            else: 
+                if len(mot_courant) != 0:
+                    mots.append(''.join(mot_courant))
+                    mot_courant = []
     
-    if mot_courant!= []:
-        mots.append(''.join(mot_courant))
+        if mot_courant!= []:
+            mots.append(''.join(mot_courant))
     
     return mots
 
