@@ -22,12 +22,12 @@ def tokenisation(texte):
         >>> tokenisation("Bonjour, monde! Comment ça va?")
         ['bonjour', 'monde', 'comment', 'va']
     """
-    mots = []
-    n = len(texte)
+    texte_token = []
+    phrase_courante = []
     mot_courant = []
 
     for sentence in texte:
-        for i in range(n):
+        for i in range(len(sentence)):
             num = ord(sentence[i])
 
             #print(mot_courant)
@@ -40,13 +40,18 @@ def tokenisation(texte):
             
             else: 
                 if len(mot_courant) != 0:
-                    mots.append(''.join(mot_courant))
+                    phrase_courante.append(''.join(mot_courant))
                     mot_courant = []
     
         if mot_courant!= []:
-            mots.append(''.join(mot_courant))
+            phrase_courante.append(''.join(mot_courant))
+        
+        texte_token.append(''.join(phrase_courante))
+        phrase_courante = []
+
+        
     
-    return mots
+    return texte_token
 
 def frequence_mots(tokens: List[List[str]]):
     """
