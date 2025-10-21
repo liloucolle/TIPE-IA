@@ -103,8 +103,8 @@ def vocabulaire(frequence_mots) -> Tuple[List[str], dict, dict]:
     vocab.sort()
     word2id = {}
     id2word = {}    
-    for i in range(len(vocab)):    
-        assert(word2id.get(vocab[i]) == None)
+    for i in range(len(vocab)):
+        assert vocab[i] not in word2id
         word2id[vocab[i]] = i
         id2word[i] = vocab[i]
     return vocab, word2id, id2word
