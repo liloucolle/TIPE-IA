@@ -104,8 +104,8 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, p
     n = len(vocab)
 
     # 3) Initialisation des matrices centre/contexte dans [-0.5, 0.5]
-    matrice_centre = np.random.rand(n, dimension) - 0.5
-    matrice_contexte = np.random.rand(n, dimension) - 0.5
+    matrice_centre = (np.random.rand(n, dimension) - 0.5) / dimension
+    matrice_contexte = (np.random.rand(n, dimension) - 0.5) / dimension
 
     paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
 
