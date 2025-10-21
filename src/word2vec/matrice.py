@@ -120,7 +120,6 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage, n_ep
 
         print(perte_tot(matrice_centre, matrice_contexte, paires))
 
-
     return matrice_centre, matrice_contexte
 
 def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, decay):
@@ -233,4 +232,3 @@ for mot in mots_a_tester:
             print(f"  {i}. {mot_sim}: {sim:.4f}")
     else:
         print(f"\nLe mot '{mot}' n'est pas dans le vocabulaire.")
-
