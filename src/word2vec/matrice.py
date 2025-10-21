@@ -9,7 +9,8 @@ def softmax(matrice_centre, matrice_contexte, id_mot_centre):
     v_c = matrice_centre[id_mot_centre]
 
     s_j = np.dot(matrice_contexte, v_c)          # produit scalaire pour chaque mot
-    exp_sj = np.exp(s_j - np.max(s_j))           # enlève le max pour réduire l'exponentielle sans changer la valeur de la probabilité à la fin 
+    s_j_xmax = np.max(s_j)
+    exp_sj = np.exp(s_j - s_j_xmax)           # enlève le max pour réduire l'exponentielle sans changer la valeur de la probabilité à la fin
     probabilite = exp_sj / np.sum(exp_sj)
 
     # Vérifier que toutes les probabilités sont entre 0 et 1
