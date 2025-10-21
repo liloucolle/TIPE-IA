@@ -90,7 +90,7 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
 
 def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, patience, tolerance, decay):
 
-    tokens = [tokenisation(texte)]  # liste de listes, comme attendu par creation_paires
+    tokens = tokenisation(texte)  # liste de listes, comme attendu par creation_paires
 
     # Cas bord : texte vide → matrices vides
     if len(tokens[0]) == 0:

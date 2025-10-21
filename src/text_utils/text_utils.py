@@ -26,13 +26,13 @@ def tokenisation(texte):
     phrase_courante = []
     mot_courant = []
 
-    for sentence in texte:
+    for phrase in texte:
 
         phrase_courante = []
         mot_courant = []
 
-        for i in range(len(sentence)):
-            num = ord(sentence[i])
+        for i in range(len(phrase)):
+            num = ord(phrase[i])
 
             #print(mot_courant)
 
@@ -52,11 +52,9 @@ def tokenisation(texte):
         
         texte_token.append(phrase_courante)
 
-        
-    
     return texte_token
 
-def frequence_mots(tokens: List[List[str]]):
+def frequence_mots(sentences: List[List[str]]):
     """
     Calcule la fréquence d'apparition de chaque mot dans un corpus tokenisé.
     
@@ -64,18 +62,18 @@ def frequence_mots(tokens: List[List[str]]):
     et compte le nombre total d'occurrences de chaque mot unique dans tout le corpus.
     
     Args:
-        tokens (List[List[str]]): Liste de phrases, où chaque phrase est une liste de mots tokenisés
+        sentences (List[List[str]]): Liste de phrases, où chaque phrase est une liste de mots tokenisés
     
     Returns:
         Counter: Objet Counter contenant les mots comme clés et leurs fréquences comme valeurs
     
     Example:
-        >>> tokens = [["le", "chat", "mange"], ["le", "chien", "mange", "aussi"]]
-        >>> freq = frequence_mots(tokens)
+        >>> sentences = [["le", "chat", "mange"], ["le", "chien", "mange", "aussi"]]
+        >>> freq = frequence_mots(sentences)
         >>> freq["le"]  # Retourne 2
         >>> freq["mange"]  # Retourne 2
     """
-    return Counter(w for sent in tokens for w in sent)
+    return Counter(word for sent in sentences for word in sent)
 
 
 def vocabulaire(frequence_mots) -> Tuple[List[str], dict, dict]:
