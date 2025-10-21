@@ -227,7 +227,7 @@ mots_a_tester = ["king", "queen", "man", "woman"]
 for mot in mots_a_tester:
     if mot in word2id:
         print(f"\nMots les plus similaires à '{mot}':")
-        similaires = mots_similaires(mot, m_centre, word2id, id2word, top_k=5)
+        similaires = mots_similaires(mot, m_centre, word2id, top_k=20)
         for i, (mot_sim, sim) in enumerate(similaires, 1):
             print(f"  {i}. {mot_sim}: {sim:.4f}")
     else:
