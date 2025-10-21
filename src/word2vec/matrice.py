@@ -92,11 +92,10 @@ def perte_tot(matrice_centre, matrice_contexte, paires):
 
     return float(total)
 
-def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05, n_epochs=10, patience=3, tol=1e-3, decay=0.95):
+def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05, n_epochs=10, tol=1e-3, decay=0.01):
 
     meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
 
-    aucune_amelioration = 0
     eta = taux_apprentissage
 
     for epoch in range(n_epochs):
@@ -109,25 +108,15 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
         # amélioration relative
         rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
 
-        if rel_gain > tol:
-            meilleur_loss = L
-            aucune_amelioration = 0
-
-        else:
-            aucune_amelioration += 1
-            if aucune_amelioration >= patience:
-                break  # early stopping
-
         # décroissance du LR (douce et efficace en Word2Vec)
-        eta *= decay
+        eta -= decay
 
     return matrice_centre, matrice_contexte
 
-def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, patience, tolerance, decay):
+def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, tolerance, decay):
 
-    tokens = tokenisation(texte)  # liste de listes, comme attendu par creation_paires
+    tokens = tokenisation(texte)
 
-    # Cas bord : texte vide → matrices vides
     if len(tokens[0]) == 0:
         return np.empty((0, dimension)), np.empty((0, dimension))
 
@@ -135,27 +124,31 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, p
     vocab, stoi, itos = vocabulaire(freq)
     n = len(vocab)
 
-    # 3) Initialisation des matrices centre/contexte dans [-0.5, 0.5]
     matrice_centre = (np.random.rand(n, dimension) - 0.5) / dimension
     matrice_contexte = (np.random.rand(n, dimension) - 0.5) / dimension
 
     paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
 
-    # 5) Entraînement (épocs + early stopping)
-    matrice_centre, matrice_contexte = entrainer(
-        matrice_centre,
-        matrice_contexte,
-        paires,
-        taux_apprentissage=taux_apprentissage,
-        n_epochs=n_epochs,
-        patience=patience,
-        tol=tolerance,
-        decay=decay,
-    )
+    losses = []
+    meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
+    losses.append(meilleur_loss)
 
-    return matrice_centre, matrice_contexte, stoi, itos
+    aucune_amelioration = 0
+    eta = taux_apprentissage
 
-m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, taux_apprentissage = 0.005, window_size = 2, n_epochs = 100, patience = 3, tolerance = 0.001, decay = 0.95)
+    for epoch in range(n_epochs):
+        matrice_centre, matrice_contexte = epoche(
+            matrice_centre, matrice_contexte, paires, eta
+        )
+
+        L = perte_tot(matrice_centre, matrice_contexte, paires)
+        losses.append(L)
+
+        eta *= decay
+
+    return matrice_centre, matrice_contexte, stoi, itos, losses
+
+m_centre, m_context, word2id, id2word, losses = deep_learning(texte, dimension = 100, taux_apprentissage = 0.005, window_size = 2, n_epochs = 50, tolerance = 0.001, decay = 0.01)
 
 id_queen = word2id["queen"]
 id_king = word2id["king"]
@@ -168,6 +161,8 @@ v_king = m_centre[id_king]
 v_woman = m_centre[id_woman]
 v_man = m_centre[id_man]
 
+
+print(losses)
 print(cosine_similarity(v_woman, v_queen))
 print(cosine_similarity(m_centre[word2id["cup"]], v_queen))
 
