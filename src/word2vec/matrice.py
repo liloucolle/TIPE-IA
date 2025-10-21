@@ -94,7 +94,7 @@ def perte_tot(matrice_centre, matrice_contexte, paires):
 
     return float(total)
 
-def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05, n_epochs=10, decay=0.01):
+def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage, n_epochs, decay):
 
     meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
 
@@ -112,6 +112,9 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
 
         # décroissance du LR (douce et efficace en Word2Vec)
         eta *= decay
+
+        print(perte_tot(matrice_centre, matrice_contexte, paires))
+
 
     return matrice_centre, matrice_contexte
 
@@ -131,25 +134,16 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, d
 
     paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
 
-    losses = []
-    meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
-    losses.append(meilleur_loss)
+    matrice_centre, matrice_contexte = entrainer(matrice_centre,
+                                                 matrice_contexte, 
+                                                 paires, 
+                                                 taux_apprentissage, 
+                                                 n_epochs, 
+                                                 decay)
+        
+    return matrice_centre, matrice_contexte, stoi, itos
 
-    eta = taux_apprentissage
-
-    for epoch in range(n_epochs):
-        matrice_centre, matrice_contexte = epoche(
-            matrice_centre, matrice_contexte, paires, eta
-        )
-
-        L = perte_tot(matrice_centre, matrice_contexte, paires)
-        losses.append(L)
-
-        eta *= decay
-
-    return matrice_centre, matrice_contexte, stoi, itos, losses
-
-m_centre, m_context, word2id, id2word, losses = deep_learning(texte, dimension = 100, 
+m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, 
                                                               taux_apprentissage = 0.1, 
                                                               window_size = 2, 
                                                               n_epochs = 50, 
@@ -166,8 +160,6 @@ v_king = m_centre[id_king]
 v_woman = m_centre[id_woman]
 v_man = m_centre[id_man]
 
-
-print(losses)
 print(cosine_similarity(v_woman, v_queen))
 print(cosine_similarity(m_centre[word2id["cup"]], v_queen))
 
