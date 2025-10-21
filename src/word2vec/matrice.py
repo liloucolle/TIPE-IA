@@ -88,14 +88,15 @@ def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
     return matrice_centre, matrice_contexte
     
 def perte_tot(matrice_centre, matrice_contexte, paires):
-
+    """
+    Calcule la perte moyenne (log-loss) sur toutes les paires.
+    Skip-Gram avec softmax plein.
+    """
     total = 0.0
-
     for (id_c, id_pos) in paires:
         p = softmax(matrice_centre, matrice_contexte, id_c)
-        total += -np.log(p[id_pos])
-
-    return float(total)
+        total += -np.log(p[id_pos] + 1e-12)  # stabilité
+    return total / max(1, len(paires))
 
 def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage, n_epochs, decay):
 
