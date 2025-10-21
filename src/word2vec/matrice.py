@@ -95,12 +95,11 @@ def perte_tot(matrice_centre, matrice_contexte, paires):
     total = 0.0
     for (id_c, id_pos) in paires:
         p = softmax(matrice_centre, matrice_contexte, id_c)
-        total += -np.log(p[id_pos] + 1e-12)  # stabilité
+        total += -np.log(p[id_pos] + 1e-12)
     return total / max(1, len(paires))
 
 def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage, n_epochs, decay):
 
-    meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
     nb_epochs_passe = 0
     eta = taux_apprentissage 
 
@@ -110,9 +109,6 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage, n_ep
 
         # évaluer la perte
         L = perte_tot(matrice_centre, matrice_contexte, paires)
-
-        # amélioration relative
-        rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
 
         # décroissance du LR (douce et efficace en Word2Vec)
         nb_epochs_passe +=1
@@ -133,8 +129,8 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, d
     vocab, stoi, itos = vocabulaire(freq)
     n = len(vocab)
 
-    matrice_centre = (np.random.rand(n, dimension)) * (0.5/ dimension)
-    matrice_contexte = (np.random.rand(n, dimension)) * (0.5/ dimension)
+    matrice_centre = (np.random.rand(n, dimension)- 0.5) / dimension
+    matrice_contexte = (np.random.rand(n, dimension)-0.5) / dimension
 
     paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
 
