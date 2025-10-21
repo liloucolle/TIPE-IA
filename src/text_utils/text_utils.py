@@ -27,6 +27,10 @@ def tokenisation(texte):
     mot_courant = []
 
     for sentence in texte:
+
+        phrase_courante = []
+        mot_courant = []
+
         for i in range(len(sentence)):
             num = ord(sentence[i])
 
@@ -46,8 +50,7 @@ def tokenisation(texte):
         if mot_courant!= []:
             phrase_courante.append(''.join(mot_courant))
         
-        texte_token.append(''.join(phrase_courante))
-        phrase_courante = []
+        texte_token.append(phrase_courante)
 
         
     
