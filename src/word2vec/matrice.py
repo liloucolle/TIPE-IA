@@ -155,7 +155,7 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, p
 
     return matrice_centre, matrice_contexte, stoi, itos
 
-m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, taux_apprentissage = 0.005, window_size = 2, n_epochs = 20, patience = 3, tolerance = 0.001, decay = 3)
+m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, taux_apprentissage = 0.005, window_size = 2, n_epochs = 100, patience = 3, tolerance = 0.001, decay = 0.95)
 
 id_queen = word2id["queen"]
 id_king = word2id["king"]
@@ -168,6 +168,6 @@ v_king = m_centre[id_king]
 v_woman = m_centre[id_woman]
 v_man = m_centre[id_man]
 
-print(cosine_similarity(v_king - v_man + v_woman, v_queen))
+print(cosine_similarity(v_woman, v_queen))
 print(cosine_similarity(m_centre[word2id["cup"]], v_queen))
 
