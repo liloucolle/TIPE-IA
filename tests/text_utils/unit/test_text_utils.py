@@ -4,86 +4,87 @@ from collections import Counter
 from text_utils.text_utils import tokenisation, vocabulaire, frequence_mots
 
 
-class TestTokenisation:
-    """Unit tests for the tokenisation function using pytest"""
-    
-    def test_simple_text(self):
-        """Test tokenization of simple text"""
-        text = "Hello world"
-        expected = ["hello", "world"]
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_mixed_case(self):
-        """Test that uppercase letters are converted to lowercase"""
-        text = "Hello WORLD"
-        expected = ["hello", "world"]
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_punctuation_removal(self):
-        """Test that punctuation is removed and words are split correctly"""
-        text = "Hello, world! How are you?"
-        expected = ["hello", "world", "how", "are", "you"]
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_numbers_removed(self):
-        """Test that numbers are treated as separators"""
-        text = "Hello123world456test"
-        expected = ["hello", "world", "test"]
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_multiple_separators(self):
-        """Test handling of multiple consecutive non-alphabetic characters"""
-        text = "Hello!!!world???test"
-        expected = ["hello", "world", "test"]
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_empty_string(self):
-        """Test tokenization of empty string"""
-        text = ""
-        expected = []
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_only_separators(self):
-        """Test string with only non-alphabetic characters"""
-        text = "123!@#$%^&*()"
-        expected = []
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_single_word(self):
-        """Test tokenization of single word"""
-        text = "hello"
-        expected = ["hello"]
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_word_at_end(self):
-        """Test that word at end of string is captured"""
-        text = "hello world"
-        expected = ["hello", "world"]
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_french_text(self):
-        """Test with French text (accented characters should be treated as separators)"""
-        text = "Bonjour, ceci est un test avec des caractères spéciaux: é, à, ç"
-        expected = ["bonjour", "ceci", "est", "un", "test", "avec", "des", "caract", "res", "sp", "ciaux"]
-        result = tokenisation(text)
-        assert result == expected
-    
-    def test_whitespace_handling(self):
-        """Test various whitespace characters"""
-        text = "hello\tworld\ntest\r\nend"
-        expected = ["hello", "world", "test", "end"]
-        result = tokenisation(text)
-        assert result == expected
+class TestTokenisationPhrases:
+    def test_basic_two_sentences(self):
+        texte = ["The King loves the Queen.", "The queen rules the kingdom!"]
+        expected = [
+            ["the", "king", "loves", "the", "queen"],
+            ["the", "queen", "rules", "the", "kingdom"],
+        ]
+        assert tokenisation(texte) == expected
 
+    def test_mixed_case_lowercasing(self):
+        texte = ["HELLO World", "PyThOn Is FUN"]
+        expected = [
+            ["hello", "world"],
+            ["python", "is", "fun"],
+        ]
+        assert tokenisation(texte) == expected
+
+    def test_punctuation_and_numbers(self):
+        texte = ["hello, world! 123go", "v2 is here: wow!!!"]
+        expected = [
+            ["hello", "world", "go"],
+            ["v", "is", "here", "wow"],  # '2' et ':' sont des séparateurs
+        ]
+        assert tokenisation(texte) == expected
+
+    def test_accents_are_separators(self):
+        # accents (éàçô…) ne sont pas dans a-z -> considérés comme séparateurs
+        texte = ["Café crème, déjà vu"]
+        expected = [
+            ["caf", "cr", "me", "d", "j", "vu"]
+        ]
+        assert tokenisation(texte) == expected
+
+    def test_whitespace_variants(self):
+        texte = ["hello\tworld", "line1\nline2\r\nend"]
+        expected = [
+            ["hello", "world"],
+            ["line", "line", "end"],
+        ]
+        assert tokenisation(texte) == expected
+
+    def test_empty_sentence_kept_as_empty_list(self):
+        # Ta version actuelle ajoute la phrase même si elle est vide -> []
+        texte = ["Hello world!", ""]
+        expected = [
+            ["hello", "world"],
+            []
+        ]
+        assert tokenisation(texte) == expected
+
+    def test_only_separators_sentence(self):
+        texte = ["123!@#", "??--", "keep,going"]
+        expected = [
+            [],        # rien d'alphabétique
+            [],        # idem
+            ["keep", "going"],
+        ]
+        assert tokenisation(texte) == expected
+
+    def test_word_at_end_captured(self):
+        texte = ["ends with word", "no punctuation here"]
+        expected = [
+            ["ends", "with", "word"],
+            ["no", "punctuation", "here"],
+        ]
+        assert tokenisation(texte) == expected
+
+    def test_single_letter_words(self):
+        texte = ["A b C", "x y z"]
+        expected = [
+            ["a", "b", "c"],
+            ["x", "y", "z"],
+        ]
+        assert tokenisation(texte) == expected
+
+    def test_return_is_list_of_lists(self):
+        texte = ["Hello world"]
+        out = tokenisation(texte)
+        assert isinstance(out, list)
+        assert all(isinstance(s, list) for s in out)
+        assert all(all(isinstance(w, str) for w in s) for s in out)
 
 class TestFrequenceMots:
     """Unit tests for the frequence_mots function"""
