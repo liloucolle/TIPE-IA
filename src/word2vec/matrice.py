@@ -3,12 +3,6 @@ import math as m
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
 
 
-dimension = 100
-window_size = 2
-taux_apprentissage = 0.05
-
-
-
 def softmax(matrice_centre, matrice_contexte, id_mot_centre):
 
     v_c = matrice_centre[id_mot_centre]
