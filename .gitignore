@@ -38,3 +38,6 @@ htmlcov/
 # IDEs / Editors
 .vscode/
 .idea/
+
+# Dataset cache
+cache
