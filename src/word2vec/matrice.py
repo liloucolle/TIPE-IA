@@ -47,14 +47,9 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     grad_centre = np.matmul(matrice_contexte.T, erreur)
     grad_contexte = np.outer(erreur,v_c)
 
-
     # Amélioration des matrices
     matrice_contexte -= taux_apprentissage * grad_contexte 
     matrice_centre[id_mot_centre] -= taux_apprentissage * grad_centre
-
-    # Normaliser les matrices pour éviter débordement après
-    matrice_centre = renormaliser_matrice(matrice_centre, borne=1.0)
-    matrice_contexte = renormaliser_matrice(matrice_contexte, borne=1.0)
 
 
     # Vérifier que les valeurs de matrice_contexte restent entre 0 et 1
@@ -77,6 +72,10 @@ def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
         id_centre, id_context = paires[k]
         probabilite = softmax(matrice_centre, matrice_contexte, id_centre)
         matrice_centre, matrice_contexte = descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_centre, id_context, taux_apprentissage)
+
+    # Normaliser les matrices pour éviter débordement après
+    matrice_centre = renormaliser_matrice(matrice_centre, borne=1.0)
+    matrice_contexte = renormaliser_matrice(matrice_contexte, borne=1.0)
 
     # Vérifier que les valeurs de matrice_centre restent entre -1 et 1
     assert np.all((matrice_centre >= -1) & (matrice_centre <= 1)), \
