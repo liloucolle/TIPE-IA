@@ -150,7 +150,7 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, d
 m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, 
                                                               taux_apprentissage = 0.1, 
                                                               window_size = 2, 
-                                                              n_epochs = 50, 
+                                                              n_epochs = 100, 
                                                               decay = 0.95)
 
 id_queen = word2id["queen"]
@@ -164,6 +164,6 @@ v_king = m_centre[id_king]
 v_woman = m_centre[id_woman]
 v_man = m_centre[id_man]
 
-print(cosine_similarity(v_woman, v_queen))
+print(cosine_similarity(v_man, v_queen))
 print(cosine_similarity(m_centre[word2id["cup"]], v_queen))
 
