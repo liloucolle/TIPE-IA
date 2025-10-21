@@ -109,11 +109,11 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
         rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
 
         # décroissance du LR (douce et efficace en Word2Vec)
-        eta -= decay
+        eta *= decay
 
     return matrice_centre, matrice_contexte
 
-def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, tolerance, decay):
+def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, decay):
 
     tokens = tokenisation(texte)
 
@@ -148,7 +148,11 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, t
 
     return matrice_centre, matrice_contexte, stoi, itos, losses
 
-m_centre, m_context, word2id, id2word, losses = deep_learning(texte, dimension = 100, taux_apprentissage = 0.005, window_size = 2, n_epochs = 50, tolerance = 0.001, decay = 0.01)
+m_centre, m_context, word2id, id2word, losses = deep_learning(texte, dimension = 100, 
+                                                              taux_apprentissage = 0.0005, 
+                                                              window_size = 2, 
+                                                              n_epochs = 50, 
+                                                              Sdecay = 0.99)
 
 id_queen = word2id["queen"]
 id_king = word2id["king"]
