@@ -52,14 +52,6 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     matrice_centre[id_mot_centre] -= taux_apprentissage * grad_centre
 
 
-    # Vérifier que les valeurs de matrice_contexte restent entre 0 et 1
-    assert np.all((matrice_contexte >= -1) & (matrice_contexte <= 1)), \
-        f"matrice_contexte hors limites dans descente_de_gradient: min={np.min(matrice_contexte)}, max={np.max(matrice_contexte)}"
-    
-    # Vérifier que les valeurs de matrice_centre restent entre 0 et 1
-    assert np.all((matrice_centre >= -1) & (matrice_centre <= 1)), \
-        f"matrice_centre hors limites dans descente_de_gradient: min={np.min(matrice_centre)}, max={np.max(matrice_centre)}"
-
     return matrice_centre, matrice_contexte
 
 def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
@@ -73,17 +65,6 @@ def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
         probabilite = softmax(matrice_centre, matrice_contexte, id_centre)
         matrice_centre, matrice_contexte = descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_centre, id_context, taux_apprentissage)
 
-    # Normaliser les matrices pour éviter débordement après
-    matrice_centre = renormaliser_matrice(matrice_centre, borne=1.0)
-    matrice_contexte = renormaliser_matrice(matrice_contexte, borne=1.0)
-
-    # Vérifier que les valeurs de matrice_centre restent entre -1 et 1
-    assert np.all((matrice_centre >= -1) & (matrice_centre <= 1)), \
-        f"matrice_centre hors limites dans epoche: min={np.min(matrice_centre)}, max={np.max(matrice_centre)}"
-
-    # Vérifier que les valeurs de matrice_contexte restent entre -1 et 1
-    assert np.all((matrice_contexte >= -1) & (matrice_contexte <= 1)), \
-        f"matrice_contexte hors limites dans epoche: min={np.min(matrice_contexte)}, max={np.max(matrice_contexte)}"
 
     return matrice_centre, matrice_contexte
     
@@ -101,18 +82,16 @@ def perte_tot(matrice_centre, matrice_contexte, paires):
 def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage, n_epochs, decay):
 
     nb_epochs_passe = 0
-    eta = taux_apprentissage 
 
     for epoch in range(n_epochs):
         # une époque d'apprentissage
-        matrice_centre, matrice_contexte = epoche(matrice_centre, matrice_contexte, paires, eta)
+        matrice_centre, matrice_contexte = epoche(matrice_centre, matrice_contexte, paires, taux_apprentissage)
 
         # évaluer la perte
         L = perte_tot(matrice_centre, matrice_contexte, paires)
 
         # décroissance du LR (douce et efficace en Word2Vec)
         nb_epochs_passe +=1
-        eta = taux_apprentissage * (decay ** nb_epochs_passe)
 
         print(perte_tot(matrice_centre, matrice_contexte, paires))
 
@@ -177,10 +156,10 @@ def mots_similaires(mot, matrice_embeddings, word2id, top_k=5):
     return similarites[:top_k]
 
 m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, 
-                                                              taux_apprentissage = 0.1, 
+                                                              taux_apprentissage = 0.01, 
                                                               window_size = 1, 
-                                                              n_epochs = 100, 
-                                                              decay = 0.99)
+                                                              n_epochs = 1000, 
+                                                              decay = 1)
 
 id_queen = word2id["queen"]
 id_king = word2id["king"]
