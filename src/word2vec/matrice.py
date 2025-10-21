@@ -167,3 +167,21 @@ v_man = m_centre[id_man]
 print(cosine_similarity(v_woman, v_queen))
 print(cosine_similarity(m_centre[word2id["cup"]], v_queen))
 
+# Test d'analogie: king - man + woman ≈ queen
+analogie_vector = v_king - v_man + v_woman
+print(f"\nTest d'analogie: king - man + woman")
+print(f"Similarité avec queen: {cosine_similarity(analogie_vector, v_queen):.4f}")
+print(f"Similarité avec king: {cosine_similarity(analogie_vector, v_king):.4f}")
+
+# Trouvez le mot le plus proche de l'analogie
+max_sim = -1
+mot_plus_proche = ""
+for mot, idx in word2id.items():
+    if mot not in ["king", "man", "woman"]:  # Exclure les mots utilisés dans l'analogie
+        sim = cosine_similarity(analogie_vector, m_centre[idx])
+        if sim > max_sim:
+            max_sim = sim
+            mot_plus_proche = mot
+
+print(f"Mot le plus proche de 'king - man + woman': {mot_plus_proche} (similarité: {max_sim:.4f})")
+
