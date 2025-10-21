@@ -51,7 +51,6 @@ def tokenisation(texte):
             phrase_courante.append(''.join(mot_courant))
         
         texte_token.append(phrase_courante)
-
     return texte_token
 
 def frequence_mots(sentences: List[List[str]]):
