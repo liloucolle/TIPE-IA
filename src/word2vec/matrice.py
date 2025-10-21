@@ -43,13 +43,13 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     y[id_mot_context_positif] = 1.0
 
     erreur = (probabilite - y)
-    grad_centre = np.matmul(matrice_contexte.T, )
+    grad_centre = np.matmul(matrice_contexte.T, erreur)
     grad_contexte = np.outer(erreur,v_c)
 
     v_c = matrice_centre[id_mot_centre]
 
-
-    matrice_contexte -= taux_apprentissage * grad_contexte # Calcule du produit exterieur 
+    # Amélioration des matrices
+    matrice_contexte -= taux_apprentissage * grad_contexte 
     matrice_centre[id_mot_centre] -= taux_apprentissage * grad_centre
 
     matrice_centre = renormaliser_matrice(matrice_centre, borne=1.0)
