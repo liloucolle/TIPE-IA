@@ -147,6 +147,39 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, d
         
     return matrice_centre, matrice_contexte, stoi, itos
 
+def mots_similaires(mot, matrice_embeddings, word2id, top_k=5):
+    """
+    Trouve les mots les plus similaires à un mot donné en utilisant la similarité cosinus.
+    
+    Args:
+        mot (str): le mot de référence
+        matrice_embeddings (np.ndarray): matrice des embeddings (n_mots × dimension)
+        word2id (dict): dictionnaire mot -> id
+        top_k (int): nombre de mots similaires à retourner (par défaut 5)
+    
+    Returns:
+        list: liste de tuples (mot, similarité) triée par similarité décroissante
+    """
+    if mot not in word2id:
+        print(f"Le mot '{mot}' n'est pas dans le vocabulaire.")
+        return []
+    
+    # Récupérer le vecteur du mot de référence
+    vecteur_mot = matrice_embeddings[word2id[mot]]
+    
+    # Calculer la similarité avec tous les autres mots
+    similarites = []
+    for autre_mot, idx in word2id.items():
+        if autre_mot != mot:  # Exclure le mot lui-même
+            vecteur_autre = matrice_embeddings[idx]
+            sim = cosine_similarity(vecteur_mot, vecteur_autre)
+            similarites.append((autre_mot, float(sim)))
+    
+    # Trier par similarité décroissante et prendre les top_k
+    similarites.sort(key=lambda x: x[1], reverse=True)
+    
+    return similarites[:top_k]
+
 m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, 
                                                               taux_apprentissage = 0.1, 
                                                               window_size = 1, 
@@ -184,4 +217,19 @@ for mot, idx in word2id.items():
             mot_plus_proche = mot
 
 print(f"Mot le plus proche de 'king - man + woman': {mot_plus_proche} (similarité: {max_sim:.4f})")
+
+# Test de la fonction mots_similaires
+print("\n" + "="*50)
+print("TEST DE LA FONCTION MOTS_SIMILAIRES")
+print("="*50)
+
+mots_a_tester = ["king", "queen", "man", "woman"]
+for mot in mots_a_tester:
+    if mot in word2id:
+        print(f"\nMots les plus similaires à '{mot}':")
+        similaires = mots_similaires(mot, m_centre, word2id, top_k=20)
+        for i, (mot_sim, sim) in enumerate(similaires, 1):
+            print(f"  {i}. {mot_sim}: {sim:.4f}")
+    else:
+        print(f"\nLe mot '{mot}' n'est pas dans le vocabulaire.")
 
