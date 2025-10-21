@@ -47,7 +47,7 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     v_c = matrice_centre[id_mot_centre]
     matrice_contexte -= taux_apprentissage * np.outer((probabilite - y),v_c) # Calcule du produit exterieur 
 
-    matrice_centre[id_mot_centre] = matrice_centre[id_mot_centre] - taux_apprentissage * grad
+    matrice_centre[id_mot_centre] -= taux_apprentissage * grad
 
     matrice_centre = renormaliser_matrice(matrice_centre, borne=1.0)
     matrice_contexte = renormaliser_matrice(matrice_contexte, borne=1.0)
