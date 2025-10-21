@@ -231,4 +231,4 @@ print(most_similar_to_vector(computed, topk=1))
 
 print("\nVoisins les plus proches:")
 for q in ["king", "queen", "man", "woman"]:
-    print(q, "→", most_similar(q, topk=5))
+    print(q, "→", most_similar(q, topk=20))
