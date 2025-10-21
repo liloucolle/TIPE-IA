@@ -42,11 +42,11 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     y = np.zeros(lignes, dtype= float) # pour que y soit de la même forme que probabilité
     y[id_mot_context_positif] = 1.0
 
+    v_c = matrice_centre[id_mot_centre]
     erreur = (probabilite - y)
     grad_centre = np.matmul(matrice_contexte.T, erreur)
     grad_contexte = np.outer(erreur,v_c)
 
-    v_c = matrice_centre[id_mot_centre]
 
     # Amélioration des matrices
     matrice_contexte -= taux_apprentissage * grad_contexte 
