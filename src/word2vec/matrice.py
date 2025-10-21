@@ -1,7 +1,7 @@
 import numpy as np
 import math as m
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
-from content.echantillon_texte import texte_king_and_queen as texte
+from content.echantillon_texte import texte_king_and_queen_2 as texte
 
 
 def softmax(matrice_centre, matrice_contexte, id_mot_centre):
@@ -11,6 +11,9 @@ def softmax(matrice_centre, matrice_contexte, id_mot_centre):
     s_j = np.dot(matrice_contexte, v_c)          # produit scalaire pour chaque mot
     exp_sj = np.exp(s_j - np.max(s_j))           # enlève le max pour réduire l'exponentielle sans changer la valeur de la probabilité à la fin 
     probabilite = exp_sj / np.sum(exp_sj)
+
+    # Vérifier que toutes les probabilités sont entre 0 et 1
+    assert np.all((probabilite >= 0) & (probabilite <= 1)), f"Probabilités hors limites: min={np.min(probabilite)}, max={np.max(probabilite)}"
 
     return probabilite
 
