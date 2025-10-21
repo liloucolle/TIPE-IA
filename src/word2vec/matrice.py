@@ -185,7 +185,7 @@ m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100,
                                                               taux_apprentissage = 0.1, 
                                                               window_size = 1, 
                                                               n_epochs = 100, 
-                                                              decay = 0.95)
+                                                              decay = 0.99)
 
 id_queen = word2id["queen"]
 id_king = word2id["king"]
