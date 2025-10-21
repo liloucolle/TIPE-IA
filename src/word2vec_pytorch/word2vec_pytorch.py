@@ -6,12 +6,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
-from content.echantillon_texte import test_simple
+from content.echantillon_texte import texte_king_and_queen_2 as texte
 
 
 # Tokeniser chaque ligne en liste de mots
-tokens = [tokenisation(line) for line in test_simple]
-
+tokens = tokenisation(texte)
 
 # ---------------------------
 # 2) Construction du vocabulaire et des indices
@@ -90,8 +89,8 @@ class SkipGram(nn.Module):
 
     def forward_softmax(self, centers):
         """
-        centers: indices des mots centres
-        logits = h @ W'^T, où h = v_{w_I}
+        centers: indices des mots centres (B,)
+        Retourne les logits pour le softmax complet sur le vocabulaire.
         """
         # Recuperation des embeddings des mots centres
         h = self.in_embed(centers)                      # (B, N)
@@ -189,7 +188,7 @@ model = SkipGram(V, emb_dim)
 mode = "softmax"        # "softmax" ou "neg"
 if mode == "softmax":
     ds = SkipGramSoftmaxDS(pairs)
-    train_softmax(model, ds, epochs=100, batch_size=128, lr=0.001, device=device)
+    train_softmax(model, ds, epochs=100, batch_size=128, lr=0.01, device=device)
 else:
     ds = SkipGramNegSampleDS(pairs, V, unigram_probs=unigram, K=5)
     train_neg(model, ds, epochs=100, batch_size=1024, lr=0.01, device=device)
@@ -216,6 +215,20 @@ def most_similar(word, topk=5):
             break
     return out
 
+# fonction auxiliaire: similarité cosinus
+def most_similar_to_vector(vector, topk=5):
+    sims = F.cosine_similarity(emb, vector.unsqueeze(0))  # (V,)
+    vals, idxs = torch.topk(sims, k=topk+1)
+    out = []
+    for v, i in zip(vals.tolist(), idxs.tolist()):
+        out.append((itos[i], float(v)))
+        if len(out) == topk:
+            break
+    return out
+
+computed = emb[stoi["king"]] - emb[stoi["man"]] + emb[stoi["woman"]]
+print(most_similar_to_vector(computed, topk=1))
+
 print("\nVoisins les plus proches:")
-for q in ["fox", "dog", "learning", "quick"]:
+for q in ["king", "queen", "man", "woman"]:
     print(q, "→", most_similar(q, topk=5))
