@@ -1,6 +1,6 @@
 import numpy as np
 import math as m
-from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
+from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires, cosine_similarity
 from content.echantillon_texte import texte_king_and_queen_2 as texte
 
 
