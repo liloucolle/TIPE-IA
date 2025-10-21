@@ -1,6 +1,6 @@
 import numpy as np
 import math as m
-from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
+from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires, cosine_similarity
 from content.echantillon_texte import texte_king_and_queen as texte
 
 
@@ -133,6 +133,6 @@ v_king = m_centre[id_king]
 v_woman = m_centre[id_woman]
 v_man = m_centre[id_man]
 
-print(np.dot(v_king - v_man + v_woman, v_queen))
-print(np.dot(m_centre[word2id["cup"]], v_queen))
+print(cosine_similarity(v_king - v_man + v_woman, v_queen))
+print(cosine_similarity(m_centre[word2id["cup"]], v_queen))
 
