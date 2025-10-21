@@ -94,7 +94,7 @@ def perte_tot(matrice_centre, matrice_contexte, paires):
 
     return float(total)
 
-def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05, n_epochs=10, tol=1e-3, decay=0.01):
+def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05, n_epochs=10, decay=0.01):
 
     meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
 
@@ -126,8 +126,8 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, d
     vocab, stoi, itos = vocabulaire(freq)
     n = len(vocab)
 
-    matrice_centre = (np.random.rand(n, dimension) - 0.5) / dimension
-    matrice_contexte = (np.random.rand(n, dimension) - 0.5) / dimension
+    matrice_centre = (np.random.rand(n, dimension)) * (0.5/ dimension)
+    matrice_contexte = (np.random.rand(n, dimension)) * (0.5/ dimension)
 
     paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
 
@@ -135,7 +135,6 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, d
     meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
     losses.append(meilleur_loss)
 
-    aucune_amelioration = 0
     eta = taux_apprentissage
 
     for epoch in range(n_epochs):
