@@ -31,22 +31,34 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
 
     matrice_centre[id_mot_centre] = matrice_centre[id_mot_centre] - taux_apprentissage * grad
 
-
+    # Vérifier que les valeurs de matrice_contexte restent entre 0 et 1
+    assert np.all((matrice_contexte >= 0) & (matrice_contexte <= 1)), \
+        f"matrice_contexte hors limites dans descente_de_gradient: min={np.min(matrice_contexte)}, max={np.max(matrice_contexte)}"
     
+    # Vérifier que les valeurs de matrice_centre restent entre 0 et 1
+    assert np.all((matrice_centre >= 0) & (matrice_centre <= 1)), \
+        f"matrice_centre hors limites dans descente_de_gradient: min={np.min(matrice_centre)}, max={np.max(matrice_centre)}"
+
     return matrice_centre
 
 def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
 
     # On mélange l'ordre des mots central
-
     ordre = np.random.permutation(len(paires))
-
 
     # On boucle sur les mots
     for k in ordre:
         id_centre, id_context = paires[k]
         probabilite = softmax(matrice_centre, matrice_contexte, id_centre)
         matrice_centre = descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_centre, id_context, taux_apprentissage)
+
+    # Vérifier que les valeurs de matrice_centre restent entre 0 et 1
+    assert np.all((matrice_centre >= 0) & (matrice_centre <= 1)), \
+        f"matrice_centre hors limites dans epoche: min={np.min(matrice_centre)}, max={np.max(matrice_centre)}"
+    
+    # Vérifier que les valeurs de matrice_contexte restent entre 0 et 1
+    assert np.all((matrice_contexte >= 0) & (matrice_contexte <= 1)), \
+        f"matrice_contexte hors limites dans epoche: min={np.min(matrice_contexte)}, max={np.max(matrice_contexte)}"
 
     return matrice_centre, matrice_contexte
     
