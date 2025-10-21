@@ -14,6 +14,7 @@ def softmax(matrice_centre, matrice_contexte, id_mot_centre):
 
     # Vérifier que toutes les probabilités sont entre 0 et 1
     assert np.all((probabilite >= 0) & (probabilite <= 1)), f"Probabilités hors limites: min={np.min(probabilite)}, max={np.max(probabilite)}"
+    assert probabilite.ndim == 1, f"Shape inattendu: {probabilite.shape}"
 
     return probabilite
 
@@ -149,7 +150,7 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, d
     return matrice_centre, matrice_contexte, stoi, itos, losses
 
 m_centre, m_context, word2id, id2word, losses = deep_learning(texte, dimension = 100, 
-                                                              taux_apprentissage = 0.0005, 
+                                                              taux_apprentissage = 0.1, 
                                                               window_size = 2, 
                                                               n_epochs = 50, 
                                                               decay = 0.99)
