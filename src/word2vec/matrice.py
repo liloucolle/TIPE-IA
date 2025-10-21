@@ -52,6 +52,7 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     matrice_contexte -= taux_apprentissage * grad_contexte 
     matrice_centre[id_mot_centre] -= taux_apprentissage * grad_centre
 
+    # Normaliser les matrices pour éviter débordement après
     matrice_centre = renormaliser_matrice(matrice_centre, borne=1.0)
     matrice_contexte = renormaliser_matrice(matrice_contexte, borne=1.0)
 
