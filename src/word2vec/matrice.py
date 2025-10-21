@@ -149,8 +149,8 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, d
 
 m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, 
                                                               taux_apprentissage = 0.1, 
-                                                              window_size = 2, 
-                                                              n_epochs = 100, 
+                                                              window_size = 1, 
+                                                              n_epochs = 1000, 
                                                               decay = 0.95)
 
 id_queen = word2id["queen"]
