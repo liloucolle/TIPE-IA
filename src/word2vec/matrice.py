@@ -101,8 +101,8 @@ def perte_tot(matrice_centre, matrice_contexte, paires):
 def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage, n_epochs, decay):
 
     meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
-
-    eta = taux_apprentissage
+    nb_epochs_passe = 0
+    eta = taux_apprentissage 
 
     for epoch in range(n_epochs):
         # une époque d'apprentissage
@@ -115,10 +115,10 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage, n_ep
         rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
 
         # décroissance du LR (douce et efficace en Word2Vec)
-        eta *= decay
+        nb_epochs_passe +=1
+        eta = taux_apprentissage * (decay ** nb_epochs_passe)
 
         print(perte_tot(matrice_centre, matrice_contexte, paires))
-
 
     return matrice_centre, matrice_contexte
 
@@ -182,9 +182,9 @@ def mots_similaires(mot, matrice_embeddings, word2id, top_k=5):
 
 m_centre, m_context, word2id, id2word = deep_learning(texte, dimension = 100, 
                                                               taux_apprentissage = 0.1, 
-                                                              window_size = 2, 
+                                                              window_size = 1, 
                                                               n_epochs = 100, 
-                                                              decay = 0.95)
+                                                              decay = 0.99)
 
 id_queen = word2id["queen"]
 id_king = word2id["king"]
@@ -232,4 +232,3 @@ for mot in mots_a_tester:
             print(f"  {i}. {mot_sim}: {sim:.4f}")
     else:
         print(f"\nLe mot '{mot}' n'est pas dans le vocabulaire.")
-
