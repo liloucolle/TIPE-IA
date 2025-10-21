@@ -17,6 +17,22 @@ def softmax(matrice_centre, matrice_contexte, id_mot_centre):
 
     return probabilite
 
+def renormaliser_matrice(M, borne=1.0):
+    """
+    Ramène chaque vecteur de la matrice M à une norme au plus égale à 'borne'.
+
+    Args:
+        M (np.ndarray): matrice (n_mots × dimension)
+        borne (float): norme maximale autorisée (par défaut 1.0)
+
+    Returns:
+        np.ndarray: matrice renormalisée
+    """
+    for i in range(M.shape[0]):
+        norme = np.linalg.norm(M[i])
+        if norme > borne:
+            M[i] = M[i] / norme * borne   # on garde la direction, on réduit la longueur
+    return M
 
 def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_centre, id_mot_context_positif,taux_apprentissage ):
 
@@ -30,6 +46,10 @@ def descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_mot_c
     matrice_contexte -= taux_apprentissage * np.outer((probabilite - y),v_c) # Calcule du produit exterieur 
 
     matrice_centre[id_mot_centre] = matrice_centre[id_mot_centre] - taux_apprentissage * grad
+
+    matrice_centre = renormaliser_matrice(matrice_centre, borne=1.0)
+    matrice_contexte = renormaliser_matrice(matrice_contexte, borne=1.0)
+
 
     # Vérifier que les valeurs de matrice_contexte restent entre 0 et 1
     assert np.all((matrice_contexte >= -1) & (matrice_contexte <= 1)), \
