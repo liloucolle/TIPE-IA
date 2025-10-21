@@ -136,6 +136,6 @@ v_king = m_centre[id_king]
 v_woman = m_centre[id_woman]
 v_man = m_centre[id_man]
 
-print(np.dot(v_king - v_man + v_woman, v_queen))
-print(np.dot(m_centre[word2id["cup"]], v_queen))
+print(cosine_similarity(v_king - v_man + v_woman, v_queen))
+print(cosine_similarity(m_centre[word2id["cup"]], v_queen))
 

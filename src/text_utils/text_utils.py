@@ -161,8 +161,6 @@ def creation_paires(tokens: list, word2id: dict, taille_fenetre: int = 1):
 
 
 def cosine_similarity(a, b):
-    a = np.array(a)
-    b = np.array(b)
     dot = np.dot(a, b)
     norm_a = np.linalg.norm(a)
     norm_b = np.linalg.norm(b)
