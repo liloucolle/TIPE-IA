@@ -130,10 +130,11 @@ class SkipGram(nn.Module):
 # ---------------------------
 # 6) Utilitaires d'entraînement
 # ---------------------------
-def train_softmax(model, ds, epochs=5, batch_size=128, lr=1e-3, device="cpu"):
+def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
-    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    #opt = torch.optim.Adam(model.parameters(), lr=lr)
+    opt = torch.optim.SGD(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()  # inclut softmax
 
     for ep in range(1, epochs+1):
@@ -153,10 +154,10 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=1e-3, device="cpu"):
             n += centers.size(0)
         print(f"[softmax] époque {ep}: perte = {total/n:.4f}")
 
-def train_neg(model, ds, epochs=5, batch_size=1024, lr=2.5e-3, device="cpu"):
+def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
-    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    opt = torch.optim.SGD(model.parameters(), lr=lr)
 
     for ep in range(1, epochs+1):
         total = 0.0
@@ -186,12 +187,12 @@ model = SkipGram(V, emb_dim)
 mode = "softmax"        # "softmax" ou "neg"
 if mode == "softmax":
     ds = SkipGramSoftmaxDS(pairs)
-    train_softmax(model, ds, epochs=100, batch_size=128, lr=0.01, device=device)
+    train_softmax(model, ds, epochs=300, batch_size=1, lr=0.01, device=device)
 else:
     ds = SkipGramNegSampleDS(pairs, V, unigram_probs=unigram, K=5)
-    train_neg(model, ds, epochs=100, batch_size=1024, lr=0.01, device=device)
+    train_neg(model, ds, epochs=250, batch_size=1024, lr=0.1, device=device)
 
-# ---------------------------
+# ---------------------------   
 # 8) Utiliser les embeddings
 # ---------------------------
 emb = model.get_embeddings()   # (V, emb_dim)

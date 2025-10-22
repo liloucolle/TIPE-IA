@@ -97,7 +97,7 @@ def word2vec(texte: str, dimension: int, taux_apprentissage: float, window_size:
     n = len(vocab)
 
     matrice_centre = (np.random.rand(n, dimension)- 0.5) / dimension
-    matrice_contexte = (np.random.rand(n, dimension)-0.5) / dimension
+    matrice_contexte = np.zeros((n, dimension))  # Initialisation à zéro
 
     paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
 
@@ -115,7 +115,7 @@ def word2vec(texte: str, dimension: int, taux_apprentissage: float, window_size:
 m_centre, m_context, word2id, id2word = word2vec(texte, dimension = 100, 
                                                         taux_apprentissage = 0.01, 
                                                         window_size = 1, 
-                                                        n_epochs = 1000, 
+                                                        n_epochs = 300, 
                                                         decay = 1)
 
 #
