@@ -6,7 +6,8 @@ from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, cre
 from content.echantillon_texte import texte_king_and_queen_2 as texte
 from embedding_utils.embedding_utils import mots_similaires_torch, most_similar_to_vector_torch
 
-
+torch.set_default_dtype(torch.float64)
+torch.manual_seed(0)
 # Tokeniser chaque ligne en liste de mots
 tokens = tokenisation(texte)
 

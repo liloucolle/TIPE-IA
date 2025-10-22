@@ -5,6 +5,7 @@ from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, cre
 from content.echantillon_texte import texte_king_and_queen_2 as texte
 from embedding_utils.embedding_utils import mots_similaires_numpy, most_similar_to_vector_numpy
 
+np.random.seed(0)
 
 def softmax(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, id_mot_centre: int) -> np.ndarray:
 
