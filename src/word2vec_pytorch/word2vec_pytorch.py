@@ -138,7 +138,11 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
     opt = torch.optim.SGD(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()  # inclut softmax
 
+    # Récupérer les paires pour l'évaluation
+    pairs = ds.pairs
+
     for ep in range(1, epochs+1):
+        model.train()  # Mode entraînement
         total = 0.0
         n = 0
         for centers, targets in dl:
@@ -153,7 +157,17 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
 
             total += loss.item() * centers.size(0)
             n += centers.size(0)
-        print(f"[softmax] époque {ep}: perte = {total/n:.4f}")
+        
+        # Afficher la perte d'entraînement et la perte d'évaluation        
+        # La version pytorch est la moyenne des pertes au fil des pas, où les poids changent après chaque échantillon
+        # La perte de reporting perte_tot est une évaluation a posteriori sur tout le dataset avec des poids fixes
+        # Tous les 50 echantillons on calcule la perte de la meme facon que perte_tot_torch        
+        train_loss = total/n
+        if ep % 50 == 0 or ep == 1:  # Évaluation tous les 50 époques
+            eval_loss = perte_tot_torch(model, pairs, device=device)
+            print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}, perte eval = {eval_loss:.4f}")
+        else:
+            print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}")
 
 def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
@@ -178,6 +192,22 @@ def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
         print(f"[neg] époque {ep}: perte = {total/n:.4f}")
 
 
+@torch.no_grad()
+def perte_tot_torch(model, pairs, device="cpu"):
+    """
+    Calcule la perte moyenne -log P(w_O|w_I) sur tout le dataset, sans autograd.
+    Équivalent PyTorch de la fonction perte_tot NumPy.
+    """
+    model.eval()
+    total = 0.0
+    for c, pos in pairs:
+        c = torch.tensor([c], device=device, dtype=torch.long)
+        logits = model.forward_softmax(c)  # (1, V)
+        logp = torch.log_softmax(logits, dim=1)
+        total += -logp[0, pos].item()
+    return total / max(1, len(pairs))
+
+
 # ---------------------------
 # 7) Choisir le mode et entraîner
 # ---------------------------
@@ -194,7 +224,18 @@ else:
     train_neg(model, ds, epochs=250, batch_size=1024, lr=0.1, device=device)
 
 # ---------------------------   
-# 8) Utiliser les embeddings
+# 8) Évaluation finale de la perte
+# ---------------------------
+print("\n" + "="*50)
+print("ÉVALUATION FINALE DE LA PERTE")
+print("="*50)
+
+# Calculer la perte finale sur tout le dataset
+perte_finale = perte_tot_torch(model, pairs, device=device)
+print(f"Perte finale PyTorch: {perte_finale:.4f}")
+
+# ---------------------------   
+# 9) Utiliser les embeddings
 # ---------------------------
 emb = model.get_embeddings()   # (V, emb_dim)
 
