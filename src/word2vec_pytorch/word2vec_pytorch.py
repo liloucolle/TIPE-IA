@@ -1,12 +1,10 @@
-# word2vec_skipgram.py
-from collections import Counter, defaultdict
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
 from content.echantillon_texte import texte_king_and_queen_2 as texte
+from embedding_utils.embedding_utils import mots_similaires_torch, most_similar_to_vector_torch
 
 
 # Tokeniser chaque ligne en liste de mots
@@ -198,37 +196,55 @@ else:
 # ---------------------------
 emb = model.get_embeddings()   # (V, emb_dim)
 
-# fonction auxiliaire: similarité cosinus
-def most_similar(word, topk=5):
-    if word not in stoi:
-        return []
-    widx = stoi[word]
-    wvec = emb[widx]                               # (N,)
-    sims = F.cosine_similarity(emb, wvec.unsqueeze(0))  # (V,)
-    vals, idxs = torch.topk(sims, k=topk+1)
-    out = []
-    for v, i in zip(vals.tolist(), idxs.tolist()):
-        if i == widx:  # ignorer soi-même
-            continue
-        out.append((itos[i], float(v)))
-        if len(out) == topk:
-            break
-    return out
+# Test de la fonction mots_similaires
+print("\n" + "="*50)
+print("TEST DE SIMILARITES")
+print("="*50)
 
-# fonction auxiliaire: similarité cosinus
-def most_similar_to_vector(vector, topk=5):
-    sims = F.cosine_similarity(emb, vector.unsqueeze(0))  # (V,)
-    vals, idxs = torch.topk(sims, k=topk+1)
-    out = []
-    for v, i in zip(vals.tolist(), idxs.tolist()):
-        out.append((itos[i], float(v)))
-        if len(out) == topk:
-            break
-    return out
+for mot in ["king", "queen", "man", "woman"]:
+    if mot in stoi:
+        print(f"\nMots les plus similaires à '{mot}':")
+        similaires = mots_similaires_torch(mot, emb, stoi, top_k=10)
+        for i, (mot_sim, sim) in enumerate(similaires, 1):
+            print(f"  {i}. {mot_sim}: {sim:.4f}")
+    else:
+        print(f"\nLe mot '{mot}' n'est pas dans le vocabulaire.")
 
+# Test d'analogie utilisant les fonctions consolidées
 computed = emb[stoi["king"]] - emb[stoi["man"]] + emb[stoi["woman"]]
-print(most_similar_to_vector(computed, topk=1))
+print("Test d'analogie avec most_similar_to_vector:")
+print(most_similar_to_vector_torch(computed, emb, stoi, topk=1))
 
-print("\nVoisins les plus proches:")
-for q in ["king", "queen", "man", "woman"]:
-    print(q, "→", most_similar(q, topk=20))
+# Test d'analogie avancé
+print("\nTest d'analogie avancé:")
+if "king" in stoi and "man" in stoi and "woman" in stoi:
+    vector_analogie = emb[stoi["king"]] - emb[stoi["man"]] + emb[stoi["woman"]]
+    exclude_words = {"king", "man", "woman"}
+    
+    # Obtenir plus de résultats pour compenser les exclusions
+    all_results = most_similar_to_vector_torch(vector_analogie, emb, stoi, topk=20)
+    
+    # Filtrer les mots à exclure
+    result = [(mot, sim) for mot, sim in all_results if mot not in exclude_words][:10]
+    
+    print(f"Analogie: king - man + woman ≈ ?")
+    print(f"Top 10 résultats:")
+    for i, (mot, sim) in enumerate(result, 1):
+        marker = " ✓" if mot == "queen" else ""
+        print(f"{i:2d}. {mot:<15} (similarité: {sim:.4f}){marker}")
+    
+    # Chercher le rang de "queen" dans les résultats
+    queen_rank = None
+    for i, (mot, sim) in enumerate(result, 1):
+        if mot == "queen":
+            queen_rank = i
+            break
+    
+    if queen_rank:
+        print(f"\n🎯 'queen' trouvée au rang {queen_rank} !")
+    else:
+        print(f"\n❌ 'queen' non trouvée dans le top 10")
+else:
+    print("❌ Certains mots de l'analogie ne sont pas dans le vocabulaire")
+
+

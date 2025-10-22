@@ -1,5 +1,5 @@
 
-from word2vec.matrice import softmax, descente_de_gradient, epoche, entrainer, perte_tot, deep_learning
+from word2vec.matrice import softmax, descente_de_gradient, epoche, entrainer, perte_tot, word2vec
 from text_utils.text_utils import tokenisation, vocabulaire, creation_paires, frequence_mots 
 import numpy as np
 import pytest
@@ -563,12 +563,12 @@ class TestYourPipelineOnly:
         """Même init : plus d'époques => perte totale plus faible (ou égale)."""
         dimension = 12
         np.random.seed(123)
-        mc1, mx1 = deep_learning(
+        mc1, mx1 = word2vec(
             TEXTE_KQ, dimension=dimension, taux_apprentissage=0.05,
             window_size=1, n_epochs=1, patience=3, tolerance=1e-4, decay=0.95
         )
         np.random.seed(123)
-        mc5, mx5 = deep_learning(
+        mc5, mx5 = word2vec(
             TEXTE_KQ, dimension=dimension, taux_apprentissage=0.05,
             window_size=1, n_epochs=5, patience=3, tolerance=1e-4, decay=0.95
         )
@@ -583,12 +583,12 @@ class TestYourPipelineOnly:
 
     def test_deep_learning_shapes_and_empty_text(self):
         """deep_learning renvoie des matrices de bonne taille, et gère le texte vide."""
-        mc, mx = deep_learning(TEXTE_KQ, dimension=7, taux_apprentissage=0.03,
+        mc, mx = word2vec(TEXTE_KQ, dimension=7, taux_apprentissage=0.03,
                                window_size=2, n_epochs=2, patience=2, tolerance=1e-3, decay=0.95)
         assert mc.ndim == 2 and mx.ndim == 2
         assert mc.shape[0] == mx.shape[0] and mc.shape[1] == mx.shape[1]
 
-        mc0, mx0 = deep_learning("", dimension=6, taux_apprentissage=0.03,
+        mc0, mx0 = word2vec("", dimension=6, taux_apprentissage=0.03,
                                  window_size=1, n_epochs=1, patience=1, tolerance=1e-3, decay=0.95)
         assert mc0.shape == (0, 6)
         assert mx0.shape == (0, 6)
@@ -613,7 +613,7 @@ def test_deep_learning_shapes_match_vocab():
     """deep_learning renvoie (|V|, d) pour centre et contexte."""
     dimension = 8
     np.random.seed(0)
-    mc, mx = deep_learning(
+    mc, mx = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.05,
         window_size=1, n_epochs=3, patience=3, tolerance=1e-3, decay=0.95
     )
@@ -631,7 +631,7 @@ def test_deep_learning_empty_text():
     """Texte vide -> matrices vides (0, d)."""
     dimension = 6
     np.random.seed(1)
-    mc, mx = deep_learning(
+    mc, mx = word2vec(
         "", dimension=dimension, taux_apprentissage=0.05,
         window_size=1, n_epochs=2, patience=2, tolerance=1e-3, decay=0.95
     )
@@ -656,7 +656,7 @@ def test_zero_learning_rate_reproduces_initialisation():
     mx_init = np.random.rand(V, dimension) - 0.5
 
     np.random.seed(2024)
-    mc_out, mx_out = deep_learning(
+    mc_out, mx_out = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.0,
         window_size=1, n_epochs=3, patience=3, tolerance=1e-3, decay=0.95
     )
@@ -670,13 +670,13 @@ def test_loss_decreases_with_more_epochs():
 
     # même seed pour avoir la même init
     np.random.seed(123)
-    mc1, mx1 = deep_learning(
+    mc1, mx1 = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.05,
         window_size=1, n_epochs=1, patience=3, tolerance=1e-4, decay=0.95
     )
 
     np.random.seed(123)
-    mc5, mx5 = deep_learning(
+    mc5, mx5 = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.05,
         window_size=1, n_epochs=5, patience=3, tolerance=1e-4, decay=0.95
     )
@@ -696,12 +696,12 @@ def test_reproducibility_with_seed():
     """Même seed ⇒ mêmes matrices (reproductibilité)."""
     dimension = 10
     np.random.seed(42)
-    mc_a, mx_a = deep_learning(
+    mc_a, mx_a = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.03,
         window_size=2, n_epochs=4, patience=3, tolerance=1e-3, decay=0.95
     )
     np.random.seed(42)
-    mc_b, mx_b = deep_learning(
+    mc_b, mx_b = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.03,
         window_size=2, n_epochs=4, patience=3, tolerance=1e-3, decay=0.95
     )
@@ -712,12 +712,12 @@ def test_window_size_changes_training():
     """Même seed, fenêtres différentes ⇒ résultats (très probablement) différents."""
     dimension = 8
     np.random.seed(7)
-    mc_w1, mx_w1 = deep_learning(
+    mc_w1, mx_w1 = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.05,
         window_size=1, n_epochs=3, patience=3, tolerance=1e-3, decay=0.95
     )
     np.random.seed(7)
-    mc_w2, mx_w2 = deep_learning(
+    mc_w2, mx_w2 = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.05,
         window_size=2, n_epochs=3, patience=3, tolerance=1e-3, decay=0.95
     )
@@ -728,7 +728,7 @@ def test_no_nan_no_inf_after_training():
     """Après deep_learning, la perte doit être finie (pas NaN/Inf)."""
     dimension = 11
     np.random.seed(9)
-    mc, mx = deep_learning(
+    mc, mx = word2vec(
         TEXTE_KQ, dimension=dimension, taux_apprentissage=0.04,
         window_size=2, n_epochs=2, patience=2, tolerance=1e-3, decay=0.95
     )
