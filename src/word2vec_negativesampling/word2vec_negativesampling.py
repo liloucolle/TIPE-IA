@@ -1,6 +1,7 @@
 import numpy as np
 import math as m
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
+from content.echantillon_texte import test_simple
 
 
 dimension = 100
@@ -185,7 +186,11 @@ def deep_learning_negative_sampling(texte, dimension, taux_apprentissage, window
                                    n_epochs, patience, tolerance, decay,
                                    K_neg=5, alpha_unigram=0.75):
 
-    tokens = [tokenisation(texte)]
+    # ✅ accepte str ou list[str]
+    if isinstance(texte, list):
+        tokens = [tokenisation(t) for t in texte]  # liste de listes
+    else:
+        tokens = [tokenisation(texte)]
 
     if len(tokens[0]) == 0:
         return np.empty((0, dimension)), np.empty((0, dimension))
@@ -215,3 +220,23 @@ def deep_learning_negative_sampling(texte, dimension, taux_apprentissage, window
     )
 
     return matrice_centre, matrice_contexte
+
+if __name__ == "__main__":
+    matrice_centre, matrice_contexte = deep_learning_negative_sampling(
+        test_simple,
+        dimension=100,
+        taux_apprentissage=0.05,
+        window_size=2,
+        n_epochs=5,
+        patience=2,
+        tolerance=1e-4,
+        decay=0.95,
+        K_neg=5,
+        alpha_unigram=0.75
+    )
+
+    print("\nShape centre :", matrice_centre.shape)
+    print("Shape contexte :", matrice_contexte.shape)
+
+    print("\nMatrice embeddings (centre) :")
+    print(matrice_centre)

@@ -95,10 +95,13 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
 
 def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, patience, tolerance, decay):
 
-    tokens = [tokenisation(texte)]  # liste de listes, comme attendu par creation_paires
+    if isinstance(texte, list):
+        tokens = [tokenisation(t) for t in texte]   # liste de listes
+    else:
+        tokens = [tokenisation(texte)]
 
-    # Cas bord : texte vide → matrices vides
-    if len(tokens[0]) == 0:
+    # Cas bord : corpus vide
+    if len(tokens) == 0 or all(len(t) == 0 for t in tokens):
         return np.empty((0, dimension)), np.empty((0, dimension))
 
     freq = frequence_mots(tokens)
