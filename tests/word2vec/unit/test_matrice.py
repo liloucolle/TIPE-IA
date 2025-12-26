@@ -466,7 +466,6 @@ class TestPipeline:
 
 
 
-
 """
 def perte_tot_ref(matrice_centre, matrice_contexte, paires):
     total = 0.0
