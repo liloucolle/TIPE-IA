@@ -1,5 +1,5 @@
 
-from word2vec.matrices import softmax, descente_de_gradient, epoche, entrainer, perte_tot, deep_learning
+from word2vec.matrice import softmax, descente_de_gradient, epoche, entrainer, perte_tot, deep_learning
 from text_utils import tokenisation, vocabulaire, creation_paires, frequence_mots 
 import numpy as np
 import pytest
@@ -466,20 +466,16 @@ class TestPipeline:
 
 
 
-# --------- Helpers de référence (pour vérifs indépendantes) ----------
-def softmax_scores(M, v_c):
-    s = M @ v_c
-    e = np.exp(s - np.max(s))
-    return e / np.sum(e)
 
+"""
 def perte_tot_ref(matrice_centre, matrice_contexte, paires):
     total = 0.0
     for (id_c, id_pos) in paires:
         v_c = matrice_centre[id_c]
-        p = softmax_scores(matrice_contexte, v_c)
+        p = softmax(matrice_contexte, v_c)
         total += -np.log(p[id_pos])
     return float(total)
-
+"""
 # --------- Corpus simple: rois & reines (que des a-z sans accents) ----------
 TEXTE_KQ = (
     "le roi aime la reine le roi porte la couronne "
