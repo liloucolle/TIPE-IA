@@ -77,7 +77,7 @@ def benchmark_neg_numpy(texte, params):
 def benchmark_pytorch(texte, mode="neg", epochs=10, emb_dim=100):
     set_seed()
 
-    tokens = [tokenisation(t) for t in texte]
+    tokens = tokenisation(texte)
     freq = frequence_mots(tokens)
     vocab, stoi, itos = vocabulaire(freq)
     pairs = creation_paires(tokens, stoi, taille_fenetre=2)

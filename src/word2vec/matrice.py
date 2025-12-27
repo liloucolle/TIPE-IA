@@ -95,10 +95,8 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
 
 def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, patience, tolerance, decay):
 
-    if isinstance(texte, list):
-        tokens = [tokenisation(t) for t in texte]   # liste de listes
-    else:
-        tokens = [tokenisation(texte)]
+
+    tokens = tokenisation(texte)
 
     # Cas bord : corpus vide
     if len(tokens) == 0 or all(len(t) == 0 for t in tokens):

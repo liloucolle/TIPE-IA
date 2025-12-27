@@ -22,6 +22,9 @@ def tokenisation(texte):
         >>> tokenisation("Bonjour, monde! Comment ça va?")
         ['bonjour', 'monde', 'comment', 'va']
     """
+
+    if isinstance(texte, str):
+        texte = [texte]
     texte_token = []
     phrase_courante = []
     mot_courant = []

@@ -165,9 +165,9 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
         train_loss = total/n
         if ep % 50 == 0 or ep == 1:  # Évaluation tous les 50 époques
             eval_loss = perte_tot_torch(model, pairs, device=device)
-            print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}, perte eval = {eval_loss:.4f}")
-        else:
-            print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}")
+            #print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}, perte eval = {eval_loss:.4f}")
+        #else:
+           # print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}")
 
 def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
@@ -189,7 +189,7 @@ def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
 
             total += loss.item() * centers.size(0)
             n += centers.size(0)
-        print(f"[neg] époque {ep}: perte = {total/n:.4f}")
+        #print(f"[neg] époque {ep}: perte = {total/n:.4f}")
 
 
 @torch.no_grad()

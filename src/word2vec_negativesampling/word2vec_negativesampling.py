@@ -186,11 +186,8 @@ def deep_learning_negative_sampling(texte, dimension, taux_apprentissage, window
                                    n_epochs, patience, tolerance, decay,
                                    K_neg=5, alpha_unigram=0.75):
 
-    # ✅ accepte str ou list[str]
-    if isinstance(texte, list):
-        tokens = [tokenisation(t) for t in texte]  # liste de listes
-    else:
-        tokens = [tokenisation(texte)]
+
+    tokens = tokenisation(texte)
 
     if len(tokens[0]) == 0:
         return np.empty((0, dimension)), np.empty((0, dimension))
