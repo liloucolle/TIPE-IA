@@ -149,20 +149,30 @@ def perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=5, seed=
 
 
 def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
-                 taux_apprentissage=0.05, n_epochs=10, patience=3, tol=1e-3, decay=0.95, K=5):
+                 taux_apprentissage=0.05, n_epochs=10, patience=3, tol=1e-3,
+                 decay=0.95, K=5, eval_every=0):
+    """
+    eval_every=0  => AUCUNE évaluation (benchmark temps pur)
+    eval_every=5  => évalue toutes les 5 époques
+    """
 
-    meilleur_loss = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=0)
+    # ✅ si pas d'évaluation, on évite totalement perte_tot_ns
+    if eval_every and eval_every > 0:
+        meilleur_loss = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=0)
+    else:
+        meilleur_loss = None
+
     aucune_amelioration = 0
     eta = taux_apprentissage
-
 
     for epoch in range(n_epochs):
         matrice_centre, matrice_contexte = epoche_ns(
             matrice_centre, matrice_contexte, paires, probs_neg, eta, K=K
         )
-        if (epoch % 10) == 0:
+
+        # ✅ évaluation optionnelle
+        if eval_every and eval_every > 0 and ((epoch + 1) % eval_every == 0):
             L = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=epoch + 1)
-       
             rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
 
             if rel_gain > tol:
@@ -173,14 +183,15 @@ def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
                 if aucune_amelioration >= patience:
                     break
 
-            eta *= decay
+        eta *= decay
 
     return matrice_centre, matrice_contexte
 
 
+
 def deep_learning_negative_sampling(texte, dimension, taux_apprentissage, window_size,
                                    n_epochs, patience, tolerance, decay,
-                                   K_neg=5, alpha_unigram=0.75):
+                                   K_neg=5, alpha_unigram=0.75, eval_every=0):
 
 
     tokens = tokenisation(texte)
@@ -209,7 +220,8 @@ def deep_learning_negative_sampling(texte, dimension, taux_apprentissage, window
         patience=patience,
         tol=tolerance,
         decay=decay,
-        K=K_neg
+        K=K_neg, 
+        eval_every=0
     )
 
     return matrice_centre, matrice_contexte
