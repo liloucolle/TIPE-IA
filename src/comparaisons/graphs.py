@@ -4,7 +4,12 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 from comparaison import *
-from content.echantillon_texte import test_simple, texte_king_and_queen, texte_king_and_queen_2
+from content.echantillon_texte import (
+    test_simple,
+    texte_king_and_queen,
+    texte_king_and_queen_2,
+    texte_king_and_queen_long,   # ✅ ton nouveau corpus
+)
 
 
 # =========================
@@ -37,12 +42,13 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 
 
 # =========================
-# Textes (corpus)
+# Textes (corpus) — 4 corpus ✅
 # =========================
 CORPORA = [
     ("test_simple", test_simple),
     ("king_and_queen", texte_king_and_queen),
     ("king_and_queen_2", texte_king_and_queen_2),
+    ("king_and_queen_long", texte_king_and_queen_long),  # ✅ nouveau
 ]
 
 
@@ -52,10 +58,9 @@ CORPORA = [
 def graphe_temps():
     labels_models = ["Softmax (NumPy)", "NegSampling (NumPy)", "NegSampling (PyTorch)"]
 
-    # On stocke un temps par (corpus, modèle)
     times_soft = []
-    times_neg = []
-    times_pt = []
+    times_neg  = []
+    times_pt   = []
 
     for name, corpus in CORPORA:
         _, t_soft = benchmark_softmax_numpy(corpus, params_numpy)
@@ -68,7 +73,6 @@ def graphe_temps():
 
         print(f"[TEMPS] {name}: soft={t_soft:.4f}s | neg_np={t_neg:.4f}s | neg_pt={t_pt:.4f}s")
 
-    # Plot barres groupées
     x = list(range(len(CORPORA)))
     width = 0.25
 
@@ -79,10 +83,10 @@ def graphe_temps():
 
     plt.xticks(x, [name for name, _ in CORPORA], rotation=0)
     plt.ylabel("Temps (s)")
-    plt.title("Temps d'entraînement Word2Vec (comparaison sur plusieurs corpus)")
+    plt.title("Temps d'entraînement Word2Vec (3 implémentations, 4 corpus)")
     plt.legend()
 
-    save_figure(fig, "temps_word2vec")
+    save_figure(fig, "temps_word2vec_4corpus")
     plt.show()
 
 
@@ -97,7 +101,6 @@ def graphe_precision(k=TOPK):
     acc_pt   = []
 
     for name, corpus in CORPORA:
-        # paires "référence" pour NumPy : on garde la même construction que tes modèles NumPy
         _, _, _, _, _, paires = build_dataset(corpus, window_size=params_numpy["window_size"])
 
         W_soft, _ = benchmark_softmax_numpy(corpus, params_numpy)
@@ -125,10 +128,10 @@ def graphe_precision(k=TOPK):
     plt.xticks(x, [name for name, _ in CORPORA], rotation=0)
     plt.ylabel(f"Top-{k} accuracy")
     plt.ylim(0.0, 1.0)
-    plt.title(f"Qualité sémantique (Top-{k}) sur plusieurs corpus")
+    plt.title(f"Qualité sémantique (Top-{k}) — 3 implémentations, 4 corpus")
     plt.legend()
 
-    save_figure(fig, f"precision_top{k}")
+    save_figure(fig, f"precision_top{k}_4corpus")
     plt.show()
 
 

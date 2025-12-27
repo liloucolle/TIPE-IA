@@ -86,24 +86,19 @@ def loss_pair_negative_sampling(matrice_centre, matrice_contexte, id_centre, id_
 
 
 def descente_de_gradient_ns(matrice_centre, matrice_contexte, id_centre, id_pos, negatifs, taux_apprentissage):
-    """
-    Updates SGD pour Negative Sampling (skip-gram).
-    - centre: v_c
-    - contexte: u_w
-    """
-    v_c = matrice_centre[id_centre]          # vue, pas copy
+    v_c = matrice_centre[id_centre]          # vue (pas copy)
     grad_v = np.zeros_like(v_c)
 
     # positif
     u_pos = matrice_contexte[id_pos]         # vue
     score_pos = float(np.dot(u_pos, v_c))
-    g_pos = sigmoid(score_pos) - 1.0
+    g_pos = sigmoid(score_pos) - 1.0         # dL/dscore
 
-    # on stocke u_pos AVANT update pour grad_v
+    # grad_v doit utiliser u_pos "avant update" -> on l'utilise tout de suite
     grad_v += g_pos * u_pos
     matrice_contexte[id_pos] -= taux_apprentissage * (g_pos * v_c)
 
-    # négatifs (boucle sur K, mais sans copy)
+    # négatifs
     for id_neg in negatifs:
         id_neg = int(id_neg)
         u_neg = matrice_contexte[id_neg]     # vue
@@ -121,14 +116,24 @@ def descente_de_gradient_ns(matrice_centre, matrice_contexte, id_centre, id_pos,
 def epoche_ns(matrice_centre, matrice_contexte, paires, probs_neg, taux_apprentissage, K=5):
     ordre = np.random.permutation(len(paires))
 
-    for k in ordre:
+    # pré-sample un bloc de négatifs
+    neg_pool = np.random.choice(len(probs_neg), size=(len(paires), K), replace=True, p=probs_neg)
+
+    for idx, k in enumerate(ordre):
         id_centre, id_pos = paires[k]
-        negatifs = echantillon_negatifs(probs_neg, id_pos=id_pos, K=K, id_centre=id_centre)
+        negatifs = neg_pool[idx]
+
+        # si tu veux éviter pos/centre : fais un petit masque rapide (sans while)
+        mask = (negatifs == id_pos) | (negatifs == id_centre)
+        if np.any(mask):
+            negatifs[mask] = np.random.choice(len(probs_neg), size=int(mask.sum()), replace=True, p=probs_neg)
+
         matrice_centre, matrice_contexte = descente_de_gradient_ns(
             matrice_centre, matrice_contexte, id_centre, id_pos, negatifs, taux_apprentissage
         )
 
     return matrice_centre, matrice_contexte
+
 
 
 def perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=5, seed=0):
