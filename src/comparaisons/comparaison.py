@@ -109,7 +109,7 @@ def build_dataset(texte, window_size=2):
     pour les métriques de comparaison.
     """
 
-    tokens = [tokenisation(texte)]
+    tokens = tokenisation(texte)
 
     freq = frequence_mots(tokens)
     vocab, stoi, itos = vocabulaire(freq)
