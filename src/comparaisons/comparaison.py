@@ -108,10 +108,8 @@ def build_dataset(texte, window_size=2):
     Prépare vocabulaire + paires (centre, contexte)
     pour les métriques de comparaison.
     """
-    if isinstance(texte, list):
-        tokens = [tokenisation(t) for t in texte]
-    else:
-        tokens = [tokenisation(texte)]
+
+    tokens = [tokenisation(texte)]
 
     freq = frequence_mots(tokens)
     vocab, stoi, itos = vocabulaire(freq)
