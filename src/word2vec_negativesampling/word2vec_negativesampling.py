@@ -42,26 +42,29 @@ def distribution_negative_sampling(freq, vocab, stoi, alpha=0.75):
 
 
 def echantillon_negatifs(probs, id_pos, K, id_centre=None):
-    """
-    Tire K ids négatifs selon probs, en évitant id_pos
-    (et optionnellement id_centre).
-    """
+
     n = len(probs)
     negs = np.random.choice(n, size=K, replace=True, p=probs)
 
-    # On retente là où on a tiré des "interdits"
-    interdit = {int(id_pos)}
-    if id_centre is not None:
-        interdit.add(int(id_centre))
+    if id_centre is None:
+        mask = (negs == id_pos)
+    else:
+        mask = (negs == id_pos) | (negs == id_centre)
 
-    # boucle très simple, suffisante en pratique
-    for _ in range(10):  # limite anti-boucle infinie
-        mask = np.isin(negs, list(interdit))
-        if not np.any(mask):
-            break
-        negs[mask] = np.random.choice(n, size=int(np.sum(mask)), replace=True, p=probs)
+    if np.any(mask):
+        negs[mask] = np.random.choice(n, size=int(mask.sum()), replace=True, p=probs)
+
+        # deuxième passe optionnelle si vraiment tu veux être strict
+        if id_centre is None:
+            mask2 = (negs == id_pos)
+        else:
+            mask2 = (negs == id_pos) | (negs == id_centre)
+
+        if np.any(mask2):
+            negs[mask2] = np.random.choice(n, size=int(mask2.sum()), replace=True, p=probs)
 
     return negs
+
 
 
 def loss_pair_negative_sampling(matrice_centre, matrice_contexte, id_centre, id_pos, negatifs):
@@ -88,40 +91,31 @@ def descente_de_gradient_ns(matrice_centre, matrice_contexte, id_centre, id_pos,
     - centre: v_c
     - contexte: u_w
     """
-    v_c = matrice_centre[id_centre].copy()  # on garde un snapshot pour des updates propres
+    v_c = matrice_centre[id_centre]          # vue, pas copy
     grad_v = np.zeros_like(v_c)
 
-    # ---- positif (label=1) ----
-    u_pos_old = matrice_contexte[id_pos].copy()
-    score_pos = float(np.dot(u_pos_old, v_c))
-    s_pos = sigmoid(score_pos)
-    g_pos = (s_pos - 1.0)  # dL/dscore
+    # positif
+    u_pos = matrice_contexte[id_pos]         # vue
+    score_pos = float(np.dot(u_pos, v_c))
+    g_pos = sigmoid(score_pos) - 1.0
 
-    # gradients
-    grad_u_pos = g_pos * v_c
-    grad_v += g_pos * u_pos_old
+    # on stocke u_pos AVANT update pour grad_v
+    grad_v += g_pos * u_pos
+    matrice_contexte[id_pos] -= taux_apprentissage * (g_pos * v_c)
 
-    # update u_pos
-    matrice_contexte[id_pos] = matrice_contexte[id_pos] - taux_apprentissage * grad_u_pos
-
-    # ---- négatifs (label=0) ----
+    # négatifs (boucle sur K, mais sans copy)
     for id_neg in negatifs:
         id_neg = int(id_neg)
-        u_neg_old = matrice_contexte[id_neg].copy()
+        u_neg = matrice_contexte[id_neg]     # vue
+        score_neg = float(np.dot(u_neg, v_c))
+        g_neg = sigmoid(score_neg)           # label 0
 
-        score_neg = float(np.dot(u_neg_old, v_c))
-        s_neg = sigmoid(score_neg)
-        g_neg = s_neg  # dL/dscore pour un négatif
+        grad_v += g_neg * u_neg
+        matrice_contexte[id_neg] -= taux_apprentissage * (g_neg * v_c)
 
-        grad_u_neg = g_neg * v_c
-        grad_v += g_neg * u_neg_old
-
-        matrice_contexte[id_neg] = matrice_contexte[id_neg] - taux_apprentissage * grad_u_neg
-
-    # update v_c (une seule fois)
-    matrice_centre[id_centre] = matrice_centre[id_centre] - taux_apprentissage * grad_v
-
+    matrice_centre[id_centre] -= taux_apprentissage * grad_v
     return matrice_centre, matrice_contexte
+
 
 
 def epoche_ns(matrice_centre, matrice_contexte, paires, probs_neg, taux_apprentissage, K=5):
@@ -161,23 +155,25 @@ def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
     aucune_amelioration = 0
     eta = taux_apprentissage
 
+
     for epoch in range(n_epochs):
         matrice_centre, matrice_contexte = epoche_ns(
             matrice_centre, matrice_contexte, paires, probs_neg, eta, K=K
         )
+        if (epoch % 10) == 0:
+            L = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=epoch + 1)
+       
+            rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
 
-        L = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=epoch + 1)
-        rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
+            if rel_gain > tol:
+                meilleur_loss = L
+                aucune_amelioration = 0
+            else:
+                aucune_amelioration += 1
+                if aucune_amelioration >= patience:
+                    break
 
-        if rel_gain > tol:
-            meilleur_loss = L
-            aucune_amelioration = 0
-        else:
-            aucune_amelioration += 1
-            if aucune_amelioration >= patience:
-                break
-
-        eta *= decay
+            eta *= decay
 
     return matrice_centre, matrice_contexte
 
