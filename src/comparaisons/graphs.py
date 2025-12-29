@@ -46,10 +46,10 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 # Textes (corpus) — 4 corpus ✅
 # =========================
 CORPORA = [
-    ("test_simple", test_simple),
+    #("test_simple", test_simple),
     ("king_and_queen", texte_king_and_queen),
     ("science", texte_science),
-    ("king_and_queen_long", texte_king_and_queen_long),  
+    #("king_and_queen_long", texte_king_and_queen_long),  
 ]
 
 
@@ -90,7 +90,7 @@ def graphe_temps():
     save_figure(fig, "temps_word2vec_4corpus")
     plt.show()
 
-
+"""
 # =========================
 # 2) Précision top-k
 # =========================
@@ -135,10 +135,10 @@ def graphe_precision(k=TOPK):
     save_figure(fig, f"precision_top{k}_4corpus")
     plt.show()
 
-
+"""
 # =========================
 # 3) Lancement
 # =========================
 if __name__ == "__main__":
     graphe_temps()
-    graphe_precision(k=TOPK)
+    #graphe_precision(k=TOPK)
