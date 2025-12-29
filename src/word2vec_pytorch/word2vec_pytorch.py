@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
-from content.echantillon_texte import texte_king_and_queen_2 as texte
+from content.echantillon_texte import texte_diversifie as texte
 from embedding_utils.embedding_utils import mots_similaires_torch, most_similar_to_vector_torch
 
 torch.set_default_dtype(torch.float64)

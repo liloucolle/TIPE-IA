@@ -5,11 +5,7 @@ import matplotlib.pyplot as plt
 
 from comparaison import *
 from content.echantillon_texte import (
-    test_simple,
-    texte_king_and_queen,
-    texte_king_and_queen_2,
-    texte_king_and_queen_long,   
-    texte_science
+   texte_diversifie,texte_redundant,texte_court,texte_structurel
 )
 
 
@@ -63,10 +59,10 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 # Textes (corpus) — 4 corpus ✅
 # =========================
 CORPORA = [
-    #("test_simple", test_simple),
-    ("king_and_queen", texte_king_and_queen),
-    ("science", texte_science),
-    #("king_and_queen_long", texte_king_and_queen_long),  
+    ("test_court", texte_court),
+    ("Texte redondant", texte_redundant),
+    ("Texte structurel", texte_structurel),
+    ("Texte diversifié", texte_diversifie)
 ]
 
 
@@ -111,55 +107,82 @@ def graphe_temps():
     save_figure(fig, "temps_word2vec_4corpus")
     plt.show()
 
-"""
-# =========================
-# 2) Précision top-k
-# =========================
-def graphe_precision(k=TOPK):
-    labels_models = ["Softmax (NumPy)", "NegSampling (NumPy)", "NegSampling (PyTorch)"]
 
-    acc_soft = []
-    acc_neg  = []
-    acc_pt   = []
+# =========================
+# 2) Convergence (loss proxy)
+# =========================
+def graphe_convergence():
+    for name, corpus in CORPORA:
+        res = test_convergence_proxy(
+            corpus,
+            params_numpy=params_numpy,
+            params_torch=params_torch
+        )
+
+        fig = plt.figure()
+        plt.plot(res["epochs"], res["softmax_numpy"], label="Softmax NumPy")
+        plt.plot(res["epochs"], res["neg_numpy"], label="NegSampling NumPy")
+        plt.plot(res["epochs"], res["pytorch"], label="NegSampling PyTorch")
+
+        plt.xlabel("Epochs")
+        plt.ylabel("Proxy loss (↓ mieux)")
+        plt.title(f"Convergence — {name}")
+        plt.legend()
+
+        save_figure(fig, f"convergence_{name}")
+        plt.show()
+
+
+
+# =========================
+# 3) Scalabilité (temps vs vocabulaire) — VERSION PROPRE
+# =========================
+def graphe_scalabilite():
+    V_all = []
+    t_soft_all = []
+    t_neg_all = []
+    t_pt_all = []
+
+    corpus_labels = []
 
     for name, corpus in CORPORA:
-        _, _, _, _, _, paires = build_dataset(corpus, window_size=params_numpy["window_size"])
+        res = test_scalabilite_vocab(
+            corpus,
+            params_numpy=params_numpy,
+            params_torch=params_torch
+        )
 
-        W_soft, _ = benchmark_softmax_numpy(corpus, params_numpy)
-        W_neg,  _ = benchmark_neg_numpy(corpus, {**params_numpy, "K_neg": K_NEG})
-        W_pt, _, paires_pt = benchmark_pytorch(corpus, mode="neg", epochs=params_numpy["n_epochs"])
+        # On concatène les résultats
+        V_all.extend(res["V"])
+        t_soft_all.extend(res["t_soft"])
+        t_neg_all.extend(res["t_neg"])
+        t_pt_all.extend(res["t_pt"])
+        corpus_labels.extend([name] * len(res["V"]))
 
-        a_soft = topk_accuracy(W_soft, paires, k=k)
-        a_neg  = topk_accuracy(W_neg,  paires, k=k)
-        a_pt   = topk_accuracy(W_pt,   paires_pt, k=k)
-
-        acc_soft.append(a_soft)
-        acc_neg.append(a_neg)
-        acc_pt.append(a_pt)
-
-        print(f"[ACC@{k}] {name}: soft={a_soft:.4f} | neg_np={a_neg:.4f} | neg_pt={a_pt:.4f}")
-
-    x = list(range(len(CORPORA)))
-    width = 0.25
+    # Tri par taille de vocabulaire (important pour une courbe propre)
+    order = np.argsort(V_all)
+    V_all = np.array(V_all)[order]
+    t_soft_all = np.array(t_soft_all)[order]
+    t_neg_all = np.array(t_neg_all)[order]
+    t_pt_all = np.array(t_pt_all)[order]
 
     fig = plt.figure()
-    plt.bar([i - width for i in x], acc_soft, width=width, label=labels_models[0])
-    plt.bar([i for i in x],         acc_neg,  width=width, label=labels_models[1])
-    plt.bar([i + width for i in x], acc_pt,   width=width, label=labels_models[2])
 
-    plt.xticks(x, [name for name, _ in CORPORA], rotation=0)
-    plt.ylabel(f"Top-{k} accuracy")
-    plt.ylim(0.0, 1.0)
-    plt.title(f"Qualité sémantique (Top-{k}) — 3 implémentations, 4 corpus")
+    plt.plot(V_all, t_soft_all, "o-", label="Softmax NumPy")
+    plt.plot(V_all, t_neg_all, "s-", label="NegSampling NumPy")
+    plt.plot(V_all, t_pt_all, "^-", label="NegSampling PyTorch")
+
+    plt.xlabel("Taille du vocabulaire |V|")
+    plt.ylabel("Temps d'entraînement (s)")
+    plt.title("Scalabilité des implémentations Word2Vec")
     plt.legend()
+    plt.grid(True, alpha=0.3)
 
-    save_figure(fig, f"precision_top{k}_4corpus")
+    save_figure(fig, "scalabilite_globale")
     plt.show()
 
-"""
-# =========================
-# 3) Lancement
-# =========================
+
 if __name__ == "__main__":
     graphe_temps()
-    #graphe_precision(k=TOPK)
+    graphe_convergence()
+    graphe_scalabilite()
