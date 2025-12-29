@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
@@ -208,21 +209,45 @@ def perte_tot_torch(model, pairs, device="cpu"):
     return total / max(1, len(pairs))
 
 
+def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.01, window_size=2, n_epochs=10, mode="softmax", batch_size=128):
+        
+    tokens = tokenisation(texte)
+    
+    # Edge case: empty corpus
+    if len(tokens) == 0 or all(len(t) == 0 for t in tokens):
+        return np.empty((0, dimension)), 0.0
+    
+    freq = frequence_mots(tokens)
+    vocab, stoi, itos = vocabulaire(freq)
+    V = len(vocab)
+    
+    pairs = creation_paires(tokens, stoi, taille_fenetre=window_size)
+    
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = SkipGram(V, dimension)
+    
+
+    if mode == "softmax":
+        ds = SkipGramSoftmaxDS(pairs)
+        train_softmax(model, ds, epochs=n_epochs, batch_size=batch_size, lr=taux_apprentissage, device=device)
+    else:  # neg
+        unigram = torch.tensor([freq[itos[i]] for i in range(V)], dtype=torch.float)
+        unigram = unigram.pow(0.75)
+        unigram /= unigram.sum()
+        ds = SkipGramNegSampleDS(pairs, V, unigram_probs=unigram, K=5)
+        train_neg(model, ds, epochs=n_epochs, batch_size=batch_size, lr=taux_apprentissage, device=device)
+    
+    emb = model.get_embeddings().numpy()
+    return emb
+
+
 # ---------------------------
 # 7) Choisir le mode et entraîner
 # ---------------------------
-emb_dim = 100 # dimension des embeddings
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = SkipGram(V, emb_dim)
 
-mode = "softmax"        # "softmax" ou "neg"
-if mode == "softmax":
-    ds = SkipGramSoftmaxDS(pairs)
-    train_softmax(model, ds, epochs=300, batch_size=1, lr=0.01, device=device)
-else:
-    ds = SkipGramNegSampleDS(pairs, V, unigram_probs=unigram, K=5)
-    train_neg(model, ds, epochs=250, batch_size=1024, lr=0.1, device=device)
 
+
+"""
 # ---------------------------   
 # 8) Évaluation finale de la perte
 # ---------------------------
@@ -291,3 +316,4 @@ else:
     print("❌ Certains mots de l'analogie ne sont pas dans le vocabulaire")
 
 
+"""

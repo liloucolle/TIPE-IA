@@ -59,6 +59,7 @@ def benchmark_softmax_numpy(texte, params):
     t0 = time.time()
     Wc, Wt = softmax_numpy(texte, **params)
     t = time.time() - t0
+    print(str(t) + ":total time benchamark softmax numpy implementation")
     return Wc, t
 
 
@@ -67,6 +68,8 @@ def benchmark_neg_numpy(texte, params):
     t0 = time.time()
     Wc, Wt = deep_learning_negative_sampling(texte, **params)
     t = time.time() - t0
+    print(str(t) + ":total time benchamark negative sampling numpy implementation")
+
     return Wc, t
 
 
@@ -74,33 +77,14 @@ def benchmark_neg_numpy(texte, params):
 # Benchmarks PYTORCH
 # =========================
 
-def benchmark_pytorch(texte, mode="neg", epochs=10, emb_dim=100):
+def benchmark_pytorch(texte, params):
     set_seed()
-
-    tokens = tokenisation(texte)
-    freq = frequence_mots(tokens)
-    vocab, stoi, itos = vocabulaire(freq)
-    pairs = creation_paires(tokens, stoi, taille_fenetre=2)
-    V = len(vocab)
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = SkipGram(V, emb_dim)
-
     t0 = time.time()
-    if mode == "softmax":
-        ds = SkipGramSoftmaxDS(pairs)
-        train_softmax(model, ds, epochs=epochs, device=device)
-    else:
-        unigram = torch.tensor([freq[itos[i]] for i in range(V)], dtype=torch.float)
-        unigram = unigram.pow(0.75)
-        unigram /= unigram.sum()
-        ds = SkipGramNegSampleDS(pairs, V, unigram_probs=unigram, K=5)
-        train_neg(model, ds, epochs=epochs, device=device)
-
+    from word2vec_pytorch.word2vec_pytorch import deep_learning_pytorch
+    Wc = deep_learning_pytorch(texte, **params)
     t = time.time() - t0
-    emb = model.get_embeddings().numpy()
-    return emb, t, pairs
-
+    print(str(t) + ":total time benchmark pytorch implementation")
+    return Wc, t
 
 
 def build_dataset(texte, window_size=2):

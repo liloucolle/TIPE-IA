@@ -26,8 +26,24 @@ params_numpy = dict(
     decay=0.95
 )
 
+
+
+# Params PyTorch (alignés sur la signature demandée)
+params_torch = dict(
+    dimension=100,
+    taux_apprentissage=0.01,
+    window_size=2,
+    n_epochs=10,
+    mode="neg",          # ✅ on compare NS pytorch avec NS numpy
+    batch_size=128
+)
+
+
 K_NEG = 5
 TOPK = 5
+
+
+
 
 
 # =========================
@@ -40,6 +56,7 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
     fig.savefig(path, dpi=dpi, bbox_inches="tight")
     print(f"[OK] Figure sauvegardée : {path}")
     return path
+
 
 
 # =========================
@@ -63,10 +80,14 @@ def graphe_temps():
     times_neg  = []
     times_pt   = []
 
+
     for name, corpus in CORPORA:
         _, t_soft = benchmark_softmax_numpy(corpus, params_numpy)
         _, t_neg  = benchmark_neg_numpy(corpus, {**params_numpy, "K_neg": K_NEG})
-        _, t_pt, _ = benchmark_pytorch(corpus, mode="neg", epochs=params_numpy["n_epochs"])
+
+        benchmark_pytorch(corpus, params_torch)
+
+        _, t_pt = benchmark_pytorch(corpus, params_torch)
 
         times_soft.append(t_soft)
         times_neg.append(t_neg)
