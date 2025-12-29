@@ -7,9 +7,9 @@ from comparaison import *
 from content.echantillon_texte import (
    texte_10,
    texte_100, 
-   #texte_1000,
-   #texte_10000,
-   #texte_100000
+   texte_1000,
+   texte_10000,
+   texte_100000
 )
 
 
@@ -64,8 +64,10 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 # =========================
 CORPORA = [
     ("Texte 10", texte_10),
-    ("Texte 100", texte_100)
-    
+    ("Texte 100", texte_100),
+    ("Texte 1000", texte_1000),
+    ("Texte 10000", texte_100)
+  
 ]
 
 
