@@ -4,7 +4,12 @@ import re
 dataset = load_dataset("wikitext", "wikitext-103-raw-v1", download_mode="reuse_cache_if_exists")
 dataset = dataset["train"]
 
-texte_court = dataset.select(range(100000))
+texte_10 = dataset.select(range(10))
+texte_100 = dataset.select(range(100))
+texte_1000 = dataset.select(range(1000))
+texte_10000 = dataset.select(range(10000))
+texte_100000 = dataset.select(range(100000))
+
 
 
 
