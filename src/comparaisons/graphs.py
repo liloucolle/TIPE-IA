@@ -8,7 +8,8 @@ from content.echantillon_texte import (
     test_simple,
     texte_king_and_queen,
     texte_king_and_queen_2,
-    texte_king_and_queen_long,   # ✅ ton nouveau corpus
+    texte_king_and_queen_long,   
+    texte_science
 )
 
 
@@ -47,8 +48,8 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 CORPORA = [
     ("test_simple", test_simple),
     ("king_and_queen", texte_king_and_queen),
-    ("king_and_queen_2", texte_king_and_queen_2),
-    ("king_and_queen_long", texte_king_and_queen_long),  # ✅ nouveau
+    ("science", texte_science),
+    ("king_and_queen_long", texte_king_and_queen_long),  
 ]
 
 
