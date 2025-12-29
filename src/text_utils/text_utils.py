@@ -1,5 +1,6 @@
 
 import numpy as np
+from datasets import Dataset
 from collections import Counter
 from typing import List, Tuple
 
@@ -29,7 +30,14 @@ def tokenisation(texte):
     phrase_courante = []
     mot_courant = []
 
+
+
     for phrase in texte:
+        if isinstance(texte, Dataset): 
+            phrase = phrase.get("text","")
+            if not phrase or not phrase.strip():
+                continue
+            
 
         phrase_courante = []
         mot_courant = []

@@ -1,25 +1,13 @@
-texte_court = [
-    "word embeddings map words to vectors",
-    "vectors capture meaning and similarity",
-    "king is to queen as man is to woman",
-    "queen and king rule the kingdom",
-    "man and woman live together"
-]
+from datasets import load_dataset
+import re
 
-texte_redundant = [
-    "the king is strong and wise",
-    "the queen is wise and kind",
-    "the king loves the queen",
-    "the queen loves the king",
-    "the king rules the kingdom",
-    "the queen rules the kingdom",
-    "the king and the queen live in the castle",
-    "the man is strong",
-    "the woman is kind",
-    "the man loves the woman",
-    "the woman loves the man",
-    "the man and the woman live in the village",
-] * 25
+dataset = load_dataset("wikitext", "wikitext-103-raw-v1", download_mode="reuse_cache_if_exists")
+dataset = dataset["train"]
+
+texte_court = dataset.select(range(100000))
+
+
+
 
 texte_structurel = [
     "During the long winter, the king ruled the kingdom with patience and wisdom.",

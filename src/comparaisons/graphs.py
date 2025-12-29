@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 from comparaison import *
 from content.echantillon_texte import (
-   texte_diversifie,texte_redundant,texte_court,texte_structurel
+   texte_court
 )
 
 
@@ -59,10 +59,8 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 # Textes (corpus) — 4 corpus ✅
 # =========================
 CORPORA = [
-    ("test_court", texte_court),
-    ("Texte redondant", texte_redundant),
-    ("Texte structurel", texte_structurel),
-    ("Texte diversifié", texte_diversifie)
+    ("Texte court", texte_court),
+    
 ]
 
 
@@ -225,6 +223,6 @@ def graphe_scalabilite():
 
 
 if __name__ == "__main__":
-    #graphe_temps()
-    graphe_precision()
+    graphe_temps()
+    #graphe_precision()
     #graphe_scalabilite()
