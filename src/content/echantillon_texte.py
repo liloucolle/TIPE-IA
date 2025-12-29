@@ -6,8 +6,6 @@ texte_court = [
     "man and woman live together"
 ]
 
-
-
 texte_redundant = [
     "the king is strong and wise",
     "the queen is wise and kind",

@@ -107,7 +107,49 @@ def graphe_temps():
     save_figure(fig, "temps_word2vec_4corpus")
     plt.show()
 
+# =========================
+# 2) Précision top-k
+# =========================
+def graphe_precision(k=TOPK):
+    soft_vals, neg_vals, pt_vals = [], [], []
+    corpus_names = []
 
+    for name, corpus in CORPORA:
+        res = test_precision_topk(
+            corpus,
+            params_numpy=params_numpy,
+            params_torch=params_torch,
+            k=k
+        )
+
+        soft_vals.append(res["softmax_numpy"])
+        neg_vals.append(res["neg_numpy"])
+        pt_vals.append(res["pytorch"])
+        corpus_names.append(name)
+
+        print(f"[ACC@{k}] {name}:",
+              f"soft={res['softmax_numpy']:.3f},",
+              f"neg={res['neg_numpy']:.3f},",
+              f"pt={res['pytorch']:.3f}")
+
+    x = range(len(CORPORA))
+    width = 0.25
+
+    fig = plt.figure()
+    plt.bar([i - width for i in x], soft_vals, width, label="Softmax NumPy")
+    plt.bar(x,                    neg_vals,  width, label="NegSampling NumPy")
+    plt.bar([i + width for i in x], pt_vals,  width, label="NegSampling PyTorch")
+
+    plt.xticks(x, corpus_names)
+    plt.ylabel(f"Top-{k} accuracy")
+    plt.ylim(0, 1)
+    plt.title(f"Précision sémantique Top-{k}")
+    plt.legend()
+
+    save_figure(fig, f"precision_top{k}")
+    plt.show()
+
+"""
 # =========================
 # 2) Convergence (loss proxy)
 # =========================
@@ -133,7 +175,7 @@ def graphe_convergence():
         plt.show()
 
 
-
+"""
 # =========================
 # 3) Scalabilité (temps vs vocabulaire) — VERSION PROPRE
 # =========================
@@ -183,6 +225,6 @@ def graphe_scalabilite():
 
 
 if __name__ == "__main__":
-    graphe_temps()
-    graphe_convergence()
-    graphe_scalabilite()
+    #graphe_temps()
+    graphe_precision()
+    #graphe_scalabilite()

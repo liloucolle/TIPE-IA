@@ -182,79 +182,9 @@ def test_convergence_proxy(texte, params_numpy, params_torch, n_checkpoints=10):
     return {"epochs": checkpoints.tolist(), "softmax_numpy": soft_curve, "neg_numpy": neg_curve, "pytorch": pt_curve}
 
 
-# --------------------------
-# Test 4 : analogies (king - man + woman -> queen)
-# --------------------------
-def most_similar_to_vector(emb, itos, vec, topk=20, exclude=None):
-    exclude = exclude or set()
-    E = normalize_rows(emb)
-    v = vec / (np.linalg.norm(vec) + 1e-12)
-    sims = E @ v
-    idxs = np.argsort(-sims)
-    out = []
-    for j in idxs:
-        w = itos[j]
-        if w in exclude:
-            continue
-        out.append((w, float(sims[j])))
-        if len(out) >= topk:
-            break
-    return out
-
-def test_analogie(texte, params_numpy, params_torch, a="king", b="man", c="woman", target="queen", topk=20):
-    _, _, _, stoi, itos, _ = build_dataset(texte, window_size=params_numpy["window_size"])
-
-    def one_model(emb):
-        if a not in stoi or b not in stoi or c not in stoi or target not in stoi:
-            return {"ok": False, "rank": None, "neighbors": []}
-        vec = emb[stoi[a]] - emb[stoi[b]] + emb[stoi[c]]
-        neigh = most_similar_to_vector(emb, itos, vec, topk=topk, exclude={a, b, c})
-        rank = None
-        for i, (w, _) in enumerate(neigh, start=1):
-            if w == target:
-                rank = i
-                break
-        return {"ok": True, "rank": rank, "neighbors": neigh}
-
-    W_soft, _ = benchmark_softmax_numpy(texte, params_numpy)
-    W_neg,  _ = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
-    W_pt,   _ = benchmark_pytorch(texte, params_torch)
-
-    return {"softmax_numpy": one_model(W_soft), "neg_numpy": one_model(W_neg), "pytorch": one_model(W_pt)}
-
 
 # --------------------------
-# Test 5 : sensibilité à K_neg (temps & qualité)
-# --------------------------
-def test_sensibilite_K(texte, params_numpy, params_torch, K_list=(2,5,10,20), k_topk=5):
-    _, _, _, _, _, paires = build_dataset(texte, window_size=params_numpy["window_size"])
-    p_eval = paires[:2000]
-
-    out = {"K": [], "neg_numpy_time": [], "neg_numpy_acc": [], "pt_time": [], "pt_acc": []}
-
-    for K in K_list:
-        p_np = {**params_numpy, "K_neg": int(K)}
-        W_neg, t_neg = benchmark_neg_numpy(texte, p_np)
-        acc_neg = topk_accuracy(W_neg, p_eval, k=k_topk)
-
-        p_t = dict(params_torch)
-        # côté pytorch, K est généralement interne dans le modèle ; si ton deep_learning_pytorch ne l’a pas,
-        # tu ne peux pas le varier. Dans ce cas, laisse constant et commente ce test côté PyTorch.
-        # => ici on n'essaie pas de passer K à pytorch.
-        W_pt, t_pt = benchmark_pytorch(texte, p_t)
-        acc_pt = topk_accuracy(W_pt, p_eval, k=k_topk)
-
-        out["K"].append(int(K))
-        out["neg_numpy_time"].append(float(t_neg))
-        out["neg_numpy_acc"].append(float(acc_neg))
-        out["pt_time"].append(float(t_pt))
-        out["pt_acc"].append(float(acc_pt))
-
-    return out
-
-
-# --------------------------
-# Test 6 : scalabilité (temps vs vocab V)
+# Test 4 : scalabilité (temps vs vocab V)
 # --------------------------
 def _inflate_vocab_by_suffix(texte, n_variants=1):
     """
