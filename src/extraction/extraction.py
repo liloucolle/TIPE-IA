@@ -1,7 +1,9 @@
 from content.echantillon_texte import (article)
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire
 import numpy as np
-from stop_words import get_stop_words
+import csv
+import os
+from datetime import datetime
 
 
 def _load_english_stopwords():
@@ -51,7 +53,7 @@ def preprocess_text(text):
     vocab, word2id, id2word = vocabulaire(filtered)
     return vocab, word2id, id2word
 
-def top_n_keywords_from_text(embeddings, text, N=10):
+def top_n_keywords_from_text(embeddings, text, N=10, csv_path=None, append=True):
     """
     Retourne les top-N mots dont les embeddings ont la plus grande similarité cosinus
     avec le vecteur moyen des mots présents dans `text`.
@@ -65,6 +67,7 @@ def top_n_keywords_from_text(embeddings, text, N=10):
     """
 
     vocab, word2id, id2word = preprocess_text(text)
+    len_vocab = len(vocab)
 
     mean_vec = calcul_vecteur_moyen(embeddings, vocab, word2id)
     if mean_vec is None:
@@ -85,4 +88,25 @@ def top_n_keywords_from_text(embeddings, text, N=10):
         sims.append((mot, sim))
 
     sims.sort(key=lambda x: x[1], reverse=True) # Tri décroissant
-    return sims[:N]
+    topk = sims[:N]
+
+    # Si un chemin CSV est fourni, écrire/concaténer les résultats
+    if csv_path:
+        write_header = not (os.path.exists(csv_path) and os.path.getsize(csv_path) > 0)
+        mode = 'a' if append else 'w'
+        with open(csv_path, mode, newline='', encoding='utf-8') as f:
+            fieldnames = ['timestamp', 'vocab_size', 'rank', 'word', 'similarity']
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            if write_header:
+                writer.writeheader()
+            ts = datetime.utcnow().isoformat()
+            for rank, (mot, sim) in enumerate(topk, start=1):
+                writer.writerow({
+                    'timestamp': ts,    
+                    'vocab_size': len_vocab,
+                    'rank': rank,
+                    'word': mot,
+                    'similarity': sim,
+                })
+
+    return topk
