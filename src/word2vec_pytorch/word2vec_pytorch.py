@@ -11,7 +11,7 @@ torch.set_default_dtype(torch.float64)
 torch.manual_seed(0)
 # Tokeniser chaque ligne en liste de mots
 tokens = tokenisation(texte)
-
+"""
 # ---------------------------
 # 2) Construction du vocabulaire et des indices
 # ---------------------------
@@ -32,7 +32,7 @@ print(f"Paires d'entraînement: {len(pairs)}")
 unigram = torch.tensor([word_freq[itos[i]] for i in range(V)], dtype=torch.float)
 unigram = unigram.pow(0.75)
 unigram = unigram / unigram.sum()
-
+"""
 
 # ---------------------------
 # 4) Datasets formatés pour PyTorch

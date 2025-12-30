@@ -14,9 +14,9 @@ from content.echantillon_texte import (
 
 
 COLORS = {
-    "softmax": "#385071",   
-    "neg_numpy": "#893e55", 
-    "neg_pt": "#6c8933",    
+    "softmax": "#719FE0",   
+    "neg_numpy": "#bd7d90", 
+    "neg_pt": "#cce39d",    
 }
 
 # =========================
@@ -89,6 +89,7 @@ def graphe_scalibility():
 
 
     n_pairs_list = []
+    taille_vocab_list = []
     for name, corpus in CORPORA:
         res = test_vitesse(corpus, params_numpy, params_torch)
 
@@ -99,6 +100,7 @@ def graphe_scalibility():
         taille_vocab = res["taille_vocab"]
 
         n_pairs_list.append(n_pairs)
+        taille_vocab_list.append(taille_vocab)
         times_soft.append(t_soft)
         times_neg.append(t_neg)
         times_pt.append(t_pt)
@@ -114,11 +116,11 @@ def graphe_scalibility():
     ax.plot(x, times_pt,   marker='o', linestyle='-', label=labels_models[2], color=COLORS["neg_pt"])
 
     ax.set_xticks(x)
-    ax.set_xticklabels([str(v) for v in x], rotation=0)
+    ax.set_xticklabels([f"{v}\n({vocab})" for v, vocab in zip(x, taille_vocab_list)], rotation=0)
     ax.set_yscale('log')
-    ax.set_xlabel('Nombre de paires')
+    ax.set_xlabel('Nombre de paires\n(taille vocabulaire)')
     ax.set_ylabel('Temps total (s) — échelle logarithmique')
-    ax.set_title('Scalabilité: temps total vs nombre de paires (log Y)')
+    ax.set_title('Scalabilité: temps total sur le nombre de paires (log Y)')
     ax.legend()
 
     save_figure(fig, "temps_word2vec_4corpus")
