@@ -53,7 +53,7 @@ def preprocess_text(text):
     vocab, word2id, id2word = vocabulaire(filtered)
     return vocab, word2id, id2word
 
-def top_n_keywords_from_text(embeddings, text, N=10, csv_path=None, append=True):
+def top_n_keywords_from_text(embeddings, text, N=10, csv_path=None, append=True, embeddings_type = "unknown"):
     """
     Retourne les top-N mots dont les embeddings ont la plus grande similarité cosinus
     avec le vecteur moyen des mots présents dans `text`.
@@ -95,7 +95,7 @@ def top_n_keywords_from_text(embeddings, text, N=10, csv_path=None, append=True)
         write_header = not (os.path.exists(csv_path) and os.path.getsize(csv_path) > 0)
         mode = 'a' if append else 'w'
         with open(csv_path, mode, newline='', encoding='utf-8') as f:
-            fieldnames = ['timestamp', 'vocab_size', 'rank', 'word', 'similarity']
+            fieldnames = ['timestamp', 'vocab_size', 'embeddings_type', 'rank', 'word', 'similarity']
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             if write_header:
                 writer.writeheader()
@@ -104,6 +104,7 @@ def top_n_keywords_from_text(embeddings, text, N=10, csv_path=None, append=True)
                 writer.writerow({
                     'timestamp': ts,    
                     'vocab_size': len_vocab,
+                    'embeddings_type': embeddings_type,
                     'rank': rank,
                     'word': mot,
                     'similarity': sim,

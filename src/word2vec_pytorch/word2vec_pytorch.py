@@ -229,8 +229,23 @@ def perte_tot_torch(model, pairs, device="cpu"):
 
 
 def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.01, window_size=2, n_epochs=10, mode="neg", batch_size=128):
-        
+    
     tokens = tokenisation(texte)
+    word_freq = frequence_mots(tokens)
+    vocab, stoi, itos = vocabulaire(word_freq)
+    V = len(vocab)
+
+    print(f"Taille du vocabulaire: {V}")
+
+    # Création des paires
+    pairs = creation_paires(tokens, stoi, taille_fenetre=1)
+    print(f"Paires d'entraînement: {len(pairs)}")
+    # Table unigramme pour l'échantillonnage négatif (puissance=0.75 est classique pour Word2Vec)
+    # Construction d'un tenseur de probabilités unigrammes
+    unigram = torch.tensor([word_freq[itos[i]] for i in range(V)], dtype=torch.float)
+    unigram = unigram.pow(0.75)
+    unigram = unigram / unigram.sum()
+
     
     # Edge case: empty corpus
     if len(tokens) == 0 or all(len(t) == 0 for t in tokens):
