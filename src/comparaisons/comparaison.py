@@ -101,9 +101,9 @@ def build_dataset(texte, window_size=2):
 
 
 # --------------------------
-# Test 1 : vitesse/n_paires
+# Test 1 : vitesse
 # --------------------------
-def test_vitesse_par_paire(texte, params_numpy, params_torch):
+def test_vitesse(texte, params_numpy, params_torch):
     _, _, vocabulaire, _, _, paires = build_dataset(texte, window_size=params_numpy["window_size"])
     n_pairs = max(1, len(paires))
     taille_vocab = len(vocabulaire)
@@ -117,9 +117,9 @@ def test_vitesse_par_paire(texte, params_numpy, params_torch):
         "n_pairs": n_pairs,
         "taille_vocab": taille_vocab,
         "n_epochs": n_epochs,
-        "softmax_numpy": {"time": t_soft, "time_per_pair": t_soft/(n_pairs), "emb": W_soft},
-        "neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg /(n_pairs), "emb": W_neg},
-        "pytorch":       {"time": t_pt,   "time_per_pair": t_pt  /(n_pairs), "emb": W_pt},
+        "softmax_numpy": {"time": t_soft, "time_per_pair": t_soft, "emb": W_soft},
+        "neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg, "emb": W_neg},
+        "pytorch":       {"time": t_pt,   "time_per_pair": t_pt, "emb": W_pt},
     }
 
 

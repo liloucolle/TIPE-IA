@@ -14,9 +14,9 @@ from content.echantillon_texte import (
 
 
 COLORS = {
-    "softmax": "#1f3a5f",   # bleu marine profond
-    "neg_numpy": "#7b1e3a", # rouge bordeaux
-    "neg_pt": "#6b8e23",    # vert kaki (olive)
+    "softmax": "#385071",   
+    "neg_numpy": "#893e55", 
+    "neg_pt": "#6c8933",    
 }
 
 # =========================
@@ -88,35 +88,37 @@ def graphe_scalibility():
     times_pt   = []
 
 
+    n_pairs_list = []
     for name, corpus in CORPORA:
+        res = test_vitesse(corpus, params_numpy, params_torch)
 
-        res = test_vitesse_par_paire(corpus, params_numpy, params_torch)
-
-        t_soft_pp = res["softmax_numpy"]["time_per_pair"]
-        t_neg_pp  = res["neg_numpy"]["time_per_pair"]
-        t_pt_pp   = res["pytorch"]["time_per_pair"]
-        n_pairs  = res["n_pairs"]
+        t_soft = res["softmax_numpy"]["time"]
+        t_neg  = res["neg_numpy"]["time"]
+        t_pt   = res["pytorch"]["time"]
+        n_pairs = res["n_pairs"]
         taille_vocab = res["taille_vocab"]
 
-        times_soft.append(t_soft_pp)
-        times_neg.append(t_neg_pp)
-        times_pt.append(t_pt_pp)
+        n_pairs_list.append(n_pairs)
+        times_soft.append(t_soft)
+        times_neg.append(t_neg)
+        times_pt.append(t_pt)
 
-        print(f"[TEMPS/PAIRE] {name}: soft={t_soft_pp:.6e}s | neg_np={t_neg_pp:.6e}s | neg_pt={t_pt_pp:.6e}s")
+        print(f"[TEMPS] {name}: pairs={n_pairs} | soft={t_soft:.4f}s | neg_np={t_neg:.4f}s | neg_pt={t_pt:.4f}s")
 
-    x = list(range(len(CORPORA)))
-    width = 0.25
+    # x axis: number of pairs; y axis: total time (log scale)
+    x = n_pairs_list
 
     fig, ax = plt.subplots()
-    ax.bar([i - width for i in x], times_soft, width=width, label=labels_models[0], color=COLORS["soft"])
-    ax.bar([i for i in x],         times_neg,  width=width, label=labels_models[1], color=COLORS["neg_np"])
-    ax.bar([i + width for i in x], times_pt,   width=width, label=labels_models[2], color=COLORS["neg_pt"])
+    ax.plot(x, times_soft, marker='o', linestyle='-', label=labels_models[0], color=COLORS["softmax"])
+    ax.plot(x, times_neg,  marker='o', linestyle='-', label=labels_models[1], color=COLORS["neg_numpy"])
+    ax.plot(x, times_pt,   marker='o', linestyle='-', label=labels_models[2], color=COLORS["neg_pt"])
 
     ax.set_xticks(x)
-    ax.set_xticklabels([f"{n_pairs}\n({taille_vocab})" for name, _ in CORPORA], rotation=0)
+    ax.set_xticklabels([str(v) for v in x], rotation=0)
     ax.set_yscale('log')
-    ax.set_ylabel("Temps par paire (s) — échelle logarithmique")
-    ax.set_title("Scalabilité: temps par paire (log) — 3 implémentations, 4 corpus")
+    ax.set_xlabel('Nombre de paires')
+    ax.set_ylabel('Temps total (s) — échelle logarithmique')
+    ax.set_title('Scalabilité: temps total vs nombre de paires (log Y)')
     ax.legend()
 
     save_figure(fig, "temps_word2vec_4corpus")
