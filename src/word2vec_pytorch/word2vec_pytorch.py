@@ -7,6 +7,8 @@ from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, cre
 from content.echantillon_texte import texte_100 as texte
 from embedding_utils.embedding_utils import mots_similaires_torch, most_similar_to_vector_torch
 
+
+
 torch.set_default_dtype(torch.float64)
 torch.manual_seed(0)
 # Tokeniser chaque ligne en liste de mots
@@ -133,6 +135,8 @@ class SkipGram(nn.Module):
 # 6) Utilitaires d'entraînement
 # ---------------------------
 def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
+    print(f"Training with softmax with {device}")
+
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
     #opt = torch.optim.Adam(model.parameters(), lr=lr)
@@ -171,6 +175,7 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
            # print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}")
 
 def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
+    print(f"Training with negative sampling with {device}")
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
     opt = torch.optim.SGD(model.parameters(), lr=lr)

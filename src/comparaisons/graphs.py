@@ -17,7 +17,7 @@ COLORS = {
     "softmax": "#195CB9",   
     "neg_numpy": "#a8123f", 
     "pt_softmax": "#59830A",   
-    "pt_neg": "#AD880E"
+    "pt_neg": "#917109"
 }
 
 # =========================
