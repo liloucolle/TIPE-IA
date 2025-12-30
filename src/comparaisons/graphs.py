@@ -66,7 +66,7 @@ CORPORA = [
     ("Texte 10", texte_10),
     ("Texte 100", texte_100),
     ("Texte 1000", texte_1000),
-    ("Texte 10000", texte_100)
+    ("Texte 10000", texte_10000)
   
 ]
 

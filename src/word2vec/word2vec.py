@@ -72,6 +72,7 @@ def entrainer(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, paires: 
     nb_epochs_passe = 0
 
     for epoch in range(n_epochs):
+        print(f"Époque {epoch+1}/{n_epochs} - Taux d'apprentissage: {taux_apprentissage:.6f}")
         # une époque d'apprentissage
         matrice_centre, matrice_contexte = epoque(matrice_centre, matrice_contexte, paires, taux_apprentissage)
 
