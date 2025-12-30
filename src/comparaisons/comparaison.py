@@ -101,9 +101,9 @@ def build_dataset(texte, window_size=2):
 
 
 # --------------------------
-# Test 1 : vitesse
+# Test  vitesse
 # --------------------------
-def test_vitesse(texte, params_numpy, params_torch):
+def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
     _, _, vocabulaire, _, _, paires = build_dataset(texte, window_size=params_numpy["window_size"])
     n_pairs = max(1, len(paires))
     taille_vocab = len(vocabulaire)
@@ -111,7 +111,10 @@ def test_vitesse(texte, params_numpy, params_torch):
 
     W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
     W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
-    W_pt,   t_pt   = benchmark_pytorch(texte, params_torch)
+    #To remove cold start effect
+    benchmark_pytorch(texte, params_torch_neg)
+    W_pt_soft,   t_pt_soft   = benchmark_pytorch(texte, params_torch_softmax)
+    W_pt_neg,    t_pt_neg    = benchmark_pytorch(texte, params_torch_neg)
 
     return {
         "n_pairs": n_pairs,
@@ -119,7 +122,8 @@ def test_vitesse(texte, params_numpy, params_torch):
         "n_epochs": n_epochs,
         "softmax_numpy": {"time": t_soft, "time_per_pair": t_soft, "emb": W_soft},
         "neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg, "emb": W_neg},
-        "pytorch":       {"time": t_pt,   "time_per_pair": t_pt, "emb": W_pt},
+        "pytorch_softmax": {"time": t_pt_soft,   "time_per_pair": t_pt_soft,   "emb": W_pt_soft},
+        "pytorch_neg_sampling": {"time": t_pt_neg,    "time_per_pair": t_pt_neg,    "emb": W_pt_neg},
     }
 
 
