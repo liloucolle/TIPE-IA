@@ -81,14 +81,14 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
         # amélioration relative
         rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
 
-        if rel_gain > tol:
-            meilleur_loss = L
-            aucune_amelioration = 0
+        # if rel_gain > tol:
+        #     meilleur_loss = L
+        #     aucune_amelioration = 0
 
-        else:
-            aucune_amelioration += 1
-            if aucune_amelioration >= patience:
-                break  # early stopping
+        # else:
+        #     aucune_amelioration += 1
+        #     if aucune_amelioration >= patience:
+        #         break  # early stopping
 
         # décroissance du LR (douce et efficace en Word2Vec)
         eta *= decay

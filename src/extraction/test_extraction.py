@@ -38,20 +38,20 @@ article = article_king_queen
 # Params PyTorch (alignés sur la signature demandée)
 params_torch_neg = dict(
     dimension=100,
-    taux_apprentissage=0.01,
+    taux_apprentissage=0.05,
     window_size=2,
     n_epochs=100,
     mode="neg",          
-    batch_size=128
+    batch_size=1
 )
 
 params_torch_softmax = dict(
     dimension=100,
-    taux_apprentissage=0.01,
+    taux_apprentissage=0.05,
     window_size=2,
     n_epochs=100,
     mode="softmax",          
-    batch_size=128
+    batch_size=1
 )
 
 
