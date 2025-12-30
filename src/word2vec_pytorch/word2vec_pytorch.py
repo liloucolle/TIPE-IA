@@ -7,6 +7,11 @@ from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, cre
 from content.echantillon_texte import texte_100 as texte
 from embedding_utils.embedding_utils import mots_similaires_torch, most_similar_to_vector_torch
 
+# Vérification de la disponibilité du GPU
+#print(torch.cuda.is_available())
+#print(torch.cuda.device_count())
+#print(torch.cuda.get_device_name(0))
+
 
 
 torch.set_default_dtype(torch.float64)
