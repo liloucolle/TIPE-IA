@@ -11,6 +11,29 @@ texte_10000 = dataset.select(range(10000))
 texte_100000 = dataset.select(range(100000))
 
 
+article = ["Valkyria Chronicles III , commonly referred to as Valkyria Chronicles III outside Japan , is a tactical role @-@ playing video game developed by Sega and Media.",
+           "Vision for the PlayStation Portable.",
+            "Released in January 2011 in Japan , it is the third game in the Valkyria series.",
+            "Employing the same fusion of tactical and real @-@ time gameplay as its predecessors , the story follows the ' Nameless ', a penal military unit serving the nation of Gallia during the Second Europan War .",
+            "The game 's opening theme was sung by May.",
+            "After release , it received downloadable content , along with an expanded edition in November of that year .",
+            "An unofficial fan translation patch began development in February 2012 , and the patch was released in January 2014 .",
+            "As with previous Chronicles games , the player progresses through a series of linear missions , gradually unlocked as maps that can be freely scanned through and replayed .",
+            "Outside missions , the player characters rest in a camp , where units can be customized and character growth occurs .",
+            "The game 's battle system is carried over directly from Chronicles .",
+            "During missions , players select each unit using a top @-@ down perspective of the battlefield map , then move the character around the battlefield in third @-@ person .",
+            "Troops are divided into five classes : Scouts , Engineers , Lancers and Armored Soldier .",
+            "With victory in battle , experience points are awarded to the squad .",
+            "The Tower Building of the Little Rock Arsenal , also known as U.S. Arsenal Building , is a building located in MacArthur Park in downtown Little Rock , Arkansas .",
+            "Built in 1840 , it was part of Little Rock 's first military installation .",
+            "The building receives its name from its distinct octagonal tower .",
+            "Besides being the last remaining structure of the original Little Rock Arsenal , it was also the birthplace of General Douglas MacArthur .",
+            "The arsenal was listed in the National Register of Historic Places in 1970 .",
+            "The MacArthur Museum of Arkansas Military History opened on May 19 , 2001 in the Tower Building .",
+            "Cicely Mary Barker ( 28 June 1895 – 16 February 1973 ) was an English illustrator best known for a series of fantasy illustrations depicting fairies and flowers .",
+            "Her first book , Flower Fairies of the Spring , was published in 1923 .",
+            "Barker was a devout Anglican , and donated her artworks to Christian fundraisers and missionary organizations .",
+            "Barker died in 1973 , aged 77 years ."]
 
 
 
