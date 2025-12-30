@@ -141,7 +141,7 @@ class SkipGram(nn.Module):
 # 6) Utilitaires d'entraînement
 # ---------------------------
 def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.1, device="cpu"):
-    print(f"Training with softmax {device}, epochs={epochs}, batch_size={batch_size}, lr={lr}")
+    print(f"TORCH SOFTMAX with {device}, epochs={epochs}, batch_size={batch_size}, lr={lr}")
 
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
@@ -176,16 +176,11 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.1, device="cpu"):
         # Tous les 50 echantillons on calcule la perte de la meme facon que perte_tot_torch        
         train_loss = total/n
         epoch_time = time.time() - epoch_start
-        print(f"Epoque {ep}/{epochs}: perte train = {train_loss:.4f}, durée = {epoch_time:.3f}s")
-        if ep % 50 == 0 or ep == 1:  # Évaluation tous les 50 époques
-            eval_loss = perte_tot_torch(model, pairs, device=device)
-            #print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}, perte eval = {eval_loss:.4f}")
-        #else:
-           # print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}")
-    print ("Entraînement terminé. Perte finale: {:.4f}".format(perte_tot_torch(model, ds.pairs, device=device)))
+        print(f"Epoque {ep}/{epochs}: perte train = {train_loss:.4f}, durée = {epoch_time:.3f}s")        
+    print ("TORCH SOFTMAX terminé. Perte finale: {:.4f}\n".format(perte_tot_torch(model, ds.pairs, device=device)))
 
 def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.1, device="cpu"):
-    print(f"Training with negative sampling with {device}, epochs={epochs}, batch_size={batch_size}, lr={lr}")
+    print(f"TORCH NEGATIVE SAMPLING with {device}, epochs={epochs}, batch_size={batch_size}, lr={lr}")
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
     opt = torch.optim.SGD(model.parameters(), lr=lr)
@@ -208,7 +203,7 @@ def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.1, device="cpu"):
             n += centers.size(0)
         epoch_time = time.time() - epoch_start
         print(f"Epoque {ep}/{epochs}: perte = {total/n:.4f}, durée = {epoch_time:.3f}s")
-    print ("Entraînement terminé. Perte finale: {:.4f}".format(perte_tot_torch(model, ds.pairs, device=device)))
+    print ("TORCH NEGATIVE SAMPLING terminé. Perte finale: {:.4f}\n".format(perte_tot_torch(model, ds.pairs, device=device)))
 
 
 @torch.no_grad()
@@ -233,7 +228,6 @@ def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.01, window_
     word_freq = frequence_mots(tokens)
     vocab, stoi, itos = vocabulaire(word_freq)
     V = len(vocab)
-
     print(f"Taille du vocabulaire: {V}")
 
     # Création des paires

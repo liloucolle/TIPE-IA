@@ -59,10 +59,6 @@ params_torch_softmax = dict(
 K_NEG = 5
 TOPK = 5
 
-
-
-
-
 # =========================
 # Utilitaires sauvegarde
 # =========================
@@ -74,8 +70,6 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
     print(f"[OK] Figure sauvegardée : {path}")
     return path
 
-
-
 # =========================
 # Textes (corpus) — 4 corpus ✅
 # =========================
@@ -85,7 +79,6 @@ CORPORA = [
     ("Texte 1000", texte_1000),
     #("Texte 10000", texte_10000)
 ]
-
 
 # =========================
 # 1) Scalabilité 
@@ -102,6 +95,8 @@ def graphe_scalibility():
     n_pairs_list = []
     taille_vocab_list = []
     for name, corpus in CORPORA:
+        print(f"\n--------------------------")
+        print(f"[SCALABILITY] Traitement du corpus: {name}")
         res = test_vitesse(corpus, params_numpy, params_torch_softmax, params_torch_neg)
 
         t_soft = res["softmax_numpy"]["time"]
