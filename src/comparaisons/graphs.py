@@ -81,8 +81,8 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 CORPORA = [
     ("Texte 10", texte_10),
     ("Texte 100", texte_100),
-    #("Texte 1000", texte_1000),
-    #("Texte 10000", texte_10000)
+    ("Texte 1000", texte_1000),
+    ("Texte 10000", texte_10000)
   
 ]
 
@@ -98,14 +98,14 @@ def graphe_scalibility():
     times_pt_softmax   = []
     times_pt_neg = []
 
-
+    benchmark_pytorch(texte_10, params_torch_neg)  # Cold start
     n_pairs_list = []
     taille_vocab_list = []
     for name, corpus in CORPORA:
         res = test_vitesse(corpus, params_numpy, params_torch_softmax, params_torch_neg)
 
-        t_soft = res["softmax_numpy"]["time"]
-        t_neg  = res["neg_numpy"]["time"]
+        # t_soft = res["softmax_numpy"]["time"]
+        # t_neg  = res["neg_numpy"]["time"]
         t_pt_soft  = res["pytorch_softmax"]["time"]
         t_pt_neg   = res["pytorch_neg_sampling"]["time"]
         n_pairs = res["n_pairs"]
@@ -113,19 +113,19 @@ def graphe_scalibility():
 
         n_pairs_list.append(n_pairs)
         taille_vocab_list.append(taille_vocab)
-        times_soft.append(t_soft)
-        times_neg.append(t_neg)
+        # times_soft.append(t_soft)
+        # times_neg.append(t_neg)
         times_pt_softmax.append(t_pt_soft)
         times_pt_neg.append(t_pt_neg)
 
-        print(f"[TEMPS] {name}: pairs={n_pairs} | soft={t_soft:.4f}s|pt_softmax = {t_pt_soft:.4f}s | neg_np={t_neg:.4f}s | neg_pt={t_pt_neg:.4f}s")
+        print(f"[TEMPS] {name}: pairs={n_pairs} |pt_softmax = {t_pt_soft:.4f}s | neg_pt={t_pt_neg:.4f}s")
 
     # x axis: number of pairs; y axis: total time (log scale)
     x = n_pairs_list
 
     fig, ax = plt.subplots()
-    ax.plot(x, times_soft, marker='o', linestyle='-', label=labels_models[0], color=COLORS["softmax"])
-    ax.plot(x, times_neg,  marker='o', linestyle='-', label=labels_models[1], color=COLORS["neg_numpy"])
+    # ax.plot(x, times_soft, marker='o', linestyle='-', label=labels_models[0], color=COLORS["softmax"])
+    # ax.plot(x, times_neg,  marker='o', linestyle='-', label=labels_models[1], color=COLORS["neg_numpy"])
     ax.plot(x, times_pt_softmax,   marker='o', linestyle='-', label=labels_models[2], color=COLORS["pt_softmax"])
     ax.plot(x, times_pt_neg,   marker='o', linestyle='-', label=labels_models[3], color=COLORS["pt_neg"])
     ax.set_xticks(x)
