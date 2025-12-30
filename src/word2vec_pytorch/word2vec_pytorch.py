@@ -239,11 +239,6 @@ def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.01, window_
     # Création des paires
     pairs = creation_paires(tokens, stoi, taille_fenetre=1)
     print(f"Paires d'entraînement: {len(pairs)}")
-    # Table unigramme pour l'échantillonnage négatif (puissance=0.75 est classique pour Word2Vec)
-    # Construction d'un tenseur de probabilités unigrammes
-    unigram = torch.tensor([word_freq[itos[i]] for i in range(V)], dtype=torch.float)
-    unigram = unigram.pow(0.75)
-    unigram = unigram / unigram.sum()
 
     
     # Edge case: empty corpus
