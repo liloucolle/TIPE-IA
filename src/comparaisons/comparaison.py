@@ -109,8 +109,8 @@ def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
     taille_vocab = len(vocabulaire)
     n_epochs = params_numpy["n_epochs"]
 
-    #W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
-    #W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
+    W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
+    W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
     #To remove cold start effect
     W_pt_soft,   t_pt_soft   = benchmark_pytorch(texte, params_torch_softmax)
     W_pt_neg,    t_pt_neg    = benchmark_pytorch(texte, params_torch_neg)
@@ -119,8 +119,8 @@ def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
         "n_pairs": n_pairs,
         "taille_vocab": taille_vocab,
         "n_epochs": n_epochs,
-        #"softmax_numpy": {"time": t_soft, "time_per_pair": t_soft, "emb": W_soft},
-        #"neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg, "emb": W_neg},
+        "softmax_numpy": {"time": t_soft, "time_per_pair": t_soft, "emb": W_soft},
+        "neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg, "emb": W_neg},
         "pytorch_softmax": {"time": t_pt_soft,   "time_per_pair": t_pt_soft,   "emb": W_pt_soft},
         "pytorch_neg_sampling": {"time": t_pt_neg,    "time_per_pair": t_pt_neg,    "emb": W_pt_neg},
     }

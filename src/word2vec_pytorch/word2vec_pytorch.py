@@ -92,8 +92,8 @@ class SkipGram(nn.Module):
         initrange = 0.5 / self.in_embed.embedding_dim
         # initialise les poids de W avec des valeurs uniformes dans [-initrange, initrange]
         self.in_embed.weight.data.uniform_(-initrange, initrange)
-        # initialise les poids de W' à zéro
-        self.out_embed.weight.data.zero_()  # souvent zéro ou petite initialisation
+        # initialise les poids de W' à zéro (comportement initial précédent)
+        self.out_embed.weight.data.zero_()
 
     def forward_softmax(self, centers):
         """
@@ -140,8 +140,8 @@ class SkipGram(nn.Module):
 # ---------------------------
 # 6) Utilitaires d'entraînement
 # ---------------------------
-def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
-    print(f"Training with softmax with {device}")
+def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.1, device="cpu"):
+    print(f"Training with softmax {device}, epochs={epochs}, batch_size={batch_size}, lr={lr}")
 
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
@@ -153,7 +153,6 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
     pairs = ds.pairs
 
     for ep in range(1, epochs+1):
-        print(f"Époque {ep}/{epochs}")
         epoch_start = time.time()
         model.train()  # Mode entraînement
         total = 0.0
@@ -177,21 +176,21 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
         # Tous les 50 echantillons on calcule la perte de la meme facon que perte_tot_torch        
         train_loss = total/n
         epoch_time = time.time() - epoch_start
-        print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}, durée = {epoch_time:.3f}s")
+        print(f"Epoque {ep}/{epochs}: perte train = {train_loss:.4f}, durée = {epoch_time:.3f}s")
         if ep % 50 == 0 or ep == 1:  # Évaluation tous les 50 époques
             eval_loss = perte_tot_torch(model, pairs, device=device)
             #print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}, perte eval = {eval_loss:.4f}")
         #else:
            # print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}")
+    print ("Entraînement terminé. Perte finale: {:.4f}".format(perte_tot_torch(model, ds.pairs, device=device)))
 
-def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
-    print(f"Training with negative sampling with {device}")
+def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.1, device="cpu"):
+    print(f"Training with negative sampling with {device}, epochs={epochs}, batch_size={batch_size}, lr={lr}")
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
     opt = torch.optim.SGD(model.parameters(), lr=lr)
 
     for ep in range(1, epochs+1):
-        print(f"Époque {ep}/{epochs}")
         epoch_start = time.time()
         total = 0.0
         n = 0
@@ -207,9 +206,9 @@ def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
 
             total += loss.item() * centers.size(0)
             n += centers.size(0)
-        #print(f"[neg] époque {ep}: perte = {total/n:.4f}")
         epoch_time = time.time() - epoch_start
-        print(f"[neg] époque {ep}: perte = {total/n:.4f}, durée = {epoch_time:.3f}s")
+        print(f"Epoque {ep}/{epochs}: perte = {total/n:.4f}, durée = {epoch_time:.3f}s")
+    print ("Entraînement terminé. Perte finale: {:.4f}".format(perte_tot_torch(model, ds.pairs, device=device)))
 
 
 @torch.no_grad()
@@ -228,7 +227,7 @@ def perte_tot_torch(model, pairs, device="cpu"):
     return total / max(1, len(pairs))
 
 
-def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.01, window_size=2, n_epochs=10, mode="softmax", batch_size=128):
+def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.1, window_size=2, n_epochs=10, mode="softmax", batch_size=128):
         
     tokens = tokenisation(texte)
     
