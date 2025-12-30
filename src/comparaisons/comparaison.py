@@ -93,7 +93,6 @@ def build_dataset(texte, window_size=2):
     """
 
     tokens = tokenisation(texte)
-
     freq = frequence_mots(tokens)
     vocab, stoi, itos = vocabulaire(freq)
     paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
@@ -104,14 +103,14 @@ def build_dataset(texte, window_size=2):
 # --------------------------
 # Test 1 : vitesse (temps par paire)
 # --------------------------
-def test_vitesse_par_paire(texte, params_numpy, params_torch, seed=0):
+def test_vitesse_par_paire(texte, params_numpy, params_torch):
     _, _, _, _, _, paires = build_dataset(texte, window_size=params_numpy["window_size"])
     n_pairs = max(1, len(paires))
     n_epochs = params_numpy["n_epochs"]
 
-    W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy, seed=seed)
-    W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)}, seed=seed)
-    W_pt,   t_pt   = benchmark_pytorch(texte, params_torch, seed=seed)
+    W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
+    W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
+    W_pt,   t_pt   = benchmark_pytorch(texte, params_torch)
 
     return {
         "n_pairs": n_pairs,
@@ -121,115 +120,4 @@ def test_vitesse_par_paire(texte, params_numpy, params_torch, seed=0):
     }
 
 
-# --------------------------
-# Test 2 : précision (top-k accuracy)
-# --------------------------
-def test_precision_topk(texte, params_numpy, params_torch, k=5, max_pairs_eval=2000):
-    _, _, _, _, _, paires = build_dataset(texte, window_size=params_numpy["window_size"])
-    p_eval = paires[:max_pairs_eval]
 
-    W_soft, _ = benchmark_softmax_numpy(texte, params_numpy)
-    W_neg,  _ = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
-    W_pt,   _ = benchmark_pytorch(texte, params_torch)
-
-    return {
-        "softmax_numpy": topk_accuracy(W_soft, p_eval, k=k),
-        "neg_numpy":     topk_accuracy(W_neg,  p_eval, k=k),
-        "pytorch":       topk_accuracy(W_pt,   p_eval, k=k),
-    }
-
-
-# --------------------------
-# Test 3 : convergence (proxy loss vs epochs)
-# --------------------------
-def _proxy_loss(emb, paires, max_pairs=1000):
-    """
-    Proxy stable: moyenne de -cos(emb[centre], emb[contexte]) sur un sous-ensemble fixe.
-    (Plus bas = mieux)
-    """
-    if len(paires) == 0:
-        return 0.0
-    E = normalize_rows(emb)
-    p = paires[:max_pairs]
-    vals = [-(E[c] @ E[pos]) for (c, pos) in p]
-    return float(np.mean(vals))
-
-def test_convergence_proxy(texte, params_numpy, params_torch, n_checkpoints=10):
-    _, _, _, _, _, paires = build_dataset(texte, window_size=params_numpy["window_size"])
-    p_eval = paires[:1000]
-
-    max_epochs = params_numpy["n_epochs"]
-    checkpoints = np.linspace(1, max_epochs, num=min(n_checkpoints, max_epochs), dtype=int)
-
-    soft_curve, neg_curve, pt_curve = [], [], []
-
-    for e in checkpoints:
-        p_np = dict(params_numpy)
-        p_np["n_epochs"] = int(e)
-        p_ng = {**p_np, "K_neg": params_numpy.get("K_neg", 5)}
-
-        p_t = dict(params_torch)
-        p_t["n_epochs"] = int(e)
-
-        W_soft, _ = benchmark_softmax_numpy(texte, p_np)
-        W_neg,  _ = benchmark_neg_numpy(texte, p_ng)
-        W_pt,   _ = benchmark_pytorch(texte, p_t)
-
-        soft_curve.append(_proxy_loss(W_soft, p_eval))
-        neg_curve.append(_proxy_loss(W_neg,  p_eval))
-        pt_curve.append(_proxy_loss(W_pt,   p_eval))
-
-    return {"epochs": checkpoints.tolist(), "softmax_numpy": soft_curve, "neg_numpy": neg_curve, "pytorch": pt_curve}
-
-
-
-# --------------------------
-# Test 4 : scalabilité (temps vs vocab V)
-# --------------------------
-def _inflate_vocab_by_suffix(texte, n_variants=1):
-    """
-    Augmente artificiellement V en suffixant les mots (king -> king__0, king__1, ...).
-    """
-    texte = canon_texte(texte)
-    all_versions = []
-    for j in range(n_variants):
-        suffix = f"__{j}"
-        new_lines = []
-        for line in texte:
-            out = []
-            cur = []
-            for ch in line:
-                if ch.isalpha():
-                    cur.append(ch)
-                else:
-                    if cur:
-                        out.append("".join(cur) + suffix)
-                        cur = []
-                    out.append(ch)
-            if cur:
-                out.append("".join(cur) + suffix)
-            new_lines.append("".join(out))
-        all_versions.extend(new_lines)
-    return all_versions
-
-def test_scalabilite_vocab(texte_base, params_numpy, params_torch, variants_list=(1,2,4,8)):
-    out = {"variants": [], "V": [], "pairs": [], "t_soft": [], "t_neg": [], "t_pt": []}
-
-    for nv in variants_list:
-        corpus = _inflate_vocab_by_suffix(texte_base, n_variants=int(nv))
-        _, freq, vocab, stoi, itos, paires = build_dataset(corpus, window_size=params_numpy["window_size"])
-        V = len(vocab)
-        P = len(paires)
-
-        _, t_soft = benchmark_softmax_numpy(corpus, params_numpy)
-        _, t_neg  = benchmark_neg_numpy(corpus, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
-        _, t_pt   = benchmark_pytorch(corpus, params_torch)
-
-        out["variants"].append(int(nv))
-        out["V"].append(int(V))
-        out["pairs"].append(int(P))
-        out["t_soft"].append(float(t_soft))
-        out["t_neg"].append(float(t_neg))
-        out["t_pt"].append(float(t_pt))
-
-    return out
