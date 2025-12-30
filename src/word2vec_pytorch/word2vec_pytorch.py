@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import time
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
@@ -8,9 +9,9 @@ from content.echantillon_texte import texte_100 as texte
 from embedding_utils.embedding_utils import mots_similaires_torch, most_similar_to_vector_torch
 
 # Vérification de la disponibilité du GPU
-# print(torch.cuda.is_available())
-# print(torch.cuda.device_count())
-# print(torch.cuda.get_device_name(0))
+print(torch.cuda.is_available())
+print(torch.cuda.device_count())
+print(torch.cuda.get_device_name(0))
 
 
 
@@ -152,6 +153,8 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
     pairs = ds.pairs
 
     for ep in range(1, epochs+1):
+        print(f"Époque {ep}/{epochs}")
+        epoch_start = time.time()
         model.train()  # Mode entraînement
         total = 0.0
         n = 0
@@ -173,6 +176,8 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.01, device="cpu"):
         # La perte de reporting perte_tot est une évaluation a posteriori sur tout le dataset avec des poids fixes
         # Tous les 50 echantillons on calcule la perte de la meme facon que perte_tot_torch        
         train_loss = total/n
+        epoch_time = time.time() - epoch_start
+        print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}, durée = {epoch_time:.3f}s")
         if ep % 50 == 0 or ep == 1:  # Évaluation tous les 50 époques
             eval_loss = perte_tot_torch(model, pairs, device=device)
             #print(f"[softmax] époque {ep}: perte train = {train_loss:.4f}, perte eval = {eval_loss:.4f}")
@@ -186,6 +191,8 @@ def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
     opt = torch.optim.SGD(model.parameters(), lr=lr)
 
     for ep in range(1, epochs+1):
+        print(f"Époque {ep}/{epochs}")
+        epoch_start = time.time()
         total = 0.0
         n = 0
         for centers, positives, negatives in dl:
@@ -201,6 +208,8 @@ def train_neg(model, ds, epochs=5, batch_size=1024, lr=0.01, device="cpu"):
             total += loss.item() * centers.size(0)
             n += centers.size(0)
         #print(f"[neg] époque {ep}: perte = {total/n:.4f}")
+        epoch_time = time.time() - epoch_start
+        print(f"[neg] époque {ep}: perte = {total/n:.4f}, durée = {epoch_time:.3f}s")
 
 
 @torch.no_grad()
