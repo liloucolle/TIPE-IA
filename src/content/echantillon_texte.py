@@ -27,6 +27,18 @@ article = [
 ]
 
 
+article_king_queen = [
+    "The king and queen ruled the kingdom with wisdom and grace.",
+    "The man and woman worked together to build a strong family.",
+    "In every role, balance created harmony.",
+    "Power alone was not enough without understanding.",
+    "Strength alone was not enough without care.",
+    "Leadership required both firmness and kindness.",
+    "The king ruled with law, and the queen ruled with empathy.",
+    "The man acted with strength, and the woman acted with wisdom.",
+    "Both pairs shaped their worlds through cooperation.",
+    "The kingdom prospered when the king and queen were united."]
+
 
 texte_structurel = [
     "During the long winter, the king ruled the kingdom with patience and wisdom.",

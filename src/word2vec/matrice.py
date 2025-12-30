@@ -1,6 +1,7 @@
 import numpy as np
 import math as m
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
+from content.echantillon_texte import texte_100
 
 
 dimension = 100
@@ -75,6 +76,7 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
 
         # évaluer la perte
         L = perte_tot(matrice_centre, matrice_contexte, paires)
+        print(f"Époque {epoch+1}, perte totale: {L:.4f}")
 
         # amélioration relative
         rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
@@ -125,3 +127,4 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, p
     )
 
     return matrice_centre, matrice_contexte
+
