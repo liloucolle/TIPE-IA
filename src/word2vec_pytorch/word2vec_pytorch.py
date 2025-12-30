@@ -228,7 +228,7 @@ def perte_tot_torch(model, pairs, device="cpu"):
     return total / max(1, len(pairs))
 
 
-def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.01, window_size=2, n_epochs=10, mode="softmax", batch_size=128):
+def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.01, window_size=2, n_epochs=10, mode="neg", batch_size=128):
         
     tokens = tokenisation(texte)
     

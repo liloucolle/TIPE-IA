@@ -1,5 +1,5 @@
 from content.echantillon_texte import (article)
-from text_utils.text_utils import tokenisation
+from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire
 import numpy as np
 
 def calcul_vecteur_moyen(embeddings, text):
@@ -7,6 +7,8 @@ def calcul_vecteur_moyen(embeddings, text):
     Calcule le vecteur moyen des embeddings des mots donnés.
     """
     texte = tokenisation(text)
+    frequence = frequence_mots(texte)
+    vocab = vocabulaire(frequence)
 
     vectors = []
     for mot in texte:
@@ -29,7 +31,7 @@ def top_n_keywords_from_text(embeddings, text, N=10):
     Retourne une liste de tuples `(mot, similarite)` triée par similarité décroissante.
     """
 
-    mean_vec = calcul_vecteur_moyen(embeddings, text, N)
+    mean_vec = calcul_vecteur_moyen(embeddings, text)
     if mean_vec is None:
         return []
 
