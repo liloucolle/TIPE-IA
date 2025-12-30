@@ -14,7 +14,7 @@ texte = texte_100
 
 embeddings = deep_learning_pytorch(texte)
 
-top_keywords = top_n_keywords_from_text(embeddings, texte, N=10)
+top_keywords = top_n_keywords_from_text(embeddings, article, N=10)
 print("Top 10 mots clés extraits :")
 for mot, sim in top_keywords:
     print(f"{mot}: {sim:.4f}")
