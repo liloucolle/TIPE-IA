@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 
-from content.echantillon_texte import *
+from content.echantillon_texte import texte_king_and_queen_2, article_king_queen
 from word2vec.matrice import deep_learning as softmax_numpy
 from word2vec_negativesampling.word2vec_negativesampling import deep_learning_negative_sampling
 from word2vec_pytorch.word2vec_pytorch import deep_learning_pytorch
@@ -10,7 +10,7 @@ from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, cre
 from extraction import top_n_keywords_from_text
 
 CORPORA = [
-    ("Texte kings and Queen", texte_structurel)
+    ("Texte kings and Queen", texte_king_and_queen_2)
     #("Texte 10", texte_10),
     #("Texte 100", texte_100),
     #("Texte 1000", texte_1000),
