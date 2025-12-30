@@ -174,10 +174,15 @@ def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
         matrice_centre, matrice_contexte = epoche_ns(
             matrice_centre, matrice_contexte, paires, probs_neg, eta, K=K
         )
+        
+        L = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=epoch + 1)
+        print(f"Époque {epoch+1}, perte totale (NS): {L:.4f}")
 
         # ✅ évaluation optionnelle
         if eval_every and eval_every > 0 and ((epoch + 1) % eval_every == 0):
             L = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=epoch + 1)
+            print(f"Époque {epoch+1}, perte totale (NS): {L:.4f}")
+
             rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
 
             if rel_gain > tol:

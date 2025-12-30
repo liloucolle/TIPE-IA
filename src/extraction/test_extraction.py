@@ -10,8 +10,9 @@ from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, cre
 from extraction import top_n_keywords_from_text
 
 CORPORA = [
-    ("Texte 10", texte_10),
-    ("Texte 100", texte_100),
+    ("Texte kings and Queen", texte_structurel)
+    #("Texte 10", texte_10),
+    #("Texte 100", texte_100),
     #("Texte 1000", texte_1000),
     #("Texte 10000", texte_10000)
 ]
@@ -26,20 +27,20 @@ params_numpy = dict(
     dimension=100,
     taux_apprentissage=0.05,
     window_size=2,
-    n_epochs=10,
+    n_epochs=100,
     patience=3,
     tolerance=1e-4,
     decay=0.95
 )
 
-
+article = article_king_queen
 
 # Params PyTorch (alignés sur la signature demandée)
 params_torch_neg = dict(
     dimension=100,
     taux_apprentissage=0.01,
     window_size=2,
-    n_epochs=10,
+    n_epochs=100,
     mode="neg",          
     batch_size=128
 )
@@ -48,7 +49,7 @@ params_torch_softmax = dict(
     dimension=100,
     taux_apprentissage=0.01,
     window_size=2,
-    n_epochs=10,
+    n_epochs=100,
     mode="softmax",          
     batch_size=128
 )
@@ -57,25 +58,25 @@ params_torch_softmax = dict(
 for text_name, texte in CORPORA:
     print(f"\n=== Extraction des mots clés pour {text_name} ===")
 
-    # # Calcul des embeddings avec les différents modèles
-    # print("Calcul des embeddings avec Softmax (NumPy)...")
-    # embeddings = softmax_numpy(texte, **params_numpy)[0]
+    # Calcul des embeddings avec les différents modèles
+    print("Calcul des embeddings avec Softmax (NumPy)...")
+    embeddings = softmax_numpy(texte, **params_numpy)[0]
 
-    # top_keywords = top_n_keywords_from_text(embeddings, article, N=3, csv_path=csv_path, append=True, embeddings_type="Softmax NumPy")
-    # print("Top 3 mots clés extraits :")
-    # for mot, sim in top_keywords:
-    #     print(f"{mot}: {sim:.4f}")
+    top_keywords = top_n_keywords_from_text(embeddings, article, N=3, csv_path=csv_path, append=True, embeddings_type="Softmax NumPy")
+    print("Top 3 mots clés extraits :")
+    for mot, sim in top_keywords:
+        print(f"{mot}: {sim:.4f}")
 
-    # print("Calcul des embeddings avec Negative Sampling (NumPy)...")
-    # embeddings = deep_learning_negative_sampling(texte, **params_numpy)[0]
+    print("Calcul des embeddings avec Negative Sampling (NumPy)...")
+    embeddings = deep_learning_negative_sampling(texte, **params_numpy)[0]
 
-    # top_keywords = top_n_keywords_from_text(embeddings, article, N=3, csv_path=csv_path, append=True, embeddings_type="NegSampling NumPy")
-    # print("Top 3 mots clés extraits :")
-    # for mot, sim in top_keywords:
-    #     print(f"{mot}: {sim:.4f}")
+    top_keywords = top_n_keywords_from_text(embeddings, article, N=3, csv_path=csv_path, append=True, embeddings_type="NegSampling NumPy")
+    print("Top 3 mots clés extraits :")
+    for mot, sim in top_keywords:
+        print(f"{mot}: {sim:.4f}")
 
     print("Calcul des embeddings avec Softmax (PyTorch)...")
-    embeddings = deep_learning_pytorch(texte)
+    embeddings = deep_learning_pytorch(texte, **params_torch_softmax)
 
     top_keywords = top_n_keywords_from_text(embeddings, article, N=3, csv_path=csv_path, append=True, embeddings_type="PyTorch Softmax")
     print("Top 3 mots clés extraits :")
@@ -83,7 +84,7 @@ for text_name, texte in CORPORA:
         print(f"{mot}: {sim:.4f}")
 
     print("Calcul des embeddings avec Negative Sampling (PyTorch)...")
-    embeddings = deep_learning_pytorch(texte)
+    embeddings = deep_learning_pytorch(texte, **params_torch_neg)
 
     top_keywords = top_n_keywords_from_text(embeddings, article, N=3, csv_path=csv_path, append=True, embeddings_type="PyTorch Negative Sampling")
     print("Top 3 mots clés extraits :")
