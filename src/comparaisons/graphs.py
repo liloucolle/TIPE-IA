@@ -11,6 +11,7 @@ from content.echantillon_texte import (
    texte_10000,
    texte_100000
 )
+import csv
 
 
 COLORS = {
@@ -38,7 +39,7 @@ params_numpy = dict(
 # Params PyTorch (alignés sur la signature demandée)
 params_torch_neg = dict(
     dimension=100,
-    taux_apprentissage=0.01,
+    taux_apprentissage=0.05,
     window_size=2,
     n_epochs=10,
     mode="neg",          
@@ -47,7 +48,7 @@ params_torch_neg = dict(
 
 params_torch_softmax = dict(
     dimension=100,
-    taux_apprentissage=0.01,
+    taux_apprentissage=0.05,
     window_size=2,
     n_epochs=10,
     mode="softmax",          
@@ -81,9 +82,8 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 CORPORA = [
     ("Texte 10", texte_10),
     ("Texte 100", texte_100),
-    #("Texte 1000", texte_1000),
+    ("Texte 1000", texte_1000),
     #("Texte 10000", texte_10000)
-  
 ]
 
 
@@ -104,8 +104,8 @@ def graphe_scalibility():
     for name, corpus in CORPORA:
         res = test_vitesse(corpus, params_numpy, params_torch_softmax, params_torch_neg)
 
-        # t_soft = res["softmax_numpy"]["time"]
-        # t_neg  = res["neg_numpy"]["time"]
+        t_soft = res["softmax_numpy"]["time"]
+        t_neg  = res["neg_numpy"]["time"]
         t_pt_soft  = res["pytorch_softmax"]["time"]
         t_pt_neg   = res["pytorch_neg_sampling"]["time"]
         n_pairs = res["n_pairs"]
@@ -113,8 +113,8 @@ def graphe_scalibility():
 
         n_pairs_list.append(n_pairs)
         taille_vocab_list.append(taille_vocab)
-        # times_soft.append(t_soft)
-        # times_neg.append(t_neg)
+        times_soft.append(t_soft)
+        times_neg.append(t_neg)
         times_pt_softmax.append(t_pt_soft)
         times_pt_neg.append(t_pt_neg)
 
@@ -124,8 +124,8 @@ def graphe_scalibility():
     x = n_pairs_list
 
     fig, ax = plt.subplots()
-    # ax.plot(x, times_soft, marker='o', linestyle='-', label=labels_models[0], color=COLORS["softmax"])
-    # ax.plot(x, times_neg,  marker='o', linestyle='-', label=labels_models[1], color=COLORS["neg_numpy"])
+    ax.plot(x, times_soft, marker='o', linestyle='-', label=labels_models[0], color=COLORS["softmax"])
+    ax.plot(x, times_neg,  marker='o', linestyle='-', label=labels_models[1], color=COLORS["neg_numpy"])
     ax.plot(x, times_pt_softmax,   marker='o', linestyle='-', label=labels_models[2], color=COLORS["pt_softmax"])
     ax.plot(x, times_pt_neg,   marker='o', linestyle='-', label=labels_models[3], color=COLORS["pt_neg"])
     ax.set_xticks(x)
@@ -139,10 +139,60 @@ def graphe_scalibility():
     save_figure(fig, "temps_word2vec_4corpus")
     plt.show()
 
+    # =========================
+    # Résumé & export CSV pour Excel
+    # =========================
+    # Construire les en-têtes et lignes
+    headers = [
+        "corpus",
+        "n_pairs",
+        "vocab_size",
+        "time_soft_numpy_s",
+        "time_neg_numpy_s",
+        "time_pt_softmax_s",
+        "time_pt_neg_s",
+    ]
 
+    rows = []
+    # Use the collected timing lists (do not re-enumerate CORPORA contents)
+    for i in range(len(n_pairs_list)):
+        name = CORPORA[i][0] if i < len(CORPORA) else f"corpus_{i}"
+        rows.append([
+            name,
+            n_pairs_list[i],
+            taille_vocab_list[i],
+            times_soft[i],
+            times_neg[i],
+            times_pt_softmax[i],
+            times_pt_neg[i],
+        ])
+
+    # Pretty print table to console
+    col_widths = [max(len(str(r[j])) for r in ([headers] + rows)) + 2 for j in range(len(headers))]
+    fmt = "".join(f"{{:<{w}}}" for w in col_widths)
+    print("\n" + "="*60)
+    print("Résumé des temps par corpus:")
+    print("="*60)
+    print(fmt.format(*headers))
+    print("-" * sum(col_widths))
+    for r in rows:
+        # Format floats to 4 decimals for readability
+        r_print = [r[0], r[1], r[2], f"{r[3]:.4f}", f"{r[4]:.4f}", f"{r[5]:.4f}", f"{r[6]:.4f}"]
+        print(fmt.format(*r_print))
+
+    # Save CSV for Excel import
+    out_dir = "figures"
+    os.makedirs(out_dir, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    csv_path = os.path.join(out_dir, f"times_word2vec_{stamp}.csv")
+    with open(csv_path, "w", newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for r in rows:
+            writer.writerow(r)
+
+    print(f"[OK] Temps sauvegardés en CSV : {csv_path}")
 
 
 if __name__ == "__main__":
     graphe_scalibility()
-    #graphe_precision()
-    #graphe_scalabilite()
