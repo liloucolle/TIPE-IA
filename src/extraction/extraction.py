@@ -8,12 +8,11 @@ from datetime import datetime
 
 def _load_english_stopwords():
     """Retourne un set de stop words anglais.
-    Essaie plusieurs sources légères: scikit-learn, puis stop_words, sinon
-    utilise une petite liste intégrée de secours.
+    Essaie d'utiliser NLTK, sinon utilise une petite liste intégrée de secours.
     """
     try:
-        from stop_words import get_stop_words
-        return set(get_stop_words('en'))
+        from nltk.corpus import stopwords
+        return set(stopwords.words('english'))
     except Exception:
         pass
 
@@ -24,6 +23,8 @@ def _load_english_stopwords():
         'has','had','are','was','were','but','if','then','so','out','up','down',
         'not'
     ])
+    
+_load_english_stopwords()    
 
 def calcul_vecteur_moyen(embeddings, vocab, word2id):
     """
