@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 
-from content.echantillon_texte import texte_king_and_queen_2, article_king_queen
+from content.echantillon_texte import texte_10,texte_100, article
 from word2vec.matrice import deep_learning as softmax_numpy
 from word2vec_negativesampling.word2vec_negativesampling import deep_learning_negative_sampling
 from word2vec_pytorch.word2vec_pytorch import deep_learning_pytorch
@@ -10,8 +10,8 @@ from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, cre
 from extraction import top_n_keywords_from_text
 
 CORPORA = [
-    ("Texte kings and Queen", texte_king_and_queen_2)
-    #("Texte 10", texte_10),
+    #("Texte kings and Queen", texte_king_and_queen_2)
+    ("Texte 10", texte_10),
     #("Texte 100", texte_100),
     #("Texte 1000", texte_1000),
     #("Texte 10000", texte_10000)
@@ -33,25 +33,25 @@ params_numpy = dict(
     decay=0.95
 )
 
-article = article_king_queen
+article = article
 
 # Params PyTorch (alignés sur la signature demandée)
 params_torch_neg = dict(
     dimension=100,
-    taux_apprentissage=0.05,
+    taux_apprentissage=13.1,
     window_size=2,
     n_epochs=100,
     mode="neg",          
-    batch_size=1
+    batch_size=256
 )
 
 params_torch_softmax = dict(
     dimension=100,
-    taux_apprentissage=0.05,
+    taux_apprentissage=13.1,
     window_size=2,
     n_epochs=100,
     mode="softmax",          
-    batch_size=1
+    batch_size=256
 )
 
 
