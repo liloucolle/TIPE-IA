@@ -3,6 +3,8 @@ import os
 from datetime import datetime
 import matplotlib.pyplot as plt
 
+
+
 from comparaison import *
 from content.echantillon_texte import (
    texte_10,
@@ -12,6 +14,7 @@ from content.echantillon_texte import (
    texte_100000
 )
 import csv
+
 
 
 COLORS = {
@@ -56,9 +59,6 @@ params_torch_softmax = dict(
 )
 
 
-K_NEG = 5
-TOPK = 5
-
 # =========================
 # Utilitaires sauvegarde
 # =========================
@@ -76,7 +76,7 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 CORPORA = [
     ("Texte 10", texte_10),
     ("Texte 100", texte_100),
-    ("Texte 1000", texte_1000),
+    #("Texte 1000", texte_1000),
     #("Texte 10000", texte_10000)
 ]
 
@@ -85,6 +85,7 @@ CORPORA = [
 # =========================
 def graphe_scalibility():
     labels_models = ["Softmax (NumPy)", "Softmax (Pytorch)", "NegSampling (NumPy)", "NegSampling (PyTorch)"]
+    csv_path = "scalibility.csv"
 
     times_soft = []
     times_neg  = []
@@ -97,7 +98,7 @@ def graphe_scalibility():
     for name, corpus in CORPORA:
         print(f"\n--------------------------")
         print(f"[SCALABILITY] Traitement du corpus: {name}")
-        res = test_vitesse(corpus, params_numpy, params_torch_softmax, params_torch_neg)
+        res = test_vitesse(corpus, params_numpy, params_torch_softmax, params_torch_neg, csv_path)
 
         t_soft = res["softmax_numpy"]["time"]
         t_neg  = res["neg_numpy"]["time"]
@@ -191,3 +192,4 @@ def graphe_scalibility():
 
 if __name__ == "__main__":
     graphe_scalibility()
+

@@ -1,4 +1,5 @@
 # comparaisons.py
+import csv
 import time
 import numpy as np
 
@@ -9,6 +10,8 @@ from word2vec_pytorch.word2vec_pytorch import (
     SkipGram, SkipGramSoftmaxDS, SkipGramNegSampleDS,
     train_softmax, train_neg
 )
+
+from content.echantillon_texte import texte_10
 
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
 import torch
@@ -28,30 +31,6 @@ def set_seed(seed=0):
     np.random.seed(seed)
     torch.manual_seed(seed)
 
-def normalize_rows(M):
-    n = np.linalg.norm(M, axis=1, keepdims=True) + 1e-12
-    return M / n
-
-def cosine(u, v):
-    return float(np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v) + 1e-12))
-
-def topk_accuracy(emb, paires, k=5, max_pairs=None):
-    """
-    Pour chaque (centre, contexte), est-ce que le contexte est dans les k plus proches voisins du centre ?
-    """
-    if len(paires) == 0:
-        return 0.0
-    if max_pairs is not None:
-        paires = paires[:max_pairs]
-
-    E = normalize_rows(emb)
-    correct = 0
-    for c, pos in paires:
-        sims = E @ E[c]
-        topk_idx = np.argsort(-sims)[:k+1]  # +1 car le centre lui-même peut être top1
-        if pos in topk_idx:
-            correct += 1
-    return correct / len(paires)
 
 # =========================
 # Benchmarks 
@@ -103,7 +82,7 @@ def build_dataset(texte, window_size=2):
 # --------------------------
 # Test  vitesse
 # --------------------------
-def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
+def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg, csv_path):
     _, _, vocabulaire, _, _, paires = build_dataset(texte, window_size=params_numpy["window_size"])
     n_pairs = max(1, len(paires))
     taille_vocab = len(vocabulaire)
@@ -111,9 +90,24 @@ def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
 
     W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
     W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
+
     #To remove cold start effect
+    benchmark_pytorch(texte_10, params_torch_neg)
+
     W_pt_soft,   t_pt_soft   = benchmark_pytorch(texte, params_torch_softmax)
     W_pt_neg,    t_pt_neg    = benchmark_pytorch(texte, params_torch_neg)
+
+    with open(csv_path, mode='a', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+        csv_writer.writerow([
+            taille_vocab,
+            n_pairs,
+            n_epochs,
+            f"{t_soft:.6f}",
+            f"{t_neg:.6f}",
+            f"{t_pt_soft:.6f}",
+            f"{t_pt_neg:.6f}"
+        ])
 
     return {
         "n_pairs": n_pairs,

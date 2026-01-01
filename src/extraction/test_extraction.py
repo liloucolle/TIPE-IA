@@ -12,7 +12,7 @@ from extraction import top_n_keywords_from_text
 CORPORA = [
     #("Texte kings and Queen", texte_king_and_queen_2)
     ("Texte 10", texte_10),
-    #("Texte 100", texte_100),
+    ("Texte 100", texte_100),
     #("Texte 1000", texte_1000),
     #("Texte 10000", texte_10000)
 ]
