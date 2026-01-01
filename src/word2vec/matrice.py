@@ -56,21 +56,29 @@ def epoche (matrice_centre, matrice_contexte, paires, taux_apprentissage):
 def perte_tot(matrice_centre, matrice_contexte, paires):
 
     total = 0.0
+    len_pair = len(paires)
 
     for (id_c, id_pos) in paires:
         p = softmax(matrice_centre, matrice_contexte, id_c)
         total += -np.log(p[id_pos])
 
-    return float(total)
+    return float(total / len_pair) # moyenne par paire
 
-def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05, n_epochs=10, patience=3, tol=1e-3, decay=0.95):
+def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05, n_epochs=10, patience=3, tol=1e-4, decay=0.95, eval_every=1):
 
-    meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
+    if eval_every and eval_every > 0:
+        meilleur_loss = perte_tot(matrice_centre, matrice_contexte, paires)
+    else:
+        meilleur_loss = None
 
     aucune_amelioration = 0
     eta = taux_apprentissage
 
+
     for epoch in range(n_epochs):
+
+        np.random.shuffle(paires)
+
         # une époque d'apprentissage
         matrice_centre, matrice_contexte = epoche(matrice_centre, matrice_contexte, paires, eta)
 
@@ -78,20 +86,22 @@ def entrainer(matrice_centre, matrice_contexte, paires, taux_apprentissage=0.05,
         L = perte_tot(matrice_centre, matrice_contexte, paires)
         print(f"Époque {epoch+1}, perte totale: {L:.4f}")
 
-        # amélioration relative
-        rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
+        if eval_every and eval_every > 0 and ((epoch + 1) % eval_every == 0):
+            L = perte_tot(matrice_centre, matrice_contexte, paires)
+            print(f"Époque {epoch+1}, perte totale (softmax): {L:.4f}")
 
-        if rel_gain > tol:
-            meilleur_loss = L
-            aucune_amelioration = 0
+            rel_gain = (meilleur_loss - L) / max(1e-12, abs(meilleur_loss))
 
-        else:
-            aucune_amelioration += 1
-            if aucune_amelioration >= patience:
-                break  # early stopping
+            if rel_gain > tol:
+                meilleur_loss = L
+                aucune_amelioration = 0
+            else:
+                aucune_amelioration += 1
+                if aucune_amelioration >= patience:
+                    break
 
-        # décroissance du LR (douce et efficace en Word2Vec)
         eta *= decay
+
 
     return matrice_centre, matrice_contexte
 
@@ -107,6 +117,7 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, p
     freq = frequence_mots(tokens)
     vocab, stoi, itos = vocabulaire(freq)
     n = len(vocab)
+    evaluate_every = max(1, n // 1000)
 
     # 3) Initialisation des matrices centre/contexte dans [-0.5, 0.5]
     matrice_centre = np.random.rand(n, dimension) - 0.5
@@ -123,8 +134,8 @@ def deep_learning(texte, dimension, taux_apprentissage, window_size, n_epochs, p
         n_epochs=n_epochs,
         patience=patience,
         tol=tolerance,
-        decay=decay,
+        decay=decay, 
+        eval_every=evaluate_every
     )
 
     return matrice_centre, matrice_contexte
-

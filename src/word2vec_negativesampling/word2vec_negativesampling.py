@@ -86,13 +86,13 @@ def loss_pair_negative_sampling(matrice_centre, matrice_contexte, id_centre, id_
 
 
 def descente_de_gradient_ns(matrice_centre, matrice_contexte, id_centre, id_pos, negatifs, taux_apprentissage):
-    v_c = matrice_centre[id_centre]          # vue (pas copy)
+    v_c = matrice_centre[id_centre]         
     grad_v = np.zeros_like(v_c)
 
     # positif
-    u_pos = matrice_contexte[id_pos]         # vue
+    u_pos = matrice_contexte[id_pos]         
     score_pos = float(np.dot(u_pos, v_c))
-    g_pos = sigmoid(score_pos) - 1.0         # dL/dscore
+    g_pos = sigmoid(score_pos) - 1.0        
 
     # grad_v doit utiliser u_pos "avant update" -> on l'utilise tout de suite
     grad_v += g_pos * u_pos
@@ -144,13 +144,15 @@ def perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=5, seed=
     rng_state = np.random.get_state()
     np.random.seed(seed)
 
+    len_pair = len(paires)
+
     total = 0.0
     for (id_c, id_pos) in paires:
         negatifs = echantillon_negatifs(probs_neg, id_pos=id_pos, K=K, id_centre=id_c)
         total += loss_pair_negative_sampling(matrice_centre, matrice_contexte, id_c, id_pos, negatifs)
 
     np.random.set_state(rng_state)
-    return float(total)
+    return float(total / len_pair) # moyenne par paire
 
 
 def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
@@ -160,6 +162,7 @@ def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
     eval_every=0  => AUCUNE évaluation (benchmark temps pur)
     eval_every=5  => évalue toutes les 5 époques
     """
+    
 
     # ✅ si pas d'évaluation, on évite totalement perte_tot_ns
     if eval_every and eval_every > 0:
