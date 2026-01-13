@@ -74,9 +74,9 @@ def save_figure(fig, name, out_dir="figures", dpi=200):
 # Textes (corpus) — 4 corpus ✅
 # =========================
 CORPORA = [
-    ("Texte 10", texte_10),
-    ("Texte 100", texte_100),
-    ("Texte 1000", texte_1000),
+    #("Texte 10", texte_10),
+    #("Texte 100", texte_100),
+    #("Texte 1000", texte_1000),
     ("Texte 10000", texte_10000)
 ]
 
@@ -92,18 +92,43 @@ def graphe_scalibility():
     times_pt_softmax   = []
     times_pt_neg = []
 
-    benchmark_pytorch(texte_10, params_torch_neg)  # Cold start
     n_pairs_list = []
     taille_vocab_list = []
+
+        # =========================
+    # Initialisation CSV
+    # =========================
+    out_dir = "figures"
+    os.makedirs(out_dir, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    csv_path = os.path.join(out_dir, f"times_word2vec_{stamp}.csv")
+
+    headers = [
+        "corpus",
+        "n_pairs",
+        "vocab_size",
+        "time_soft_numpy_s",
+        "time_neg_numpy_s",
+        "time_pt_softmax_s",
+        "time_pt_neg_s",
+    ]
+
+    csv_file = open(csv_path, "w", newline="", encoding="utf-8")
+    writer = csv.writer(csv_file)
+    writer.writerow(headers)  # header une seule fois
+
+
+
     for name, corpus in CORPORA:
         print(f"\n--------------------------")
         print(f"[SCALABILITY] Traitement du corpus: {name}")
-        res = test_vitesse(corpus, params_numpy, params_torch_softmax, params_torch_neg, csv_path)
+        res = test_vitesse(corpus, params_numpy, params_torch_softmax, params_torch_neg)
 
-        t_soft = res["softmax_numpy"]["time"]
-        t_neg  = res["neg_numpy"]["time"]
+
         t_pt_soft  = res["pytorch_softmax"]["time"]
         t_pt_neg   = res["pytorch_neg_sampling"]["time"]
+        t_soft = res["softmax_numpy"]["time"]
+        t_neg  = res["neg_numpy"]["time"]
         n_pairs = res["n_pairs"]
         taille_vocab = res["taille_vocab"]
 
@@ -114,7 +139,14 @@ def graphe_scalibility():
         times_pt_softmax.append(t_pt_soft)
         times_pt_neg.append(t_pt_neg)
 
-        print(f"[TEMPS] {name}: pairs={n_pairs} |pt_softmax = {t_pt_soft:.4f}s | neg_pt={t_pt_neg:.4f}s")
+        writer.writerow([ name, n_pairs, taille_vocab, t_soft, t_neg, t_pt_soft,t_pt_neg, ])
+        csv_file.flush()  # ✅ force l'écriture sur disque à chaque corpus
+
+        print(f"[TEMPS] {name}: pairs={n_pairs} |softmax_numpy = {t_soft:.4f}s | softmax_pytorch = {t_pt_soft:.4f}s | neg_sampling_numpy = {t_neg:.4f}s | neg_sampling_pytorch = {t_pt_neg:.4f}s")
+    
+    csv_file.close()
+    print(f"[OK] CSV sauvegardé progressivement : {os.path.abspath(csv_path)}")
+
 
     # x axis: number of pairs; y axis: total time (log scale)
     x = n_pairs_list
@@ -135,59 +167,47 @@ def graphe_scalibility():
     save_figure(fig, "temps_word2vec_4corpus")
     plt.show()
 
-    # =========================
-    # Résumé & export CSV pour Excel
-    # =========================
-    # Construire les en-têtes et lignes
-    headers = [
-        "corpus",
-        "n_pairs",
-        "vocab_size",
-        "time_soft_numpy_s",
-        "time_neg_numpy_s",
-        "time_pt_softmax_s",
-        "time_pt_neg_s",
-    ]
+    # # =========================
+    # # Résumé & export CSV pour Excel
+    # # =========================
+    # # Construire les en-têtes et lignes
+    # headers = [
+    #     "corpus",
+    #     "n_pairs",
+    #     "vocab_size",
+    #     "time_soft_numpy_s",
+    #     "time_neg_numpy_s",
+    #     "time_pt_softmax_s",
+    #     "time_pt_neg_s",
+    # ]
 
-    rows = []
-    # Use the collected timing lists (do not re-enumerate CORPORA contents)
-    for i in range(len(n_pairs_list)):
-        name = CORPORA[i][0] if i < len(CORPORA) else f"corpus_{i}"
-        rows.append([
-            name,
-            n_pairs_list[i],
-            taille_vocab_list[i],
-            times_soft[i],
-            times_neg[i],
-            times_pt_softmax[i],
-            times_pt_neg[i],
-        ])
+    # rows = []
+    # # Use the collected timing lists (do not re-enumerate CORPORA contents)
+    # for i in range(len(n_pairs_list)):
+    #     name = CORPORA[i][0] if i < len(CORPORA) else f"corpus_{i}"
+    #     rows.append([
+    #         name,
+    #         n_pairs_list[i],
+    #         taille_vocab_list[i],
+    #         times_soft[i],
+    #         times_neg[i],
+    #         times_pt_softmax[i],
+    #         times_pt_neg[i],
+    #     ])
 
-    # Pretty print table to console
-    col_widths = [max(len(str(r[j])) for r in ([headers] + rows)) + 2 for j in range(len(headers))]
-    fmt = "".join(f"{{:<{w}}}" for w in col_widths)
-    print("\n" + "="*60)
-    print("Résumé des temps par corpus:")
-    print("="*60)
-    print(fmt.format(*headers))
-    print("-" * sum(col_widths))
-    for r in rows:
-        # Format floats to 4 decimals for readability
-        r_print = [r[0], r[1], r[2], f"{r[3]:.4f}", f"{r[4]:.4f}", f"{r[5]:.4f}", f"{r[6]:.4f}"]
-        print(fmt.format(*r_print))
+    # # Pretty print table to console
+    # col_widths = [max(len(str(r[j])) for r in ([headers] + rows)) + 2 for j in range(len(headers))]
+    # fmt = "".join(f"{{:<{w}}}" for w in col_widths)
+    # print("\n" + "="*60)
+    # print("Résumé des temps par corpus:")
+    # print("="*60)
+    # print(fmt.format(*headers))
+    # print("-" * sum(col_widths))
+    # for r in rows:
+    #     # Format floats to 4 decimals for readability
+    #     r_print = [r[0], r[1], r[2], f"{r[3]:.4f}", f"{r[4]:.4f}", f"{r[5]:.4f}", f"{r[6]:.4f}"]
+    #     print(fmt.format(*r_print))
 
-    # Save CSV for Excel import
-    out_dir = "figures"
-    os.makedirs(out_dir, exist_ok=True)
-    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    csv_path = os.path.join(out_dir, f"times_word2vec_{stamp}.csv")
-    with open(csv_path, "w", newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(headers)
-        for r in rows:
-            writer.writerow(r)
-
-    print(f"[OK] Temps sauvegardés en CSV : {csv_path}")
 
 
 if __name__ == "__main__":

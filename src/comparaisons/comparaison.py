@@ -82,39 +82,45 @@ def build_dataset(texte, window_size=2):
 # --------------------------
 # Test  vitesse
 # --------------------------
-def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg, csv_path):
+def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
     _, _, vocabulaire, _, _, paires = build_dataset(texte, window_size=params_numpy["window_size"])
     n_pairs = max(1, len(paires))
     taille_vocab = len(vocabulaire)
     n_epochs = params_numpy["n_epochs"]
 
-    W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
-    W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
-
     #To remove cold start effect
     benchmark_pytorch(texte_10, params_torch_neg)
 
     W_pt_soft,   t_pt_soft   = benchmark_pytorch(texte, params_torch_softmax)
+
+    print("Finished pytorch softmax benchmark, time:", t_pt_soft)
+
     W_pt_neg,    t_pt_neg    = benchmark_pytorch(texte, params_torch_neg)
 
-    with open(csv_path, mode='a', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile)
-        csv_writer.writerow([
-            taille_vocab,
-            n_pairs,
-            n_epochs,
-            f"{t_soft:.6f}",
-            f"{t_neg:.6f}",
-            f"{t_pt_soft:.6f}",
-            f"{t_pt_neg:.6f}"
-        ])
+    print("Finished pytorch negative sampling benchmark, time:", t_pt_neg)
+
+    # W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
+    # W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
+
+
+    # with open(csv_path, mode='a', newline='') as csvfile:
+    #     csv_writer = csv.writer(csvfile)
+    #     csv_writer.writerow([
+    #         taille_vocab,
+    #         n_pairs,
+    #         n_epochs,
+    #         f"{t_soft:.6f}",
+    #         f"{t_neg:.6f}",
+    #         f"{t_pt_soft:.6f}",
+    #         f"{t_pt_neg:.6f}"
+    #     ])
 
     return {
         "n_pairs": n_pairs,
         "taille_vocab": taille_vocab,
         "n_epochs": n_epochs,
-        "softmax_numpy": {"time": t_soft, "time_per_pair": t_soft, "emb": W_soft},
-        "neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg, "emb": W_neg},
+        #"softmax_numpy": {"time": t_soft, "time_per_pair": t_soft, "emb": W_soft},
+        #"neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg, "emb": W_neg},
         "pytorch_softmax": {"time": t_pt_soft,   "time_per_pair": t_pt_soft,   "emb": W_pt_soft},
         "pytorch_neg_sampling": {"time": t_pt_neg,    "time_per_pair": t_pt_neg,    "emb": W_pt_neg},
     }
