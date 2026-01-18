@@ -99,8 +99,8 @@ def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
 
     print("Finished pytorch negative sampling benchmark, time:", t_pt_neg)
 
-    # W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
-    # W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
+    W_neg,  t_neg  = benchmark_neg_numpy(texte, {**params_numpy, "K_neg": params_numpy.get("K_neg", 5)})
+    W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
 
 
     # with open(csv_path, mode='a', newline='') as csvfile:
@@ -119,8 +119,8 @@ def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
         "n_pairs": n_pairs,
         "taille_vocab": taille_vocab,
         "n_epochs": n_epochs,
-        #"softmax_numpy": {"time": t_soft, "time_per_pair": t_soft, "emb": W_soft},
-        #"neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg, "emb": W_neg},
+        "softmax_numpy": {"time": t_soft, "time_per_pair": t_soft, "emb": W_soft},
+        "neg_numpy":     {"time": t_neg,  "time_per_pair": t_neg, "emb": W_neg},
         "pytorch_softmax": {"time": t_pt_soft,   "time_per_pair": t_pt_soft,   "emb": W_pt_soft},
         "pytorch_neg_sampling": {"time": t_pt_neg,    "time_per_pair": t_pt_neg,    "emb": W_pt_neg},
     }
