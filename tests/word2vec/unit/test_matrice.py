@@ -1,5 +1,5 @@
 
-from word2vec.matrice import softmax, descente_de_gradient, epoche, entrainer, perte_tot, word2vec
+from word2vec.word2vec import softmax, descente_de_gradient, epoche, entrainer, perte_tot, word2vec
 from text_utils.text_utils import tokenisation, vocabulaire, creation_paires, frequence_mots 
 import numpy as np
 import pytest

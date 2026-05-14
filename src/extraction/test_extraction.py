@@ -3,7 +3,7 @@ import numpy as np
 
 
 from content.echantillon_texte import texte_10,texte_100, texte_1000, article
-from word2vec.matrice import deep_learning as softmax_numpy
+from word2vec.word2vec import deep_learning as softmax_numpy
 from word2vec_negativesampling.word2vec_negativesampling import deep_learning_negative_sampling
 from word2vec_pytorch.word2vec_pytorch import deep_learning_pytorch
 from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
@@ -46,9 +46,9 @@ def save_embeddings(embeddings, text_name, model_name, itos):
 
 CORPORA = [
     #("Texte kings and Queen", texte_king_and_queen_2)
-    #("Texte 10", texte_10),
+    ("Texte 10", texte_10),
     #("Texte 100", texte_100),
-    ("Texte 1000", texte_1000),
+    #("Texte 1000", texte_1000),
     #("Texte 10000", texte_10000)
 ]
 
@@ -63,8 +63,6 @@ params_numpy = dict(
     taux_apprentissage=0.1,
     window_size=2,
     n_epochs=100,
-    patience=3,
-    tolerance=1e-4,
     decay=0.95
 )
 

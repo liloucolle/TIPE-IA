@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 # ===== Imports de TES implémentations =====
-from word2vec.matrice import deep_learning as softmax_numpy
+from word2vec.word2vec import deep_learning as softmax_numpy
 from word2vec_negativesampling.word2vec_negativesampling import deep_learning_negative_sampling
 from word2vec_pytorch.word2vec_pytorch import (
     SkipGram, SkipGramSoftmaxDS, SkipGramNegSampleDS,
@@ -39,7 +39,7 @@ def set_seed(seed=0):
 def benchmark_softmax_numpy(texte, params):
     set_seed()
     t0 = time.time()
-    Wc, Wt = softmax_numpy(texte, **params)
+    Wc, Wt= softmax_numpy(texte, **params)
     t = time.time() - t0
     #print(str(t) + ":total time benchamark softmax numpy implementation")
     return Wc, t

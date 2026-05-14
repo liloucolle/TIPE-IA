@@ -1,9 +1,6 @@
 import numpy as np
-import math as m
-from typing import List, Tuple, Dict, Optional
-from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires, cosine_similarity
-from content.echantillon_texte import texte_king_and_queen_2 as texte
-from embedding_utils.embedding_utils import mots_similaires_numpy, most_similar_to_vector_numpy
+from typing import List, Tuple, Dict
+from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, creation_paires
 
 np.random.seed(0)
 
@@ -57,7 +54,7 @@ def epoque(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, paires: Lis
     return matrice_centre, matrice_contexte
     
 
-def fonction_perte(matrice_centre, matrice_contexte, paires):
+def perte_tot(matrice_centre, matrice_contexte, paires):
     """
     Calcule la fonction de perte moyenne du modèle Skip-Gram avec softmax.
 
@@ -88,111 +85,173 @@ def fonction_perte(matrice_centre, matrice_contexte, paires):
 
 
 
-def entrainer(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, paires: List[Tuple[int, int]], 
-              taux_apprentissage: float, n_epochs: int, decay: float) -> Tuple[np.ndarray, np.ndarray]:
+def entrainer(
+    matrice_centre: np.ndarray,
+    matrice_contexte: np.ndarray,
+    paires: List[Tuple[int, int]],
+    taux_apprentissage: float,
+    n_epochs: int,
+    decay: float
+) -> Tuple[np.ndarray, np.ndarray]:
+
+    """
+    Entraîne le modèle Skip-Gram sur plusieurs époques.
+
+    Paramètres
+    ----------
+    matrice_centre : np.ndarray
+        Matrice des embeddings des mots centraux.
+
+    matrice_contexte : np.ndarray
+        Matrice des embeddings des mots de contexte.
+
+    paires : List[Tuple[int, int]]
+        Liste des paires (mot_central, mot_contexte).
+
+    taux_apprentissage : float
+        Learning rate initial utilisé pour la descente de gradient.
+
+    n_epochs : int
+        Nombre total d'époques d'entraînement.
+
+    decay : float
+        Coefficient de décroissance du learning rate.
+
+    Retour
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        Matrices des embeddings entraînés.
+
+    Principe
+    ---------
+    À chaque époque :
+        1. entraînement sur toutes les paires du corpus
+        2. calcul de la fonction de perte
+        3. affichage de la progression
+        4. diminution progressive du learning rate
+
+    Le decay permet :
+        - de faire de grandes corrections au début,
+        - puis des ajustements plus fins en fin d'entraînement.
+    """
 
     nb_epochs_passe = 0
 
     for epoch in range(n_epochs):
-        print(f"Époque {epoch+1}/{n_epochs} - Taux d'apprentissage: {taux_apprentissage:.6f}")
-        # une époque d'apprentissage
-        matrice_centre, matrice_contexte = epoque(matrice_centre, matrice_contexte, paires, taux_apprentissage)
 
-        # évaluer la perte
-        L = perte_tot(matrice_centre, matrice_contexte, paires)
+        print(
+            f"Époque {epoch+1}/{n_epochs} "
+            f"- Taux d'apprentissage: {taux_apprentissage:.6f}"
+        )
 
-        # décroissance du LR (douce et efficace en Word2Vec)
-        nb_epochs_passe +=1
+        # Effectue une époque complète d'entraînement
+        # (mise à jour des embeddings via descente de gradient)
+        matrice_centre, matrice_contexte = epoque(
+            matrice_centre,
+            matrice_contexte,
+            paires,
+            taux_apprentissage
+        )
 
-        print(perte_tot(matrice_centre, matrice_contexte, paires))
+        # Calcul de la fonction de perte moyenne
+        L = perte_tot(
+            matrice_centre,
+            matrice_contexte,
+            paires
+        )
+
+        # Mise à jour du nombre d'époques effectuées
+        nb_epochs_passe += 1
+
+        # Décroissance progressive du learning rate
+        taux_apprentissage *= decay
+
+        # Affichage de la perte
+        print(f"Perte moyenne : {L:.6f}")
 
     return matrice_centre, matrice_contexte
 
-def word2vec(texte: str, dimension: int, taux_apprentissage: float, window_size: int, 
-             n_epochs: int, decay: float) -> Tuple[np.ndarray, np.ndarray, Dict[str, int], Dict[int, str]]:
+def deep_learning(
+    texte: str,
+    dimension: int,
+    taux_apprentissage: float,
+    window_size: int,
+    n_epochs: int,
+    decay: float
+) -> Tuple[np.ndarray, np.ndarray, Dict[str, int], Dict[int, str]]:
 
+    """
+    Entraîne un modèle Word2Vec de type Skip-Gram avec softmax.
+
+    Paramètres
+    ----------
+    texte : str
+        Texte brut utilisé pour l'entraînement.
+
+    dimension : int
+        Dimension des vecteurs d'embedding.
+
+    taux_apprentissage : float
+        Learning rate initial de la descente de gradient.
+
+    window_size : int
+        Taille de la fenêtre de contexte autour de chaque mot central.
+
+    n_epochs : int
+        Nombre d'époques d'entraînement.
+
+    decay : float
+        Coefficient de décroissance du taux d'apprentissage.
+
+    Retour
+    -------
+    Tuple[np.ndarray, np.ndarray, Dict[str, int], Dict[int, str]]
+        - matrice_centre : embeddings des mots centraux
+        - matrice_contexte : embeddings des mots de contexte
+        - stoi : dictionnaire mot -> indice
+        - itos : dictionnaire indice -> mot
+
+    Principe
+    --------
+    La fonction :
+        1. découpe le texte en tokens
+        2. construit le vocabulaire
+        3. initialise les matrices d'embeddings
+        4. crée les paires (mot central, mot contexte)
+        5. entraîne les embeddings par descente de gradient
+    """
+
+    # Découpe le texte en mots
     tokens = tokenisation(texte)
 
+    # Si le texte est vide après tokenisation, on renvoie des matrices vides
     if len(tokens[0]) == 0:
         return np.empty((0, dimension)), np.empty((0, dimension))
 
+    # Calcul des fréquences des mots
     freq = frequence_mots(tokens)
+
+    # Construction du vocabulaire et des dictionnaires d'indices
     vocab, stoi, itos = vocabulaire(freq)
     n = len(vocab)
 
-    matrice_centre = (np.random.rand(n, dimension)- 0.5) / dimension
-    matrice_contexte = np.zeros((n, dimension))  # Initialisation à zéro
+    # Initialisation aléatoire des vecteurs des mots centraux
+    matrice_centre = (np.random.rand(n, dimension) - 0.5) / dimension
 
+    # Initialisation à zéro des vecteurs des mots de contexte
+    matrice_contexte = np.zeros((n, dimension))
+
+    # Création des paires d'entraînement (mot central, mot contexte)
     paires = creation_paires(tokens, stoi, taille_fenetre=window_size)
 
-    matrice_centre, matrice_contexte = entrainer(matrice_centre,
-                                                 matrice_contexte, 
-                                                 paires, 
-                                                 taux_apprentissage, 
-                                                 n_epochs, 
-                                                 decay)
-        
-    return matrice_centre, matrice_contexte, stoi, itos
+    # Entraînement du modèle
+    matrice_centre, matrice_contexte = entrainer(
+        matrice_centre,
+        matrice_contexte,
+        paires,
+        taux_apprentissage,
+        n_epochs,
+        decay
+    )
 
-# ===== ENTRAÎNEMENT ET TESTS =====
-
-m_centre, m_context, word2id, id2word = word2vec(texte, dimension = 100, 
-                                                        taux_apprentissage = 0.01, 
-                                                        window_size = 1, 
-                                                        n_epochs = 300, 
-                                                        decay = 1)
-
-#
-# ===== VERIFICATION DU MODELE =====
-#
-
-# Test de la fonction mots_similaires
-print("\n" + "="*50)
-print("TEST DE SIMILARITES")
-print("="*50)
-
-for mot in ["king", "queen", "man", "woman"]:
-    if mot in word2id:
-        print(f"\nMots les plus similaires à '{mot}':")
-        similaires = mots_similaires_numpy(mot, m_centre, word2id, top_k=10)
-        for i, (mot_sim, sim) in enumerate(similaires, 1):
-            print(f"  {i}. {mot_sim}: {sim:.4f}")
-    else:
-        print(f"\nLe mot '{mot}' n'est pas dans le vocabulaire.")
-
-# Test d'analogie: king - man + woman ≈ queen
-print("\n" + "="*50)
-print("TEST D'ANALOGIE AVANCÉ")
-print("="*50)
-
-# Calculer le vecteur d'analogie: king - man + woman ≈ queen
-if "king" in word2id and "man" in word2id and "woman" in word2id:
-    vector_analogie = (m_centre[word2id["king"]] - 
-                      m_centre[word2id["man"]] + 
-                      m_centre[word2id["woman"]])
-    
-    # Utiliser la nouvelle fonction pour trouver les mots les plus proches
-    exclude_words = ["king", "man", "woman"]  # Exclure les mots de l'analogie
-    result = most_similar_to_vector_numpy(vector_analogie, m_centre, word2id, 
-                                        exclude_words=exclude_words, top_k=10)
-    
-    print(f"Analogie: king - man + woman ≈ ?")
-    print(f"\nTop 10 résultats:")
-    for i, (mot, sim) in enumerate(result, 1):
-        marker = " ✓" if mot == "queen" else ""
-        print(f"{i:2d}. {mot:<15} (similarité: {sim:.4f}){marker}")
-    
-    # Chercher le rang de "queen" dans les résultats
-    queen_rank = None
-    for i, (mot, sim) in enumerate(result, 1):
-        if mot == "queen":
-            queen_rank = i
-            break
-    
-    if queen_rank:
-        print(f"\n🎯 'queen' trouvée au rang {queen_rank} !")
-    else:
-        print(f"\n❌ 'queen' non trouvée dans le top 10")
-else:
-    print("❌ Certains mots de l'analogie ne sont pas dans le vocabulaire")
-
+    return matrice_centre, matrice_contexte

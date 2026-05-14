@@ -156,21 +156,42 @@ def perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=5, seed=
 
 
 def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
-                 taux_apprentissage=0.05, n_epochs=10, patience=3, tol=1e-3,
-                 decay=0.95, K=5, eval_every=0):
+                 taux_apprentissage=0.05, n_epochs=10, decay=0.95, K=5):
     """
-    eval_every=0  => AUCUNE évaluation (benchmark temps pur)
-    eval_every=5  => évalue toutes les 5 époques
+    Entraîne le modèle Word2Vec avec Negative Sampling sur plusieurs époques.
+    
+    Paramètres
+    ----------
+    matrice_centre : np.ndarray
+        Matrice des embeddings des mots centraux.
+    
+    matrice_contexte : np.ndarray
+        Matrice des embeddings des mots de contexte.
+    
+    paires : List[Tuple[int, int]]
+        Liste des paires (mot_central, mot_contexte).
+    
+    probs_neg : np.ndarray
+        Vecteur de probabilités pour l'échantillonnage négatif.
+    
+    taux_apprentissage : float
+        Learning rate initial.
+    
+    n_epochs : int
+        Nombre d'époques d'entraînement.
+    
+    decay : float
+        Coefficient de décroissance du learning rate.
+    
+    K : int
+        Nombre d'échantillons négatifs par paire.
+    
+    Retour
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        Matrices des embeddings entraînés (centre, contexte).
     """
     
-
-    # ✅ si pas d'évaluation, on évite totalement perte_tot_ns
-    if eval_every and eval_every > 0:
-        meilleur_loss = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=0)
-    else:
-        meilleur_loss = None
-
-    aucune_amelioration = 0
     eta = taux_apprentissage
 
     for epoch in range(n_epochs):
@@ -179,22 +200,7 @@ def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
         )
         
         L = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=epoch + 1)
-        print(f"Époque {epoch+1}, perte totale (NS): {L:.4f}")
-
-        # ✅ évaluation optionnelle
-        if eval_every and eval_every > 0 and ((epoch + 1) % eval_every == 0):
-            L = perte_tot_ns(matrice_centre, matrice_contexte, paires, probs_neg, K=K, seed=epoch + 1)
-            print(f"Époque {epoch+1}, perte totale (NS): {L:.4f}")
-
-            rel_gain = (meilleur_loss - L) / max(1e-12, meilleur_loss)
-
-            if rel_gain > tol:
-                meilleur_loss = L
-                aucune_amelioration = 0
-            else:
-                aucune_amelioration += 1
-                if aucune_amelioration >= patience:
-                    break
+        print(f"Époque {epoch+1}/{n_epochs}, perte totale (NS): {L:.4f}")
 
         eta *= decay
 
@@ -203,9 +209,42 @@ def entrainer_ns(matrice_centre, matrice_contexte, paires, probs_neg,
 
 
 def deep_learning_negative_sampling(texte, dimension, taux_apprentissage, window_size,
-                                   n_epochs, patience, tolerance, decay,
-                                   K_neg=5, alpha_unigram=0.75, eval_every=0):
-
+                                   n_epochs, decay, K_neg=5, alpha_unigram=0.75):
+    """
+    Entraîne un modèle Word2Vec de type Skip-Gram avec Negative Sampling.
+    
+    Paramètres
+    ----------
+    texte : str
+        Texte brut utilisé pour l'entraînement.
+    
+    dimension : int
+        Dimension des vecteurs d'embedding.
+    
+    taux_apprentissage : float
+        Learning rate initial de la descente de gradient.
+    
+    window_size : int
+        Taille de la fenêtre de contexte autour de chaque mot central.
+    
+    n_epochs : int
+        Nombre d'époques d'entraînement.
+    
+    decay : float
+        Coefficient de décroissance du taux d'apprentissage.
+    
+    K_neg : int
+        Nombre d'échantillons négatifs par paire (par défaut 5).
+    
+    alpha_unigram : float
+        Exponent pour la distribution unigram (par défaut 0.75 comme Word2Vec).
+    
+    Retour
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        - matrice_centre : embeddings des mots centraux
+        - matrice_contexte : embeddings des mots de contexte
+    """
 
     tokens = tokenisation(texte)
 
@@ -230,11 +269,8 @@ def deep_learning_negative_sampling(texte, dimension, taux_apprentissage, window
         probs_neg,
         taux_apprentissage=taux_apprentissage,
         n_epochs=n_epochs,
-        patience=patience,
-        tol=tolerance,
         decay=decay,
-        K=K_neg, 
-        eval_every=0
+        K=K_neg
     )
 
     return matrice_centre, matrice_contexte
