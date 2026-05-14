@@ -25,14 +25,15 @@ def softmax(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, id_mot_cen
 def descente_de_gradient(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, probabilite: np.ndarray, 
                         id_mot_centre: int, id_mot_context_positif: int, taux_apprentissage: float) -> Tuple[np.ndarray, np.ndarray]:
 
-    lignes = np.shape(matrice_contexte)[0]
-    y = np.zeros(lignes, dtype= float) # pour que y soit de la même forme que probabilité
-    y[id_mot_context_positif] = 1.0
+
+    lignes = np.shape(matrice_contexte)[0] # nombre total de mots
+    y = np.zeros(lignes, dtype= float) # vecteur cible de même forme que probabilité
+    y[id_mot_context_positif] = 1.0  # embedding idéal (one hot vector)
 
     v_c = matrice_centre[id_mot_centre]
-    erreur = (probabilite - y)
-    grad_centre = np.matmul(matrice_contexte.T, erreur)
-    grad_contexte = np.outer(erreur,v_c)
+    erreur = (probabilite - y) # comparaison de la prédiction de softmax et one hot vector
+    grad_centre = np.matmul(matrice_contexte.T, erreur) # calcule les corrections nécessaires
+    grad_contexte = np.outer(erreur,v_c) # produit exterieur pour savoir la correction pour chaque vecteur context
 
     # Amélioration des matrices
     matrice_contexte -= taux_apprentissage * grad_contexte 
@@ -55,16 +56,37 @@ def epoque(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, paires: Lis
 
     return matrice_centre, matrice_contexte
     
-def perte_tot(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, paires: List[Tuple[int, int]]) -> float:
+
+def fonction_perte(matrice_centre, matrice_contexte, paires):
     """
-    Calcule la perte moyenne (log-loss) sur toutes les paires.
-    Skip-Gram avec softmax plein.
+    Calcule la fonction de perte moyenne du modèle Skip-Gram avec softmax.
+
+    Principe
+    ---------
+    Pour chaque paire :
+        1. calcul des probabilités via le softmax
+        2. récupération de la probabilité du vrai mot contexte
+        3. ajout de la perte :
+               -log(P(contexte | mot_central))
+
+    La moyenne finale correspond à la fonction de coût du modèle.
     """
+
     total = 0.0
+
     for (id_c, id_pos) in paires:
+
+        # Calcul des probabilités softmax pour le mot central
         p = softmax(matrice_centre, matrice_contexte, id_c)
+
+        # Ajout de la cross-entropy loss
+        # 1e-12 évite les problèmes numériques liés à log(0)
         total += -np.log(p[id_pos] + 1e-12)
+
+    # Moyenne des pertes sur toutes les paires
     return total / max(1, len(paires))
+
+
 
 def entrainer(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, paires: List[Tuple[int, int]], 
               taux_apprentissage: float, n_epochs: int, decay: float) -> Tuple[np.ndarray, np.ndarray]:
