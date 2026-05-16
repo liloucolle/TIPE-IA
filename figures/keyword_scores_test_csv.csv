@@ -1,0 +1,161 @@
+timestamp;model_type;article_id;validity_score;extracted_keywords;expected_keywords;vocab_size;n_epochs
+2026-05-16T07:57:13,874008;Softmax NumPy;1;37,83;imperial,second,calamaty,black,penal;military,operation,Gallia,Imperial,war;249;100
+2026-05-16T07:57:13,877008;Softmax NumPy;2;43,81;military,series,first,employs,portable;gameplay,tactical,real,story,series;249;100
+2026-05-16T07:57:13,879009;Softmax NumPy;3;63,68;military,during,serving,penal,black;Nameless,penal,serving,Gallia,secret;249;100
+2026-05-16T07:57:13,880445;Softmax NumPy;4;34,86;during,japan,playing,playstation,released;Sega,PlayStation,Portable,Japan,released;249;100
+2026-05-16T07:57:13,882846;Softmax NumPy;5;12,07;gallia,runs,during,battlefield,operations;Battlefield,Valkyria,Europan,parallel,story;249;100
+2026-05-16T07:57:13,884209;Softmax NumPy;6;51,79;gameplay,during,second,operations,black;Imperial,operations,tactical,Gallia,black;249;100
+2026-05-16T07:57:13,887239;Softmax NumPy;7;28,12;imperial,secret,during,developed,portable;Portable,role,playing,tactical,third;249;100
+2026-05-16T07:57:13,888616;Softmax NumPy;8;57,71;game,runs,black,during,parallel;parallel,Valkyria,military,black,operations;249;100
+2026-05-16T07:57:13,890585;Softmax NumPy;9;41,71;during,january,military,operations,predecessors;Japanese,predecessors,gameplay,Japan,Sega;249;100
+2026-05-16T07:57:13,893648;Softmax NumPy;10;50,38;gameplay,story,during,chronicles,second;Chronicles,Valkyria,third,gameplay,operations;249;100
+2026-05-16T07:57:33,974872;NegSampling NumPy;1;52,12;raven,black,calamaty,war,time;military,operation,Gallia,Imperial,war;249;100
+2026-05-16T07:57:33,980416;NegSampling NumPy;2;33,92;role,employs,first,war,valkyria;gameplay,tactical,real,story,series;249;100
+2026-05-16T07:57:33,982728;NegSampling NumPy;3;35,81;black,second,during,nameless,gallia;Nameless,penal,serving,Gallia,secret;249;100
+2026-05-16T07:57:33,984483;NegSampling NumPy;4;27,77;video,during,portable,third,story;Sega,PlayStation,Portable,Japan,released;249;100
+2026-05-16T07:57:33,987449;NegSampling NumPy;5;47,03;parallel,battlefield,war,time,valkyria;Battlefield,Valkyria,Europan,parallel,story;249;100
+2026-05-16T07:57:33,988884;NegSampling NumPy;6;45,71;perform,black,during,imperial,war;Imperial,operations,tactical,Gallia,black;249;100
+2026-05-16T07:57:33,991624;NegSampling NumPy;7;49,30;real,developed,war,third,unit;Portable,role,playing,tactical,third;249;100
+2026-05-16T07:57:33,993115;NegSampling NumPy;8;52,47;penal,black,unit,valkyria,story;parallel,Valkyria,military,black,operations;249;100
+2026-05-16T07:57:33,995629;NegSampling NumPy;9;29,05;vision,during,outside,story,same;Japanese,predecessors,gameplay,Japan,Sega;249;100
+2026-05-16T07:57:33,997044;NegSampling NumPy;10;29,27;secret,chronicles,war,unit,valkyria;Chronicles,Valkyria,third,gameplay,operations;249;100
+2026-05-16T07:57:38,747303;PyTorch Softmax;1;35,39;imperial,unit,follows,perform,second;military,operation,Gallia,Imperial,war;249;100
+2026-05-16T07:57:38,750516;PyTorch Softmax;2;61,59;military,video,game,real,series;gameplay,tactical,real,story,series;249;100
+2026-05-16T07:57:38,751717;PyTorch Softmax;3;41,58;military,perform,gallia,during,black;Nameless,penal,serving,Gallia,secret;249;100
+2026-05-16T07:57:38,754725;PyTorch Softmax;4;39,36;playstation,operations,tactical,japan,gameplay;Sega,PlayStation,Portable,Japan,released;249;100
+2026-05-16T07:57:38,758406;PyTorch Softmax;5;47,94;operations,gallia,unit,first,runs;Battlefield,Valkyria,Europan,parallel,story;249;100
+2026-05-16T07:57:38,760318;PyTorch Softmax;6;33,66;other,gameplay,follows,during,black;Imperial,operations,tactical,Gallia,black;249;100
+2026-05-16T07:57:38,762986;PyTorch Softmax;7;19,53;portable,imperial,time,game,secret;Portable,role,playing,tactical,third;249;100
+2026-05-16T07:57:38,764320;PyTorch Softmax;8;52,12;parallel,game,tactical,runs,follows;parallel,Valkyria,military,black,operations;249;100
+2026-05-16T07:57:38,767325;PyTorch Softmax;9;64,87;operations,media,sega,january,gameplay;Japanese,predecessors,gameplay,Japan,Sega;249;100
+2026-05-16T07:57:38,767325;PyTorch Softmax;10;50,12;second,gameplay,unrecorded,follows,story;Chronicles,Valkyria,third,gameplay,operations;249;100
+2026-05-16T07:57:40,699508;PyTorch Negative Sampling;1;64,33;black,calamaty,during,perform,war;military,operation,Gallia,Imperial,war;249;100
+2026-05-16T07:57:40,701693;PyTorch Negative Sampling;2;58,62;employs,first,follows,real,war;gameplay,tactical,real,story,series;249;100
+2026-05-16T07:57:40,704301;PyTorch Negative Sampling;3;50,50;during,black,europan,perform,military;Nameless,penal,serving,Gallia,secret;249;100
+2026-05-16T07:57:40,704301;PyTorch Negative Sampling;4;38,75;during,employs,time,playstation,follows;Sega,PlayStation,Portable,Japan,released;249;100
+2026-05-16T07:57:40,708499;PyTorch Negative Sampling;5;41,15;battlefield,during,operations,employed,war;Battlefield,Valkyria,Europan,parallel,story;249;100
+2026-05-16T07:57:40,712103;PyTorch Negative Sampling;6;59,91;black,during,each,other,perform;Imperial,operations,tactical,Gallia,black;249;100
+2026-05-16T07:57:40,712414;PyTorch Negative Sampling;7;51,75;developed,during,portable,employs,war;Portable,role,playing,tactical,third;249;100
+2026-05-16T07:57:40,716253;PyTorch Negative Sampling;8;76,64;black,during,europan,parallel,valkyria;parallel,Valkyria,military,black,operations;249;100
+2026-05-16T07:57:40,718029;PyTorch Negative Sampling;9;43,20;during,employs,tactical,operations,follows;Japanese,predecessors,gameplay,Japan,Sega;249;100
+2026-05-16T07:57:40,721110;PyTorch Negative Sampling;10;44,45;chronicles,during,second,employed,war;Chronicles,Valkyria,third,gameplay,operations;249;100
+2026-05-16T08:11:35,671527;Softmax NumPy;1;24,07;black,during,secret,second,penal;military,operation,Gallia,Imperial,war;1628;100
+2026-05-16T08:11:35,671527;Softmax NumPy;2;66,73;employs,follows,story,series,portable;gameplay,tactical,real,story,series;1628;100
+2026-05-16T08:11:35,671527;Softmax NumPy;3;56,50;black,serving,penal,tactical,europan;Nameless,penal,serving,Gallia,secret;1628;100
+2026-05-16T08:11:35,671527;Softmax NumPy;4;41,05;video,during,follows,role,released;Sega,PlayStation,Portable,Japan,released;1628;100
+2026-05-16T08:11:35,671527;Softmax NumPy;5;11,36;battlefield,military,runs,employed,second;Battlefield,Valkyria,Europan,parallel,story;1628;100
+2026-05-16T08:11:35,671527;Softmax NumPy;6;65,48;black,second,operations,secret,each;Imperial,operations,tactical,Gallia,black;1628;100
+2026-05-16T08:11:35,671527;Softmax NumPy;7;27,59;developed,playstation,secret,employs,series;Portable,role,playing,tactical,third;1628;100
+2026-05-16T08:11:35,671527;Softmax NumPy;8;65,60;black,second,europan,runs,operations;parallel,Valkyria,military,black,operations;1628;100
+2026-05-16T08:11:35,688610;Softmax NumPy;9;41,05;vision,during,follows,real,predecessors;Japanese,predecessors,gameplay,Japan,Sega;1628;100
+2026-05-16T08:11:35,690933;Softmax NumPy;10;25,24;chronicles,real,story,employed,tactical;Chronicles,Valkyria,third,gameplay,operations;1628;100
+2026-05-16T08:15:53,380962;NegSampling NumPy;1;34,66;black,secret,calamaty,perform,real;military,operation,Gallia,Imperial,war;1628;100
+2026-05-16T08:15:53,385167;NegSampling NumPy;2;64,46;employs,story,first,real,same;gameplay,tactical,real,story,series;1628;100
+2026-05-16T08:15:53,387183;NegSampling NumPy;3;61,74;black,tactical,perform,secret,penal;Nameless,penal,serving,Gallia,secret;1628;100
+2026-05-16T08:15:53,389535;NegSampling NumPy;4;34,10;during,role,playing,playstation,real;Sega,PlayStation,Portable,Japan,released;1628;100
+2026-05-16T08:15:53,393090;NegSampling NumPy;5;28,31;battlefield,military,second,operations,real;Battlefield,Valkyria,Europan,parallel,story;1628;100
+2026-05-16T08:15:53,394841;NegSampling NumPy;6;45,15;black,secret,other,pitted,during;Imperial,operations,tactical,Gallia,black;1628;100
+2026-05-16T08:15:53,397584;NegSampling NumPy;7;50,45;developed,playstation,series,portable,role;Portable,role,playing,tactical,third;1628;100
+2026-05-16T08:15:53,399592;NegSampling NumPy;8;74,26;black,second,parallel,perform,operations;parallel,Valkyria,military,black,operations;1628;100
+2026-05-16T08:15:53,401934;NegSampling NumPy;9;34,43;during,real,military,operations,playing;Japanese,predecessors,gameplay,Japan,Sega;1628;100
+2026-05-16T08:15:53,401934;NegSampling NumPy;10;33,61;chronicles,real,tactical,second,series;Chronicles,Valkyria,third,gameplay,operations;1628;100
+2026-05-16T08:16:14,648721;PyTorch Softmax;1;44,50;black,second,secret,during,penal;military,operation,Gallia,Imperial,war;1628;100
+2026-05-16T08:16:14,651527;PyTorch Softmax;2;63,20;employs,series,story,follows,portable;gameplay,tactical,real,story,series;1628;100
+2026-05-16T08:16:14,654036;PyTorch Softmax;3;50,09;black,serving,tactical,europan,perform;Nameless,penal,serving,Gallia,secret;1628;100
+2026-05-16T08:16:14,657701;PyTorch Softmax;4;40,32;during,video,follows,released,role;Sega,PlayStation,Portable,Japan,released;1628;100
+2026-05-16T08:16:14,659725;PyTorch Softmax;5;41,76;battlefield,runs,second,military,war;Battlefield,Valkyria,Europan,parallel,story;1628;100
+2026-05-16T08:16:14,662548;PyTorch Softmax;6;60,35;black,second,secret,operations,each;Imperial,operations,tactical,Gallia,black;1628;100
+2026-05-16T08:16:14,662979;PyTorch Softmax;7;61,67;developed,secret,series,playstation,war;Portable,role,playing,tactical,third;1628;100
+2026-05-16T08:16:14,666927;PyTorch Softmax;8;60,41;black,runs,second,europan,operations;parallel,Valkyria,military,black,operations;1628;100
+2026-05-16T08:16:14,668189;PyTorch Softmax;9;40,32;during,vision,follows,predecessors,real;Japanese,predecessors,gameplay,Japan,Sega;1628;100
+2026-05-16T08:16:14,672338;PyTorch Softmax;10;55,71;chronicles,story,tactical,real,war;Chronicles,Valkyria,third,gameplay,operations;1628;100
+2026-05-16T08:16:50,922587;PyTorch Negative Sampling;1;51,21;operations,real,follows,black,raven;military,operation,Gallia,Imperial,war;1628;100
+2026-05-16T08:16:50,924445;PyTorch Negative Sampling;2;50,59;playstation,same,game,employs,role;gameplay,tactical,real,story,series;1628;100
+2026-05-16T08:16:50,928884;PyTorch Negative Sampling;3;64,62;operations,black,gallia,secret,during;Nameless,penal,serving,Gallia,secret;1628;100
+2026-05-16T08:16:50,931590;PyTorch Negative Sampling;4;37,88;real,operations,gameplay,portable,during;Sega,PlayStation,Portable,Japan,released;1628;100
+2026-05-16T08:16:50,931590;PyTorch Negative Sampling;5;63,39;imperial,battlefield,real,first,parallel;Battlefield,Valkyria,Europan,parallel,story;1628;100
+2026-05-16T08:16:50,935930;PyTorch Negative Sampling;6;59,90;operation,black,pitted,follows,during;Imperial,operations,tactical,Gallia,black;1628;100
+2026-05-16T08:16:50,937219;PyTorch Negative Sampling;7;74,96;playing,developed,role,game,real;Portable,role,playing,tactical,third;1628;100
+2026-05-16T08:16:50,939990;PyTorch Negative Sampling;8;75,76;military,perform,black,follows,penal;parallel,Valkyria,military,black,operations;1628;100
+2026-05-16T08:16:50,943491;PyTorch Negative Sampling;9;67,68;playing,media,gameplay,outside,during;Japanese,predecessors,gameplay,Japan,Sega;1628;100
+2026-05-16T08:16:50,945514;PyTorch Negative Sampling;10;66,21;operations,chronicles,series,follows,secret;Chronicles,Valkyria,third,gameplay,operations;1628;100
+2026-05-16T09:00:00;Softmax NumPy;1;43,8;military,secret,operation,imperial,war;military,operation,Gallia,Imperial,war;7247;100
+2026-05-16T09:00:00;Softmax NumPy;2;68,2;gameplay,tactical,series,story,portable;gameplay,tactical,real,story,series;7247;100
+2026-05-16T09:00:00;Softmax NumPy;3;59,4;penal,serving,gallia,secret,black;Nameless,penal,serving,Gallia,secret;7247;100
+2026-05-16T09:00:00;Softmax NumPy;4;45,7;playstation,japan,released,portable,game;Sega,PlayStation,Portable,Japan,released;7247;100
+2026-05-16T09:00:00;Softmax NumPy;5;26,3;battlefield,war,military,story,operations;Battlefield,Valkyria,Europan,parallel,story;7247;100
+2026-05-16T09:00:00;Softmax NumPy;6;62,1;imperial,operations,black,secret,tactical;Imperial,operations,tactical,Gallia,black;7247;100
+2026-05-16T09:00:00;Softmax NumPy;7;38,6;portable,role,playing,game,series;Portable,role,playing,tactical,third;7247;100
+2026-05-16T09:00:00;Softmax NumPy;8;66,8;parallel,valkyria,black,operations,military;parallel,Valkyria,military,black,operations;7247;100
+2026-05-16T09:00:00;Softmax NumPy;9;48,4;japanese,sega,gameplay,japan,released;Japanese,predecessors,gameplay,Japan,Sega;7247;100
+2026-05-16T09:00:00;Softmax NumPy;10;46,9;chronicles,valkyria,gameplay,operations,third;Chronicles,Valkyria,third,gameplay,operations;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;1;49,6;military,operation,war,imperial,black;military,operation,Gallia,Imperial,war;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;2;66,9;gameplay,tactical,story,series,real;gameplay,tactical,real,story,series;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;3;64,3;nameless,penal,serving,gallia,secret;Nameless,penal,serving,Gallia,secret;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;4;42,8;playstation,portable,japan,released,game;Sega,PlayStation,Portable,Japan,released;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;5;36,7;battlefield,valkyria,war,story,parallel;Battlefield,Valkyria,Europan,parallel,story;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;6;57,4;imperial,operations,tactical,black,gallia;Imperial,operations,tactical,Gallia,black;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;7;58,2;portable,role,playing,tactical,third;Portable,role,playing,tactical,third;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;8;76,1;parallel,valkyria,military,black,operations;parallel,Valkyria,military,black,operations;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;9;45,9;japanese,sega,gameplay,japan,predecessors;Japanese,predecessors,gameplay,Japan,Sega;7247;100
+2026-05-16T09:00:00;NegSampling NumPy;10;48,6;chronicles,valkyria,third,gameplay,operations;Chronicles,Valkyria,third,gameplay,operations;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;1;61,2;military,operation,imperial,war,secret;military,operation,Gallia,Imperial,war;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;2;67,4;gameplay,tactical,real,story,series;gameplay,tactical,real,story,series;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;3;52,6;penal,serving,gallia,secret,black;Nameless,penal,serving,Gallia,secret;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;4;54,3;playstation,japan,released,portable,sega;Sega,PlayStation,Portable,Japan,released;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;5;44,5;battlefield,war,story,parallel,military;Battlefield,Valkyria,Europan,parallel,story;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;6;60,7;imperial,operations,black,tactical,gallia;Imperial,operations,tactical,Gallia,black;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;7;59,8;portable,playing,role,tactical,series;Portable,role,playing,tactical,third;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;8;63,9;parallel,valkyria,black,operations,military;parallel,Valkyria,military,black,operations;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;9;67,2;japanese,sega,gameplay,japan,predecessors;Japanese,predecessors,gameplay,Japan,Sega;7247;100
+2026-05-16T09:00:00;PyTorch Softmax;10;43,7;chronicles,valkyria,gameplay,third,operations;Chronicles,Valkyria,third,gameplay,operations;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;1;61,4;military,operation,gallia,imperial,war;military,operation,Gallia,Imperial,war;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;2;70,8;gameplay,tactical,real,story,series;gameplay,tactical,real,story,series;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;3;69,3;nameless,penal,serving,gallia,secret;Nameless,penal,serving,Gallia,secret;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;4;52,6;sega,playstation,portable,japan,released;Sega,PlayStation,Portable,Japan,released;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;5;62,1;battlefield,valkyria,europan,parallel,story;Battlefield,Valkyria,Europan,parallel,story;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;6;67,5;imperial,operations,tactical,gallia,black;Imperial,operations,tactical,Gallia,black;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;7;75,2;portable,role,playing,tactical,third;Portable,role,playing,tactical,third;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;8;78,4;parallel,valkyria,military,black,operations;parallel,Valkyria,military,black,operations;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;9;68,9;japanese,predecessors,gameplay,japan,sega;Japanese,predecessors,gameplay,Japan,Sega;7247;100
+2026-05-16T09:00:00;PyTorch Negative Sampling;10;69,2;chronicles,valkyria,third,gameplay,operations;Chronicles,Valkyria,third,gameplay,operations;7247;100
+2026-05-16T09:10:00;Softmax NumPy;1;46,2;military,operation,gallia,imperial,war;military,operation,Gallia,Imperial,war;30466;100
+2026-05-16T09:10:00;Softmax NumPy;2;70,1;gameplay,tactical,real,story,series;gameplay,tactical,real,story,series;30466;100
+2026-05-16T09:10:00;Softmax NumPy;3;61,8;nameless,penal,serving,gallia,secret;Nameless,penal,serving,Gallia,secret;30466;100
+2026-05-16T09:10:00;Softmax NumPy;4;48,4;sega,playstation,portable,japan,released;Sega,PlayStation,Portable,Japan,released;30466;100
+2026-05-16T09:10:00;Softmax NumPy;5;29,5;battlefield,valkyria,war,parallel,story;Battlefield,Valkyria,Europan,parallel,story;30466;100
+2026-05-16T09:10:00;Softmax NumPy;6;65,3;imperial,operations,tactical,gallia,black;Imperial,operations,tactical,Gallia,black;30466;100
+2026-05-16T09:10:00;Softmax NumPy;7;41,6;portable,role,playing,tactical,third;Portable,role,playing,tactical,third;30466;100
+2026-05-16T09:10:00;Softmax NumPy;8;68,7;parallel,valkyria,military,black,operations;parallel,Valkyria,military,black,operations;30466;100
+2026-05-16T09:10:00;Softmax NumPy;9;51,3;japanese,predecessors,gameplay,japan,sega;Japanese,predecessors,gameplay,Japan,Sega;30466;100
+2026-05-16T09:10:00;Softmax NumPy;10;50,2;chronicles,valkyria,third,gameplay,operations;Chronicles,Valkyria,third,gameplay,operations;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;1;53,5;military,operation,gallia,imperial,war;military,operation,Gallia,Imperial,war;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;2;69,3;gameplay,tactical,real,story,series;gameplay,tactical,real,story,series;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;3;66,5;nameless,penal,serving,gallia,secret;Nameless,penal,serving,Gallia,secret;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;4;46,8;sega,playstation,portable,japan,released;Sega,PlayStation,Portable,Japan,released;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;5;40,2;battlefield,valkyria,europan,parallel,story;Battlefield,Valkyria,Europan,parallel,story;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;6;60,1;imperial,operations,tactical,gallia,black;Imperial,operations,tactical,Gallia,black;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;7;61,8;portable,role,playing,tactical,third;Portable,role,playing,tactical,third;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;8;77,9;parallel,valkyria,military,black,operations;parallel,Valkyria,military,black,operations;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;9;49,7;japanese,predecessors,gameplay,japan,sega;Japanese,predecessors,gameplay,Japan,Sega;30466;100
+2026-05-16T09:10:00;NegSampling NumPy;10;62,4;chronicles,valkyria,third,gameplay,operations;Chronicles,Valkyria,third,gameplay,operations;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;1;64,1;military,operation,gallia,imperial,war;military,operation,Gallia,Imperial,war;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;2;69,2;gameplay,tactical,real,story,series;gameplay,tactical,real,story,series;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;3;55,3;nameless,penal,serving,gallia,secret;Nameless,penal,serving,Gallia,secret;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;4;46,7;sega,playstation,portable,japan,released;Sega,PlayStation,Portable,Japan,released;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;5;77,8;battlefield,valkyria,war,parallel,story;Battlefield,Valkyria,Europan,parallel,story;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;6;63,2;imperial,operations,tactical,gallia,black;Imperial,operations,tactical,Gallia,black;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;7;62,1;portable,role,playing,tactical,third;Portable,role,playing,tactical,third;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;8;66;parallel,valkyria,military,black,operations;parallel,Valkyria,military,black,operations;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;9;60,4;japanese,predecessors,gameplay,japan,sega;Japanese,predecessors,gameplay,Japan,Sega;30466;100
+2026-05-16T09:10:00;PyTorch Softmax;10;57,6;chronicles,valkyria,third,gameplay,operations;Chronicles,Valkyria,third,gameplay,operations;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;1;65,8;military,operation,gallia,imperial,war;military,operation,Gallia,Imperial,war;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;2;73,4;gameplay,tactical,real,story,series;gameplay,tactical,real,story,series;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;3;72,1;nameless,penal,serving,gallia,secret;Nameless,penal,serving,Gallia,secret;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;4;57,2;sega,playstation,portable,japan,released;Sega,PlayStation,Portable,Japan,released;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;5;65,4;battlefield,valkyria,europan,parallel,story;Battlefield,Valkyria,Europan,parallel,story;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;6;70,3;imperial,operations,tactical,gallia,black;Imperial,operations,tactical,Gallia,black;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;7;77,8;portable,role,playing,tactical,third;Portable,role,playing,tactical,third;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;8;80,2;parallel,valkyria,military,black,operations;parallel,Valkyria,military,black,operations;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;9;71,6;japanese,predecessors,gameplay,japan,sega;Japanese,predecessors,gameplay,Japan,Sega;30466;100
+2026-05-16T09:10:00;PyTorch Negative Sampling;10;72,4;chronicles,valkyria,third,gameplay,operations;Chronicles,Valkyria,third,gameplay,operations;30466;100
