@@ -1,16 +1,18 @@
 from datasets import load_dataset
 import re
 
+# Chargement du dataset Wikitext en mode cache réutilisable.
+# Cela évite de retélécharger les mêmes données si elles sont déjà présentes.
 dataset = load_dataset("wikitext", "wikitext-103-raw-v1", download_mode="reuse_cache_if_exists")
-dataset = dataset["train"]
+dataset = dataset["train"]  # On utilise la split d'entraînement uniquement
 
+# Exemples de sous-ensembles de texte pour des tests ou des mesures de performance
 texte_10 = dataset.select(range(10))
 texte_100 = dataset.select(range(100))
 texte_1000 = dataset.select(range(1000))
 texte_10000 = dataset.select(range(10000))
-texte_100000 = dataset.select(range(100000))
 
-
+# Article d'exemple utilisé par l'extraction de mots-clés
 article = [
     "Valkyria Chronicles III , commonly referred to as Valkyria Chronicles III outside Japan , is a tactical role @-@ playing video game developed by Sega and Media.Vision for the PlayStation Portable .",
     "Released in January 2011 in Japan , it is the third game in the Valkyria series .",
@@ -26,239 +28,28 @@ article = [
     "With victory in battle , experience points are awarded to the squad ."
 ]
 
-
-article_king_queen = [
-    "The king and queen ruled the kingdom with wisdom and grace.",
-    "The man and woman worked together to build a strong family.",
-    "In every role, balance created harmony.",
-    "Power alone was not enough without understanding.",
-    "Strength alone was not enough without care.",
-    "Leadership required both firmness and kindness.",
-    "The king ruled with law, and the queen ruled with empathy.",
-    "The man acted with strength, and the woman acted with wisdom.",
-    "Both pairs shaped their worlds through cooperation.",
-    "The kingdom prospered when the king and queen were united."]
-
-
-texte_structurel = [
-    "During the long winter, the king ruled the kingdom with patience and wisdom.",
-    "The queen advised the king in matters of justice and compassion.",
-    "In the castle halls, the king listened while the queen observed silently.",
-    "When danger threatened the land, the king led the guards and the queen protected the people.",
-    "The king trusted the queen’s insight, and the queen relied on the king’s strength.",
-    "Every day, the king worked to defend the borders of the kingdom.",
-    "The queen worked to maintain peace inside the castle walls.",
-    "The king spoke to the nobles while the queen spoke to the common folk.",
-    "Together, the king and queen balanced power and mercy.",
-    "The queen reminded the king that leadership required humility.",
-    "The king reminded the queen that courage was necessary in times of war.",
-
-    "In the village beyond the castle, a man labored in the fields from dawn to dusk.",
-    "The woman managed the household while the man worked the land.",
-    "Each morning, the man left the house and the woman prepared food.",
-    "The woman taught the children while the man provided for the family.",
-    "When hardship came, the man endured physical trials and the woman offered emotional strength.",
-    "The man respected the woman’s intelligence, and the woman valued the man’s determination.",
-    "At night, the man rested while the woman planned the next day.",
-    "The woman organized the home, and the man repaired what was broken.",
-    "Together, the man and woman created stability and care.",
-
-    "In the kingdom, the king was seen as a symbol of authority.",
-    "The queen was seen as a symbol of wisdom and unity.",
-    "The people trusted the king to protect the land.",
-    "The people trusted the queen to guide the heart of the nation.",
-    "When the king made a decision, the queen considered its consequences.",
-    "When the queen spoke, the king listened carefully.",
-    "The king valued honor, and the queen valued harmony.",
-    "The queen understood diplomacy, and the king understood strategy.",
-
-    "In times of celebration, the king stood proudly beside the queen.",
-    "In times of sorrow, the queen comforted the king.",
-    "The castle echoed with the voices of the king and queen.",
-    "Their partnership shaped the future of the kingdom.",
-    "The king defended tradition, while the queen encouraged change.",
-    "The queen balanced the king’s authority with empathy.",
-    "The king protected the crown, and the queen protected the people.",
-
-    "In another household, the man worked as a craftsman.",
-    "The woman managed trade and negotiation at the market.",
-    "The man focused on strength and endurance.",
-    "The woman focused on planning and communication.",
-    "The man faced the physical challenges of labor.",
-    "The woman faced the social challenges of cooperation.",
-    "Each relied on the other to survive and thrive.",
-    "The man and woman shared responsibility and respect.",
-
-    "Just as the king needed the queen, the man needed the woman.",
-    "Just as the queen complemented the king, the woman complemented the man.",
-    "In every role, balance created harmony.",
-    "Power alone was not enough without understanding.",
-    "Strength alone was not enough without care.",
-    "Leadership required both firmness and kindness.",
-    "Families thrived when effort and empathy worked together.",
-
-    "The king ruled with law, and the queen ruled with grace.",
-    "The man acted with force, and the woman acted with wisdom.",
-    "Both pairs shaped their worlds through cooperation.",
-    "The kingdom prospered when the king and queen were united.",
-    "The family prospered when the man and woman were united.",
-
-    "Stories of the king and queen were told across generations.",
-    "Stories of the man and woman were told within the family.",
-    "Children learned that respect created strength.",
-    "They learned that balance sustained life.",
-    "They learned that partnership was the foundation of stability.",
-
-    "Thus, the king and queen ruled not alone, but together.",
-    "Thus, the man and woman lived not separately, but as partners.",
-    "Across castle and village, the same principles applied.",
-    "Unity, balance, and cooperation shaped every story.",
-    "In every tale, harmony proved stronger than power."
+# Articles synthétiques pour le TIPE (vocabulaire limité au corpus Wikitext)
+articles = [
+    "Gallia military unit perform secret operation during the Second Europan War against Imperial unit Calamaty Raven . Tactical operation follows penal military unit and black operations during war .\n\nThe military unit serving Gallia perform real time tactical operations . Secret black operations during the war against Imperial unit and military operations .",
+    "The game employs tactical and real time gameplay . The story follows the same gameplay as the first game in the Valkyria series .\n\nTactical role playing video game for the PlayStation Portable follows the same fusion of gameplay and story during military operations . The game employs tactical operations during war .",
+    "The Nameless are a penal military unit serving the nation of Gallia during the war . The unit perform black operations and secret operations .\n\nThe penal military unit follows tactical operations during the Second Europan War . Gallia military operations against Imperial unit operations during the war .",
+    "The video game developed by Sega and Media Vision for the PlayStation Portable was released in Japan in January 2011 .\n\nThe third game in the Valkyria series follows tactical role playing gameplay . The Japanese game employs real time gameplay and tactical operations during the story .",
+    "Valkyria of the Battlefield follows military unit during the Second Europan War . The story runs parallel to the first game .\n\nThe military story follows Gallia operations against Imperial operations during war . Tactical gameplay and real time gameplay are employed during battlefield operations .",
+    "Imperial unit and Gallia military operations are pitted against each other during war . Secret operations perform tactical black operations .\n\nThe Imperial military unit follows tactical operation during the Second Europan War . Gallia operations and black operations during secret military gameplay .",
+    "The PlayStation Portable game employs tactical role playing gameplay and real time operations . The game is the third game in the series .\n\nThe tactical game developed for Portable gameplay follows military story and secret operations during war . The game employs tactical operations against Imperial unit operations .",
+    "The story runs parallel to the first Valkyria game . Military unit serving Gallia perform secret black operations during the war .\n\nParallel military operations during the Second Europan War against Imperial operations . Tactical gameplay follows military unit and penal operations during war .",
+    "The Japanese game released in January 2011 outside Japan follows the same tactical gameplay as its predecessors .\n\nThe game developed by Sega and Media Vision employs tactical role playing gameplay during military operations . The story follows real time gameplay during war .",
+    "Unrecorded Chronicles is the third game in the Valkyria series . The game follows military gameplay and tactical operations during war .\n\nThe story follows military unit operations during the Second Europan War . Tactical gameplay and real time gameplay are employed during secret operations against Imperial unit operations ."
 ]
-
-
-texte_diversifie = [
-    "In Kyoto the astronomer measured nebula spectra with a portable spectroscope under moonlight.",
-    "In Marrakesh the merchant negotiated saffron, cumin, paprika, and dates beside a noisy fountain.",
-    "In Reykjavik a geologist mapped basalt columns, glacial moraines, and volcanic ash layers.",
-    "In Bogotá a biologist studied hummingbird migration with tagged feathers and radar readings.",
-    "In Tallinn a programmer optimized a compiler pipeline for parsing, caching, and scheduling tasks.",
-    "In Valencia a chef prepared paella with rosemary, artichoke, mussels, and smoked paprika.",
-    "In Dakar a journalist recorded interviews about elections, education, and coastal erosion.",
-    "In Hanoi a historian catalogued dynasties, inscriptions, manuscripts, and temple archives.",
-    "In Wellington an engineer tested wind turbines using torque sensors and vibration analysis.",
-    "In Florence a curator restored fresco pigments with solvents, brushes, and ultraviolet lamps.",
-
-    "The laboratory stored beakers, pipettes, centrifuges, microscopes, and calibration weights.",
-    "The workshop contained chisels, drills, soldering irons, clamps, and precision rulers.",
-    "The library held atlases, dictionaries, journals, biographies, and handwritten notebooks.",
-    "The studio used canvases, charcoal, acrylic paint, palettes, and textured paper.",
-    "The clinic organized syringes, bandages, antiseptic bottles, gloves, and thermometers.",
-    "The station displayed timetables, platforms, tickets, luggage tags, and loudspeakers.",
-    "The harbor managed cranes, containers, manifests, ropes, anchors, and navigation lights.",
-    "The bakery sold croissants, brioche, baguettes, cinnamon rolls, and almond pastries.",
-    "The garden grew lavender, basil, mint, thyme, and sunflowers near the stone wall.",
-    "The market offered apples, pears, mangoes, oranges, walnuts, and roasted chestnuts.",
-
-    "A violinist practiced arpeggios, harmonics, vibrato, and bow control before rehearsal.",
-    "A pianist reviewed sonatas, nocturnes, waltzes, and études with steady metronome clicks.",
-    "A drummer tuned cymbals, snare tension, bass pedals, and rhythmic patterns carefully.",
-    "A singer trained breathing, resonance, diction, and phrasing for a concert hall recital.",
-    "A composer arranged melodies, counterpoint, tempo changes, and orchestration choices.",
-    "A photographer adjusted aperture, shutter speed, focal length, and exposure compensation.",
-    "A filmmaker edited scenes with subtitles, color grading, sound mixing, and transitions.",
-    "A designer prototyped icons, layouts, typography, palettes, and grid alignment rules.",
-    "A writer drafted chapters with metaphors, dialogue, footnotes, and narrative pacing.",
-    "A translator compared idioms, registers, nuances, and cultural references in context.",
-
-    "The traveler packed a backpack with maps, chargers, adapters, and waterproof jackets.",
-    "The hiker carried a compass, headlamp, thermos, first aid kit, and trail snacks.",
-    "The sailor checked weather forecasts, tide charts, radio signals, and emergency flares.",
-    "The cyclist repaired chains, brakes, tires, spokes, and gear shifters before departure.",
-    "The pilot reviewed checklists, altimeters, fuel gauges, and runway coordinates at dawn.",
-    "The student solved integrals, matrices, vectors, and probability exercises after class.",
-    "The teacher explained derivatives, limits, series, and geometry proofs on the board.",
-    "The analyst computed averages, variances, correlations, and confidence intervals.",
-    "The manager planned budgets, timelines, meetings, reports, and stakeholder updates.",
-    "The volunteer organized donations, logistics, schedules, and community outreach.",
-
-    "In the observatory the telescope tracked Jupiter, Saturn, Mars, and distant galaxies.",
-    "In the aquarium the diver cleaned coral, algae, seaweed, and glass panels quietly.",
-    "In the museum the guide described sculptures, mosaics, artifacts, and ancient coins.",
-    "In the airport the attendant announced gates, delays, boarding groups, and baggage claims.",
-    "In the classroom the projector showed diagrams, equations, graphs, and simulation results.",
-    "In the bakery the aroma of vanilla, butter, cocoa, and caramel filled the corridor.",
-    "In the forest the ranger noted oak, pine, cedar, and birch species near the stream.",
-    "In the desert the caravan followed dunes, oases, landmarks, and star constellations.",
-    "In the city the subway connected districts, avenues, bridges, and crowded squares.",
-    "In the village the artisan crafted pottery, baskets, textiles, and wooden toys.",
-
-    "A scientist tested hypotheses using datasets, controls, variables, and replication.",
-    "A mathematician proved lemmas using induction, contradiction, and careful notation.",
-    "A physicist modeled motion using forces, energy, momentum, and differential equations.",
-    "A chemist analyzed reactions using catalysts, solvents, concentrations, and pH values.",
-    "An economist compared markets using inflation, employment, growth, and interest rates.",
-    "A doctor diagnosed symptoms using scans, blood tests, medical history, and treatment plans.",
-    "A lawyer reviewed contracts using clauses, precedents, regulations, and case law.",
-    "An architect designed buildings using beams, columns, materials, and structural loads.",
-    "A botanist classified plants using petals, stems, roots, and genetic markers.",
-    "A linguist studied language using phonetics, grammar, semantics, and corpora.",
-
-    "At sunrise the traveler visited a monastery, a vineyard, a lighthouse, and a cathedral.",
-    "At noon the shopper bought ceramics, bracelets, postcards, scarves, and spices.",
-    "At dusk the painter watched silhouettes, reflections, shadows, and glowing lanterns.",
-    "At night the astronomer logged timestamps, coordinates, magnitudes, and instrument settings.",
-    "On Monday the programmer fixed bugs, merged branches, reviewed pull requests, and deployed updates.",
-    "On Tuesday the researcher summarized papers, extracted keywords, and built a bibliography.",
-    "On Wednesday the student revised chapters, solved problems, and checked solutions carefully.",
-    "On Thursday the musician rehearsed scales, rhythms, and harmonies with the ensemble.",
-    "On Friday the chef tested recipes, adjusted seasoning, and plated dishes elegantly.",
-    "On Saturday the team measured performance, latency, throughput, and memory usage.",
-
-    "The notebook contained acronyms, formulas, sketches, annotations, and reference tables.",
-    "The dashboard displayed metrics, alerts, logs, graphs, and error traces.",
-    "The report listed objectives, methods, results, limitations, and future work.",
-    "The schedule included lectures, labs, tutorials, deadlines, and exam dates.",
-    "The suitcase held souvenirs, magnets, postcards, chocolates, and small figurines.",
-    "The toolkit packed screws, bolts, washers, pliers, and insulating tape.",
-    "The pantry stored rice, lentils, olive oil, vinegar, and dried herbs.",
-    "The bookshelf arranged novels, essays, poetry, manuals, and textbooks.",
-    "The folder saved datasets, scripts, figures, and configuration files.",
-    "The calendar tracked meetings, reminders, travel plans, and project milestones."
-]
-
-texte_king_and_queen_2 = [
-  "the king raised his cup",
-  "the king is a man",
-  "the queen is a woman",
-  "the man is strong",
-  "the woman is kind",
-  "the king rules the kingdom",
-  "the queen rules the kingdom",
-  "the king loves the queen",
-  "the queen loves the king",
-  "the man loves the woman",
-  "the woman loves the man",
-  "the king and the queen live in the castle",
-  "the man and the woman live in the village",
-  "the castle is big",
-  "the village is small",
-  "the king walks to the castle",
-  "the queen walks to the castle",
-  "the man walks to the village",
-  "the woman walks to the village",
-  "the king has a crown",
-  "the queen has a crown",
-  "the man has a hat",
-  "the woman has a dress",
-  "the king sits on the throne",
-  "the queen sits on the throne",
-  "the man sits on the chair",
-  "the woman sits on the chair",
-  "the king eats bread",
-  "the queen eats bread",
-  "the man eats bread",
-  "the woman eats bread",
-  "the king speaks to the man",
-  "the queen speaks to the woman",
-  "the king helps the queen",
-  "the queen helps the king",
-  "the man helps the woman",
-  "the woman helps the man",
-  "the king is wise",
-  "the queen is gentle",
-  "the man is brave",
-  "the woman is clever",
-  "the king and the man talk",
-  "the queen and the woman talk",
-  "the king meets the queen in the castle",
-  "the man meets the woman in the village",
-  "the king gives a gift to the queen",
-  "the queen gives a gift to the king",
-  "the man gives a gift to the woman",
-  "the woman gives a gift to the man",
-  "the king and the queen are happy",
-  "the man and the woman are happy",
-  "the king is older than the man",
-  "the queen is older than the woman"
-]
+mots_representatifs = {
+    1: ["military", "operation", "Gallia", "Imperial", "war"],
+    2: ["gameplay", "tactical", "real", "story", "series"],
+    3: ["Nameless", "penal", "serving", "Gallia", "secret"],
+    4: ["Sega", "PlayStation", "Portable", "Japan", "released"],
+    5: ["Battlefield", "Valkyria", "Europan", "parallel", "story"],
+    6: ["Imperial", "operations", "tactical", "Gallia", "black"],
+    7: ["Portable", "role", "playing", "tactical", "third"],
+    8: ["parallel", "Valkyria", "military", "black", "operations"],
+    9: ["Japanese", "predecessors", "gameplay", "Japan", "Sega"],
+    10: ["Chronicles", "Valkyria", "third", "gameplay", "operations"]
+}

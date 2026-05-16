@@ -4,55 +4,79 @@ from text_utils.text_utils import tokenisation, frequence_mots, vocabulaire, cre
 
 np.random.seed(0)
 
+
 def softmax(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, id_mot_centre: int) -> np.ndarray:
+    """
+    Calcule la distribution de probabilités softmax pour un mot central donné.
+
+    La stabilisation numérique est appliquée en soustrayant le maximum des scores
+    avant d'effectuer l'exponentielle pour éviter les débordements.
+    """
 
     v_c = matrice_centre[id_mot_centre]
 
-    s_j = np.dot(matrice_contexte, v_c)          # produit scalaire pour chaque mot
+    s_j = np.dot(matrice_contexte, v_c)          # produit scalaire entre le vecteur du mot central et chaque vecteur de contexte
     s_j_xmax = np.max(s_j)
-    exp_sj = np.exp(s_j - s_j_xmax)           # enlève le max pour réduire l'exponentielle sans changer la valeur de la probabilité à la fin
-    probabilite = exp_sj / np.sum(exp_sj)
+    exp_sj = np.exp(s_j - s_j_xmax)              # stabilisation numérique en soustrayant la valeur maximale
+    probabilite = exp_sj / np.sum(exp_sj)        # normalisation pour obtenir une distribution de probabilité
 
-    # Vérifier que toutes les probabilités sont entre 0 et 1
+    # Vérifier que toutes les probabilités sont bien dans l'intervalle [0, 1]
     assert np.all((probabilite >= 0) & (probabilite <= 1)), f"Probabilités hors limites: min={np.min(probabilite)}, max={np.max(probabilite)}"
     assert probabilite.ndim == 1, f"Shape inattendu: {probabilite.shape}"
 
     return probabilite
 
+
 def descente_de_gradient(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, probabilite: np.ndarray, 
                         id_mot_centre: int, id_mot_context_positif: int, taux_apprentissage: float) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Met à jour les embeddings du mot central et des mots de contexte.
 
+    On calcule le gradient de la perte cross-entropy pour une paire
+    (mot central, mot contexte positif) et on applique une mise à jour
+    par descente de gradient.
+    """
 
-    lignes = np.shape(matrice_contexte)[0] # nombre total de mots
-    y = np.zeros(lignes, dtype= float) # vecteur cible de même forme que probabilité
-    y[id_mot_context_positif] = 1.0  # embedding idéal (one hot vector)
+    lignes = np.shape(matrice_contexte)[0]       # nombre total de mots dans le vocabulaire
+    y = np.zeros(lignes, dtype=float)           # vecteur cible (one-hot) pour le mot contexte positif
+    y[id_mot_context_positif] = 1.0              # indice du mot contexte réel
 
     v_c = matrice_centre[id_mot_centre]
-    erreur = (probabilite - y) # comparaison de la prédiction de softmax et one hot vector
-    grad_centre = np.matmul(matrice_contexte.T, erreur) # calcule les corrections nécessaires
-    grad_contexte = np.outer(erreur,v_c) # produit exterieur pour savoir la correction pour chaque vecteur context
+    erreur = (probabilite - y)                   # différence entre la prédiction softmax et la cible
+    grad_centre = np.matmul(matrice_contexte.T, erreur)  # gradient par rapport aux vecteurs du mot central
+    grad_contexte = np.outer(erreur, v_c)                 # gradient par rapport aux vecteurs de contexte
 
-    # Amélioration des matrices
+    # Mise à jour des embeddings par descente de gradient
     matrice_contexte -= taux_apprentissage * grad_contexte 
     matrice_centre[id_mot_centre] -= taux_apprentissage * grad_centre
-
 
     return matrice_centre, matrice_contexte
 
 def epoque(matrice_centre: np.ndarray, matrice_contexte: np.ndarray, paires: List[Tuple[int, int]], taux_apprentissage: float) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Effectue une époque complète d'entraînement sur toutes les paires.
 
-    # On mélange l'ordre des mots central
+    Chaque paire (mot central, mot contexte) est traitée dans un ordre aléatoire
+    pour réduire les effets de corrélation et améliorer la convergence.
+    """
+
+    # On mélange l'ordre des paires pour varier l'entraînement à chaque époque
     ordre = np.random.permutation(len(paires))
 
-    # On boucle sur les mots
+    # On boucle sur chaque paire de mots central/contexte
     for k in ordre:
         id_centre, id_context = paires[k]
         probabilite = softmax(matrice_centre, matrice_contexte, id_centre)
-        matrice_centre, matrice_contexte = descente_de_gradient(matrice_centre, matrice_contexte, probabilite, id_centre, id_context, taux_apprentissage)
-
+        matrice_centre, matrice_contexte = descente_de_gradient(
+            matrice_centre,
+            matrice_contexte,
+            probabilite,
+            id_centre,
+            id_context,
+            taux_apprentissage
+        )
 
     return matrice_centre, matrice_contexte
-    
 
 def perte_tot(matrice_centre, matrice_contexte, paires):
     """

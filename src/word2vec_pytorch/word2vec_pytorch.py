@@ -145,7 +145,6 @@ def train_softmax(model, ds, epochs=5, batch_size=128, lr=0.1, device="cpu"):
 
     dl = DataLoader(ds, batch_size=batch_size, shuffle=True, drop_last=False)
     model.to(device)
-    #opt = torch.optim.Adam(model.parameters(), lr=lr)
     opt = torch.optim.SGD(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()  # inclut softmax
 
@@ -235,7 +234,7 @@ def deep_learning_pytorch(texte, dimension=100, taux_apprentissage=0.01, window_
     print(f"Paires d'entraînement: {len(pairs)}")
 
     
-    # Edge case: empty corpus
+    # Cas limite : corpus vide
     if len(tokens) == 0 or all(len(t) == 0 for t in tokens):
         return np.empty((0, dimension)), 0.0
     

@@ -87,52 +87,52 @@ class TestTokenisationPhrases:
         assert all(all(isinstance(w, str) for w in s) for s in out)
 
 class TestFrequenceMots:
-    """Unit tests for the frequence_mots function"""
-    
+    """Tests unitaires pour la fonction frequence_mots"""
+
     def test_simple_frequency(self):
-        """Test frequency counting with simple text"""
+        """Vérifie le comptage des fréquences pour un texte simple"""
         tokens = [["hello", "world"], ["hello", "test"]]
         result = frequence_mots(tokens)
         expected = Counter({"hello": 2, "world": 1, "test": 1})
         assert result == expected
     
     def test_empty_input(self):
-        """Test with empty token list"""
+        """Test avec une liste de tokens vide"""
         tokens = []
         result = frequence_mots(tokens)
         expected = Counter()
         assert result == expected
     
     def test_empty_sentences(self):
-        """Test with empty sentences in token list"""
+        """Test avec des phrases vides dans la liste de tokens"""
         tokens = [[], ["word"], []]
         result = frequence_mots(tokens)
         expected = Counter({"word": 1})
         assert result == expected
     
     def test_single_word_repeated(self):
-        """Test with same word repeated multiple times"""
+        """Test avec un même mot répété plusieurs fois"""
         tokens = [["cat", "cat"], ["cat", "dog"], ["cat"]]
         result = frequence_mots(tokens)
         expected = Counter({"cat": 4, "dog": 1})
         assert result == expected
     
     def test_no_repeated_words(self):
-        """Test with all unique words"""
+        """Test avec tous les mots uniques"""
         tokens = [["apple", "banana"], ["cherry", "date"]]
         result = frequence_mots(tokens)
         expected = Counter({"apple": 1, "banana": 1, "cherry": 1, "date": 1})
         assert result == expected
     
     def test_single_sentence(self):
-        """Test with single sentence"""
+        """Test avec une seule phrase"""
         tokens = [["the", "quick", "brown", "fox", "the"]]
         result = frequence_mots(tokens)
         expected = Counter({"the": 2, "quick": 1, "brown": 1, "fox": 1})
         assert result == expected
     
     def test_case_sensitive(self):
-        """Test that function is case sensitive (should be since tokenisation handles case)"""
+        """Vérifie la sensibilité à la casse (la tokenisation conserve la casse)"""
         tokens = [["Hello", "hello"], ["HELLO"]]
         result = frequence_mots(tokens)
         expected = Counter({"Hello": 1, "hello": 1, "HELLO": 1})
@@ -140,27 +140,27 @@ class TestFrequenceMots:
 
 
 class TestVocabulaire2:
-    """Unit tests for the vocabulaire2 function"""
+    """Tests unitaires pour la fonction vocabulaire2"""
     
     def test_simple_vocabulary(self):
-        """Test vocabulary creation from simple word frequencies"""
+        """Vérifie la création du vocabulaire à partir de fréquences simples"""
         word_freq = Counter({"hello": 3, "world": 2, "test": 1})
         vocab, stoi, itos = vocabulaire(word_freq)
         
-        # Check vocabulary is sorted
-        expected_vocab = ["hello", "test", "world"]  # alphabetical order
+        # Vérifie que le vocabulaire est trié
+        expected_vocab = ["hello", "test", "world"]  # ordre alphabétique
         assert vocab == expected_vocab
         
-        # Check stoi mapping
+        # Vérifie le mapping stoi
         expected_stoi = {"hello": 0, "test": 1, "world": 2}
         assert stoi == expected_stoi
         
-        # Check itos mapping
+        # Vérifie le mapping itos
         expected_itos = {0: "hello", 1: "test", 2: "world"}
         assert itos == expected_itos
     
     def test_empty_frequency(self):
-        """Test with empty word frequency counter"""
+        """Test avec un compteur de fréquences de mots vide"""
         word_freq = Counter()
         vocab, stoi, itos = vocabulaire(word_freq)
         
@@ -169,7 +169,7 @@ class TestVocabulaire2:
         assert itos == {}
     
     def test_single_word(self):
-        """Test with single word in frequency counter"""
+        """Test avec un seul mot dans le compteur de fréquences"""
         word_freq = Counter({"word": 5})
         vocab, stoi, itos = vocabulaire(word_freq)
         
@@ -178,24 +178,24 @@ class TestVocabulaire2:
         assert itos == {0: "word"}
     
     def test_alphabetical_sorting(self):
-        """Test that vocabulary is sorted alphabetically"""
+        """Vérifie que le vocabulaire est trié alphabétiquement"""
         word_freq = Counter({"zebra": 1, "apple": 2, "banana": 3, "cherry": 1})
         vocab, stoi, itos = vocabulaire(word_freq)
         
         expected_vocab = ["apple", "banana", "cherry", "zebra"]
         assert vocab == expected_vocab
         
-        # Verify indices match sorted order
+        # Vérifie que les indices correspondent à l'ordre trié
         for i, word in enumerate(expected_vocab):
             assert stoi[word] == i
             assert itos[i] == word
     
     def test_consistency_stoi_itos(self):
-        """Test that stoi and itos are inverse mappings"""
+        """Vérifie que stoi et itos sont des mappings inverses"""
         word_freq = Counter({"cat": 4, "dog": 2, "bird": 1, "fish": 3})
         vocab, stoi, itos = vocabulaire(word_freq)
         
-        # Check that stoi and itos are inverses
+        # Vérifie que stoi et itos sont inverses
         for word in vocab:
             idx = stoi[word]
             assert itos[idx] == word
@@ -205,23 +205,23 @@ class TestVocabulaire2:
             assert stoi[word] == idx
     
     def test_frequencies_ignored_in_sorting(self):
-        """Test that word frequencies don't affect alphabetical sorting"""
+        """Vérifie que les fréquences n'affectent pas le tri alphabétique"""
         word_freq = Counter({"z": 100, "a": 1, "m": 50})
         vocab, stoi, itos = vocabulaire(word_freq)
         
-        # Should be sorted alphabetically regardless of frequency
+        # Doit être trié alphabétiquement indépendamment des fréquences
         expected_vocab = ["a", "m", "z"]
         assert vocab == expected_vocab
     
     def test_special_characters(self):
-        """Test vocabulary with special characters in words"""
+        """Vérifie le vocabulaire avec des caractères spéciaux dans les mots"""
         word_freq = Counter({"word1": 1, "word_2": 2, "word-3": 1})
         vocab, stoi, itos = vocabulaire(word_freq)
         
-        expected_vocab = ["word-3", "word1", "word_2"]  # ASCII order
+        expected_vocab = ["word-3", "word1", "word_2"]  # ordre ASCII
         assert vocab == expected_vocab
         
-        # Verify mappings
+        # Vérifie les mappings
         assert len(stoi) == len(itos) == len(vocab)
         for i, word in enumerate(vocab):
             assert stoi[word] == i

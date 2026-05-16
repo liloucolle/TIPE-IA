@@ -33,7 +33,7 @@ def set_seed(seed=0):
 
 
 # =========================
-# Benchmarks 
+# Mesures de performance
 # =========================
 
 def benchmark_softmax_numpy(texte, params):
@@ -41,7 +41,6 @@ def benchmark_softmax_numpy(texte, params):
     t0 = time.time()
     Wc, Wt= softmax_numpy(texte, **params)
     t = time.time() - t0
-    #print(str(t) + ":total time benchamark softmax numpy implementation")
     return Wc, t
 
 
@@ -50,7 +49,6 @@ def benchmark_neg_numpy(texte, params):
     t0 = time.time()
     Wc, Wt = deep_learning_negative_sampling(texte, **params)
     t = time.time() - t0
-    #print(str(t) + ":total time benchamark negative sampling numpy implementation")
 
     return Wc, t
 
@@ -61,7 +59,6 @@ def benchmark_pytorch(texte, params):
     from word2vec_pytorch.word2vec_pytorch import deep_learning_pytorch
     Wc = deep_learning_pytorch(texte, **params)
     t = time.time() - t0
-    #print(str(t) + ":total time benchmark pytorch implementation")
     return Wc, t
 
 
@@ -88,7 +85,7 @@ def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
     taille_vocab = len(vocabulaire)
     n_epochs = params_numpy["n_epochs"]
 
-    #To remove cold start effect
+    # Pour éviter l'effet de démarrage à froid
     benchmark_pytorch(texte_10, params_torch_neg)
 
     W_pt_soft,   t_pt_soft   = benchmark_pytorch(texte, params_torch_softmax)
@@ -103,17 +100,7 @@ def test_vitesse(texte, params_numpy, params_torch_softmax, params_torch_neg):
     W_soft, t_soft = benchmark_softmax_numpy(texte, params_numpy)
 
 
-    # with open(csv_path, mode='a', newline='') as csvfile:
-    #     csv_writer = csv.writer(csvfile)
-    #     csv_writer.writerow([
-    #         taille_vocab,
-    #         n_pairs,
-    #         n_epochs,
-    #         f"{t_soft:.6f}",
-    #         f"{t_neg:.6f}",
-    #         f"{t_pt_soft:.6f}",
-    #         f"{t_pt_neg:.6f}"
-    #     ])
+    # Bloc de sauvegarde CSV désactivé pour l'instant
 
     return {
         "n_pairs": n_pairs,

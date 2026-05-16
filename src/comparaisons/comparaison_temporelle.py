@@ -57,7 +57,7 @@ CORPORA = [
 ]
 
 # =========================
-# CSV Generation
+# Génération CSV
 # =========================
 def create_benchmark_csv():
     """

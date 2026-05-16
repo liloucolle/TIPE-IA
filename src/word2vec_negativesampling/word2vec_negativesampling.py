@@ -25,11 +25,11 @@ def distribution_negative_sampling(freq, vocab, stoi, alpha=0.75):
     n = len(vocab)
     counts = np.zeros(n, dtype=float)
 
-    # freq est un dict mot -> count (classique)
+    # freq est un dict mot -> comptage (classique)
     for mot in vocab:
         counts[stoi[mot]] = float(freq.get(mot, 0))
 
-    # sécurité: si tout est à 0 (cas bizarre), fallback uniforme
+    # sécurité : si tout est à 0 (cas bizarre), retour à une distribution uniforme
     if np.sum(counts) == 0:
         return np.ones(n, dtype=float) / n
 
@@ -94,7 +94,7 @@ def descente_de_gradient_ns(matrice_centre, matrice_contexte, id_centre, id_pos,
     score_pos = float(np.dot(u_pos, v_c))
     g_pos = sigmoid(score_pos) - 1.0        
 
-    # grad_v doit utiliser u_pos "avant update" -> on l'utilise tout de suite
+    # grad_v doit utiliser u_pos "avant mise à jour" -> on l'utilise tout de suite
     grad_v += g_pos * u_pos
     matrice_contexte[id_pos] -= taux_apprentissage * (g_pos * v_c)
 
@@ -103,7 +103,7 @@ def descente_de_gradient_ns(matrice_centre, matrice_contexte, id_centre, id_pos,
         id_neg = int(id_neg)
         u_neg = matrice_contexte[id_neg]     # vue
         score_neg = float(np.dot(u_neg, v_c))
-        g_neg = sigmoid(score_neg)           # label 0
+        g_neg = sigmoid(score_neg)           # étiquette 0
 
         grad_v += g_neg * u_neg
         matrice_contexte[id_neg] -= taux_apprentissage * (g_neg * v_c)

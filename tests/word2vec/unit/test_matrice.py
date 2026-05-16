@@ -12,7 +12,7 @@ import pytest
 #     return exp_sj / np.sum(exp_sj)
 
 class TestSoftmax:
-    """Unit tests for the efficient softmax implementation"""
+    """Tests unitaires pour l'implémentation softmax efficace"""
 
     def test_basic_three_values(self):
         """Distribution correcte (trois valeurs) et somme = 1"""
